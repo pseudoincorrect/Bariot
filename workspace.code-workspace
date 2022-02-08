@@ -1,0 +1,34 @@
+{
+	"folders": [
+		{
+			"path": "auth"
+		},
+		{
+			"path": "configs"
+		},
+		{
+			"path": "frontend"
+		},
+		{
+			"path": "support"
+		},
+		{
+			"path": "things"
+		},
+		{
+			"path": "things-data"
+		},
+		{
+			"path": "users"
+		},
+		{
+			"path": "utilities"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"cSpell.enabled": false
+	}
+}

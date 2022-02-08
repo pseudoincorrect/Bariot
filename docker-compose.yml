@@ -1,0 +1,60 @@
+version: "3"
+
+volumes:
+  pgdata:
+  emqx-lic:
+
+services:
+
+  things:
+    build: ./things
+    depends_on:
+      - postgres_db
+      - emqx
+    environment:
+      - MQTT_BROKER_HOST=emqx:1883
+      - MQTT_BROKER_HOST_HTTP=emqx:8081
+      - POSTGRES_USER=service_db
+      - POSTGRES_PASSWORD=service_db
+      - POSTGRES_DB=service_db
+      - POSTGRES_HOST=service_db
+      - POSTGRES_PORT=5432
+
+  postgres_db:
+    image: postgres
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: service_db
+      POSTGRES_USER: service_db
+      POSTGRES_PASSWORD: service_db
+    ports:
+      - 5432:5432
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  emqx:
+    image: emqx/emqx:4.3.11
+    environment:
+      - "EMQX_NAME=emqx"
+      - "EMQX_HOST=emqx.broker.io"
+      - "EMQX_CLUSTER__DISCOVERY=static"
+      - "EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx.broker.io"
+      - "EMQX_ZONE__EXTERNAL__RETRY_INTERVAL=2s"
+      - "EMQX_MQTT__MAX_TOPIC_ALIAS=10"
+    volumes:
+      - emqx-lic:/opt/emqx/etc/emqx.lic
+    healthcheck:
+      test: [ "CMD", "/opt/emqx/bin/emqx_ctl", "status" ]
+      interval: 5s
+      timeout: 25s
+      retries: 5
+    ports:
+      - 1883:1883
+      - 8081:8081
+      - 18083:18083

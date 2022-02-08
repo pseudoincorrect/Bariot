@@ -1,0 +1,28 @@
+WOOTCH ROADMAP (WHOLE PROJECT)
+
+-------------------------------------------------------------
+TO DO
+-------------------------------------------------------------
+DOCK  Add a mqtt broker service
+MQTT  get all thing related mqtt messages
+DOCK  Add InfluxDb service
+INFX  Put data to influxDb
+Dock  Add Grafana service
+GRAF  Display data with Grafana
+
+AUTH  Create a Auth/JWT service
+CYB   Authorize mqtt with JWT
+CYB   encrypt mqtt (TLS) with self signed certificates
+
+
+-------------------------------------------------------------
+IN PROCESS
+-------------------------------------------------------------
+
+-------------------------------------------------------------
+DONE
+TAGs : PCB, FIRMW, CLOUD
+Date        TAG    Description
+-------------------------------------------------------------
+-------------------------------------------------------------
+
