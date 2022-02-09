@@ -8,6 +8,7 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/pseudoincorrect/bariot/things/api"
 	util "github.com/pseudoincorrect/bariot/things/utilities"
 )
 
@@ -42,8 +43,10 @@ func main() {
 
 	conf := loadConfig()
 
+	api.StartRouter()
+
 	client, err := connectMqttBroker(conf)
-	
+
 	if err != nil {
 		fmt.Printf("connectMqttBroker error: %v", err)
 		return
@@ -61,7 +64,7 @@ func publish(client mqtt.Client) {
 		text := fmt.Sprintf("Message %d", i)
 		token := client.Publish("topic/test", 0, false, text)
 		token.Wait()
-		time.Sleep(5 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 }
 
@@ -87,7 +90,7 @@ func connectMqttBroker(conf config) (mqtt.Client, error) {
 
 	tryCnt := 0
 
-	for ! isMqttOnline(conf) {
+	for !isMqttOnline(conf) {
 		fmt.Println("Waiting for MQTT broker...")
 		tryCnt++
 		if tryCnt > 5 {
@@ -96,20 +99,11 @@ func connectMqttBroker(conf config) (mqtt.Client, error) {
 		time.Sleep(5 * time.Second)
 	}
 
-	token := client.Connect() 
+	token := client.Connect()
 
 	for token.Wait() && token.Error() != nil {
-		return nil, token.Error();
+		return nil, token.Error()
 	}
-
-	// for token.Wait() && token.Error() != nil {
-	// 	tryCnt++
-	// 	if tryCnt > 5 {
-	// 		return nil, token.Error()
-	// 	}
-	// 	time.Sleep(5 * time.Second)
-	// 	token = client.Connect()
-	// }
 	return client, nil
 }
 

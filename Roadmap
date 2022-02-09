@@ -1,15 +1,13 @@
-WOOTCH ROADMAP (WHOLE PROJECT)
+BARIOT ROADMAP
 
 -------------------------------------------------------------
 TO DO
 -------------------------------------------------------------
-DOCK  Add a mqtt broker service
-MQTT  get all thing related mqtt messages
 DOCK  Add InfluxDb service
 INFX  Put data to influxDb
-Dock  Add Grafana service
+DOCK  Add Grafana service
 GRAF  Display data with Grafana
-
+DOCK  Add Ngnx reverse proxy 
 AUTH  Create a Auth/JWT service
 CYB   Authorize mqtt with JWT
 CYB   encrypt mqtt (TLS) with self signed certificates
@@ -18,11 +16,15 @@ CYB   encrypt mqtt (TLS) with self signed certificates
 -------------------------------------------------------------
 IN PROCESS
 -------------------------------------------------------------
+DB    Create a Thing over HTTP and send it to DB
+MQTT  get all thing related mqtt messages
+
 
 -------------------------------------------------------------
 DONE
-TAGs : PCB, FIRMW, CLOUD
 Date        TAG    Description
 -------------------------------------------------------------
+07/02/2022  DOCK  Add a mqtt broker service
+05/02/2022  INIT  Init development enviroment (docker, vscode, services)
 -------------------------------------------------------------
 
