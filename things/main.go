@@ -13,15 +13,16 @@ import (
 )
 
 type config struct {
-	mqttBrokerHost     string
-	mqttBrokerHostHttp string
+	mqttHost       string
+	mqttPort       string
+	mqttStatusPort string
 }
 
 func loadConfig() config {
 	var conf = config{
-		mqttBrokerHost: util.GetEnv("MQTT_BROKER_HOST", "localhost:1883"),
-
-		mqttBrokerHostHttp: util.GetEnv("MQTT_BROKER_HOST_HTTP", "localhost:8081"),
+		mqttHost:       util.GetEnv("MQTT_HOST", "localhost"),
+		mqttPort:       util.GetEnv("MQTT_PORT", "1883"),
+		mqttStatusPort: util.GetEnv("MQTT_STATUS_PORT", "8081"),
 	}
 	return conf
 }
@@ -76,10 +77,11 @@ func sub(client mqtt.Client) {
 }
 
 func connectMqttBroker(conf config) (mqtt.Client, error) {
-	var broker = "broker.emqx.io"
-	var port = 1883
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
+	// var broker = "broker.emqx.io"
+	// var port = 1883
+	// opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%s", conf.mqttHost, conf.mqttPort))
 	opts.SetClientID("go_mqtt_client")
 	opts.SetUsername("emqx")
 	opts.SetPassword("public")
@@ -108,7 +110,7 @@ func connectMqttBroker(conf config) (mqtt.Client, error) {
 }
 
 func isMqttOnline(conf config) bool {
-	res, err := http.Get(fmt.Sprintf("http://%s/status", conf.mqttBrokerHostHttp))
+	res, err := http.Get(fmt.Sprintf("http://%s:%s/status", conf.mqttHost, conf.mqttStatusPort))
 	if err != nil {
 		fmt.Printf("isMqttOnline error: %v", err)
 		return false

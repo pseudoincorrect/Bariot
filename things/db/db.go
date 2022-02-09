@@ -44,7 +44,7 @@ func connect(conf DbConfig) (*Database, error) {
 	conn, err := pgx.Connect(context.Background(), dbUrl)
 
 	if err != nil {
-		fmt.Println("Unable to connect to database: %v\n", err)
+		fmt.Println("Unable to connect to database:", err)
 		return nil, err
 	}
 	return &Database{conn}, nil
