@@ -12,6 +12,17 @@ import (
 	util "github.com/pseudoincorrect/bariot/things/utilities"
 )
 
+type service interface {
+	saveThing(thing *ThingModel) error
+	getThing(id string) (*ThingModel, error)
+	deleteThing(id string) error
+	updateThing(id string, thing *ThingModel) error
+}
+
+type _ struct {
+	repository Repository
+}
+
 type config struct {
 	mqttHost       string
 	mqttPort       string

@@ -29,7 +29,7 @@ services:
     restart: always
     volumes:
       - things_db_data:/var/lib/postgresql/data
-      - ./things-db-init:/docker-entrypoint-initdb.d
+      - ./things_db_init:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_DB: ${THINGS_DB_NAME}
       POSTGRES_USER: ${THINGS_DB_USERNAME}
