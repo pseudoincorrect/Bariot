@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
+
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/pseudoincorrect/bariot/things/db"
 	"github.com/pseudoincorrect/bariot/things/models"
@@ -135,31 +137,54 @@ func testDb() {
 
 	ctx := context.Background()
 
-	thing, err := thingsRepo.Save(ctx, &models.Thing{
-		Id:        "",
-		CreatedAt: "",
-		Key:       "theSuperKeY123",
-		Name:      "thing1",
-		UserId:    "user1",
-	})
+	thing := &models.Thing{
+		Key:    "theKey",
+		Name:   "thing1",
+		UserId: uuid.New().String(),
+	}
+
+	thing, err = thingsRepo.Save(ctx, thing)
+
 	if err != nil {
 		fmt.Println("Save Thing error:", err)
 		return
 	}
-	fmt.Println(" Thing", thing)
+
+	fmt.Println("Getting thing")
+	thing, _ = thingsRepo.Get(ctx, thing.Id)
+	fmt.Println(thing.String())
+
+	fmt.Println("Updating thing")
+	thing, _ = thingsRepo.Update(ctx, &models.Thing{
+		Id:     thing.Id,
+		Key:    "TheNewKey",
+		Name:   "newThing1",
+		UserId: uuid.New().String(),
+	})
+
+	thing, _ = thingsRepo.Get(ctx, thing.Id)
+
+	fmt.Println("Deleting thing")
+	thingsRepo.Delete(ctx, thing.Id)
+
+	thing, _ = thingsRepo.Get(ctx, thing.Id)
+	if thing == nil {
+		fmt.Println("Success, no Thing found")
+	}
+
 }
 
 func main() {
 	fmt.Println(" device service...")
 
-	time.Sleep(5 * time.Second)
+	// time.Sleep(5 * time.Second)
 	testDb()
 
 	// conf := loadConfig()
 
 	// api.StartRouter()
 
-	// client, err := connectMqttBroker(conf)
+	//Print client, err := connectMqttBroker(conf)
 
 	// if err != nil {
 	// 	fmt.Printf("connectMqttBroker error: %v", err)

@@ -30,7 +30,7 @@ func Init(conf DbConfig) (*Database, error) {
 func connect(conf DbConfig) (*Database, error) {
 	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.User, conf.Password, conf.Host, conf.Port, conf.Dbname)
 
-	fmt.Println(dbUrl)
+	// fmt.Println(dbUrl)
 
 	conn, err := pgx.Connect(context.Background(), dbUrl)
 

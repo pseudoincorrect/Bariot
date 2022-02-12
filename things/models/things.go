@@ -1,16 +1,27 @@
 package models
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type Metadata map[string]interface{}
 
+// type ThingI interface {
+// 	String() string
+// }
+
 type Thing struct {
-	Id        string
-	CreatedAt string
-	Key       string
-	Name      string
-	UserId    string
-	// Metadata  Metadata
+	Id        string   `json:"id"`
+	CreatedAt string   `json:"createdAt"`
+	Key       string   `json:"key"`
+	Name      string   `json:"name"`
+	UserId    string   `json:"userId"`
+	Metadata  Metadata `json:"metadata"`
+}
+
+func (t Thing) String() string {
+	return fmt.Sprintf("Thing{\n  Id: %s,\n  CreatedAt: %s,\n  Key: %s,\n  Name: %s,\n  UserId: %s,\n  Metadata: %v\n}", t.Id, t.CreatedAt, t.Key, t.Name, t.UserId, t.Metadata)
 }
 
 // POSTGRE table things (
@@ -25,6 +36,6 @@ type Thing struct {
 type ThingsRepository interface {
 	Save(context.Context, *Thing) (*Thing, error)
 	Get(context.Context, string) (*Thing, error)
-	Delete(context.Context, string) (*Thing, error)
-	Update(context.Context, string, *Thing) error
+	Delete(context.Context, string) (string, error)
+	Update(context.Context, *Thing) (*Thing, error)
 }

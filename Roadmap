@@ -24,6 +24,7 @@ MQTT  get all thing related mqtt messages
 DONE
 Date        TAG    Description
 -------------------------------------------------------------
+12/02/2022  DB    Store thing data in postgres DB
 07/02/2022  DOCK  Add a mqtt broker service
 05/02/2022  INIT  Init development enviroment (docker, vscode, services)
 -------------------------------------------------------------
