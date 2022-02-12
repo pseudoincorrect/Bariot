@@ -3,9 +3,6 @@ version: "3"
 volumes:
   things_db_data:
   emqx_license:
-  emqx_data:
-  emqx_etc:
-  emqx_log:
 
 services:
 
@@ -15,15 +12,15 @@ services:
       - things_db
       - emqx
     environment:
-      MQTT_HOST: emqx
-      MQTT_PORT: 1883
-      MQTT_STATUS_PORT: 8081
-      PG_HOST: things_db
-      PG_PORT: 5432
-      PG_DATABASE: ${THINGS_DB_NAME}
-      PG_USER: ${THINGS_DB_USERNAME}
-      PG_PASSWORD: ${THINGS_DB_PASSWORD}
-      PG_CONNECT_TIMEOUT: 5
+      MQTT_BROKER_HOST: emqx
+      MQTT_BROKER_HOST_PORT: 1883
+      MQTT_BROKER_HOST_STATUS_PORT: 8081
+      PGHOST: things_db
+      PGPORT: 5432
+      PGDATABASE: ${THINGS_DB_NAME}
+      PGUSER: ${THINGS_DB_USERNAME}
+      PGPASSWORD: ${THINGS_DB_PASSWORD}
+      PGCONNECT_TIMEOUT: 5
     ports:
       - 8082:8080
 
@@ -57,9 +54,6 @@ services:
       - "EMQX_MQTT__MAX_TOPIC_ALIAS=10"
     volumes:
       - emqx_license:/opt/emqx/etc/emqx.lic
-      - emqx_data:/opt/emqx/data
-      - emqx_etc:/opt/emqx/etc
-      - emqx_log:/opt/emqx/log
     healthcheck:
       test: [ "CMD", "/opt/emqx/bin/emqx_ctl", "status" ]
       interval: 5s

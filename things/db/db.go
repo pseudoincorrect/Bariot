@@ -8,26 +8,15 @@ import (
 )
 
 type Database struct {
-	c *pgx.Conn
-}
-
-type ThingModel struct {
-	Email string
-}
-
-func CreateUser(db Database, email string) (ThingModel, error) {
-	var thing ThingModel
-	thing.Email = email
-	// err := db.Create(&thing).Error
-	return thing, nil
+	conn *pgx.Conn
 }
 
 type DbConfig struct {
-	host     string
-	user     string
-	password string
-	dbname   string
-	port     string
+	Host     string
+	Dbname   string
+	Port     string
+	User     string
+	Password string
 }
 
 func Init(conf DbConfig) (*Database, error) {
@@ -39,7 +28,9 @@ func Init(conf DbConfig) (*Database, error) {
 }
 
 func connect(conf DbConfig) (*Database, error) {
-	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.user, conf.password, conf.host, conf.port, conf.dbname)
+	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.User, conf.Password, conf.Host, conf.Port, conf.Dbname)
+
+	fmt.Println(dbUrl)
 
 	conn, err := pgx.Connect(context.Background(), dbUrl)
 

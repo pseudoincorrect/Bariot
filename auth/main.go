@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -9,32 +8,32 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/pseudoincorrect/bariot/things/db"
-	"github.com/pseudoincorrect/bariot/things/models"
+	"github.com/pseudoincorrect/bariot/things/api"
 	util "github.com/pseudoincorrect/bariot/things/utilities"
 )
+
+type service interface {
+	saveThing(thing *ThingModel) error
+	getThing(id string) (*ThingModel, error)
+	deleteThing(id string) error
+	updateThing(id string, thing *ThingModel) error
+}
+
+type _ struct {
+	repository Repository
+}
 
 type config struct {
 	mqttHost       string
 	mqttPort       string
 	mqttStatusPort string
-	dbHost         string
-	dbPort         string
-	dbUser         string
-	dbPassword     string
-	dbName         string
 }
 
 func loadConfig() config {
 	var conf = config{
-		mqttHost:       util.GetEnv("MQTT_HOST"),
-		mqttPort:       util.GetEnv("MQTT_PORT"),
-		mqttStatusPort: util.GetEnv("MQTT_STATUS_PORT"),
-		dbHost:         util.GetEnv("PG_HOST"),
-		dbPort:         util.GetEnv("PG_PORT"),
-		dbName:         util.GetEnv("PG_DATABASE"),
-		dbUser:         util.GetEnv("PG_USER"),
-		dbPassword:     util.GetEnv("PG_PASSWORD"),
+		mqttHost:       util.GetEnv("MQTT_HOST", "localhost"),
+		mqttPort:       util.GetEnv("MQTT_PORT", "1883"),
+		mqttStatusPort: util.GetEnv("MQTT_STATUS_PORT", "8081"),
 	}
 	return conf
 }
@@ -49,6 +48,26 @@ var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
 	fmt.Printf("Connect lost: %v", err)
+}
+
+func main() {
+	fmt.Println(" device service...")
+
+	conf := loadConfig()
+
+	api.StartRouter()
+
+	client, err := connectMqttBroker(conf)
+
+	if err != nil {
+		fmt.Printf("connectMqttBroker error: %v", err)
+		return
+	}
+
+	sub(client)
+	publish(client)
+
+	client.Disconnect(250)
 }
 
 func publish(client mqtt.Client) {
@@ -70,6 +89,9 @@ func sub(client mqtt.Client) {
 
 func connectMqttBroker(conf config) (mqtt.Client, error) {
 	opts := mqtt.NewClientOptions()
+	// var broker = "broker.emqx.io"
+	// var port = 1883
+	// opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
 	opts.AddBroker(fmt.Sprintf("tcp://%s:%s", conf.mqttHost, conf.mqttPort))
 	opts.SetClientID("go_mqtt_client")
 	opts.SetUsername("emqx")
@@ -113,61 +135,4 @@ func isMqttOnline(conf config) bool {
 	fmt.Printf("isMqttOnline: %s", body)
 
 	return true
-}
-
-func testDb() {
-	fmt.Println("Test Db")
-	conf := loadConfig()
-
-	dbConf := db.DbConfig{
-		Host:     conf.dbHost,
-		Port:     conf.dbPort,
-		Dbname:   conf.dbName,
-		User:     conf.dbUser,
-		Password: conf.dbPassword,
-	}
-	database, err := db.Init(dbConf)
-
-	if err != nil {
-		fmt.Println("Database Init error:", err)
-	}
-	thingsRepo := db.New(database)
-
-	ctx := context.Background()
-
-	thing, err := thingsRepo.Save(ctx, &models.Thing{
-		Id:        "",
-		CreatedAt: "",
-		Key:       "theSuperKeY123",
-		Name:      "thing1",
-		UserId:    "user1",
-	})
-	if err != nil {
-		fmt.Println("Save Thing error:", err)
-		return
-	}
-	fmt.Println(" Thing", thing)
-}
-
-func main() {
-	fmt.Println(" device service...")
-
-	time.Sleep(5 * time.Second)
-	testDb()
-
-	// conf := loadConfig()
-
-	// api.StartRouter()
-
-	// client, err := connectMqttBroker(conf)
-
-	// if err != nil {
-	// 	fmt.Printf("connectMqttBroker error: %v", err)
-	// 	return
-	// }
-
-	// sub(client)
-	// publish(client)
-
-	// client.Disconnect(250)
 }
