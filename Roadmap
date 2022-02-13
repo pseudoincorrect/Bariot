@@ -1,8 +1,8 @@
 BARIOT ROADMAP
 
--------------------------------------------------------------
+-----------------------------------------------------------------
 TO DO
--------------------------------------------------------------
+-----------------------------------------------------------------
 DOCK  Add InfluxDb service
 INFX  Put data to influxDb
 DOCK  Add Grafana service
@@ -11,21 +11,22 @@ DOCK  Add Ngnx reverse proxy
 AUTH  Create a Auth/JWT service
 CYB   Authorize mqtt with JWT
 CYB   encrypt mqtt (TLS) with self signed certificates
-
-
--------------------------------------------------------------
-IN PROCESS
--------------------------------------------------------------
-DB    Create a Thing over HTTP and send it to DB
 MQTT  get all thing related mqtt messages
+COMM  Grpc Communication with Auth service
+
+-----------------------------------------------------------------
+IN PROCESS
+-----------------------------------------------------------------
+DB    Create a Thing over HTTP and send it to DB
 
 
--------------------------------------------------------------
+-----------------------------------------------------------------
 DONE
 Date        TAG    Description
--------------------------------------------------------------
-12/02/2022  DB    Store thing data in postgres DB
+-----------------------------------------------------------------
+12/02/2022  DB    CRUD operation in DB 
+11/02/2022  DB    Store thing data in postgres DB
 07/02/2022  DOCK  Add a mqtt broker service
-05/02/2022  INIT  Init development enviroment (docker, vscode, services)
--------------------------------------------------------------
+05/02/2022  INIT  Init development enviroment
+-----------------------------------------------------------------
 

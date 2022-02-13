@@ -1,37 +1,37 @@
 {
-	"folders": [
-		{
-			"path": "auth"
-		},
-		{
-			"path": "configs"
-		},
-		{
-			"path": "docker"
-		},
-		{
-			"path": "frontend"
-		},
-		{
-			"path": "support"
-		},
-		{
-			"path": "things"
-		},
-		{
-			"path": "things-data"
-		},
-		{
-			"path": "users"
-		},
-		{
-			"path": "utilities"
-		},
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"cSpell.enabled": false
-	}
+  "folders": [
+    {
+      "path": "auth"
+    },
+    {
+      "path": "configs"
+    },
+    {
+      "path": "docker"
+    },
+    {
+      "path": "frontend"
+    },
+    {
+      "path": "support"
+    },
+    {
+      "path": "things"
+    },
+    {
+      "path": "things-data"
+    },
+    {
+      "path": "users"
+    },
+    {
+      "path": "utilities"
+    },
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "cSpell.enabled": false
+  }
 }

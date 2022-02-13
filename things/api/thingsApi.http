@@ -1,0 +1,41 @@
+# Be sure to update the environments in your "".vscode/setting.json"
+#
+#    "dev": {
+#         "host": "https://blablabla.com",
+#         "token": "yourToken"
+#     },
+#
+# Tutorial:
+# https://www.youtube.com/watch?v=RcxvrhQKv8I
+#
+
+@thingName = Device1
+@thingNewName = Device2
+@thingId = UUID
+@host = http://localhost:8082
+@token = noTokenYet
+
+### GET Thing by id
+GET {{host}}/
+
+### Create a thing
+POST {{host}}/
+Authorization: {{token}}
+content-type: application/json
+
+{
+"Name": "{{thingName}}"
+} 
+
+### Update a thing
+PUT {{host}}/{{thingId}}/
+Authorization: {{token}}
+content-type: application/json
+
+{
+"Name": "{{thingNewName}}"
+}
+
+### Delete a thing
+Delete {{host}}/{{thingId}}
+Authorization: {{token}}

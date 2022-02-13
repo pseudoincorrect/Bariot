@@ -11,12 +11,15 @@ import (
 	"github.com/google/uuid"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/pseudoincorrect/bariot/things/api"
 	"github.com/pseudoincorrect/bariot/things/db"
 	"github.com/pseudoincorrect/bariot/things/models"
+	"github.com/pseudoincorrect/bariot/things/service"
 	util "github.com/pseudoincorrect/bariot/things/utilities"
 )
 
 type config struct {
+	httpPort       string
 	mqttHost       string
 	mqttPort       string
 	mqttStatusPort string
@@ -29,6 +32,7 @@ type config struct {
 
 func loadConfig() config {
 	var conf = config{
+		httpPort:       util.GetEnv("HTTP_PORT"),
 		mqttHost:       util.GetEnv("MQTT_HOST"),
 		mqttPort:       util.GetEnv("MQTT_PORT"),
 		mqttStatusPort: util.GetEnv("MQTT_STATUS_PORT"),
@@ -171,28 +175,47 @@ func testDb() {
 	if thing == nil {
 		fmt.Println("Success, no Thing found")
 	}
+}
 
+func createService() service.Things {
+	conf := loadConfig()
+
+	dbConf := db.DbConfig{
+		Host:     conf.dbHost,
+		Port:     conf.dbPort,
+		Dbname:   conf.dbName,
+		User:     conf.dbUser,
+		Password: conf.dbPassword,
+	}
+	database, err := db.Init(dbConf)
+
+	if err != nil {
+		fmt.Println("Database Init error:", err)
+	}
+	thingsRepo := db.New(database)
+
+	return service.New(thingsRepo)
+
+}
+func testHttp(s service.Things) {
+	conf := loadConfig()
+
+	api.InitApi(conf.httpPort, s)
 }
 
 func main() {
 	fmt.Println(" device service...")
 
-	// time.Sleep(5 * time.Second)
-	testDb()
+	thingsService := createService()
 
-	// conf := loadConfig()
+	testHttp(thingsService)
 
-	// api.StartRouter()
-
-	//Print client, err := connectMqttBroker(conf)
-
+	// client, err := connectMqttBroker(conf)
 	// if err != nil {
 	// 	fmt.Printf("connectMqttBroker error: %v", err)
 	// 	return
 	// }
-
 	// sub(client)
 	// publish(client)
-
 	// client.Disconnect(250)
 }
