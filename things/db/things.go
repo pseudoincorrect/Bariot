@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -97,22 +96,20 @@ func (r *thingsRepo) Delete(ctx context.Context, id string) (string, error) {
 	}
 	defer tx.Rollback(ctx)
 
-	commandTag, err := r.db.conn.Exec(context.Background(),
-		"DELETE FROM things WHERE id=$1", id)
+	deletedId := ""
+
+	err = tx.QueryRow(ctx, "DELETE FROM things WHERE id=$1 RETURNING id", id).Scan(&deletedId)
+
 	if err != nil {
 		fmt.Println("Error:", err)
 		return "", err
-	}
-	if commandTag.RowsAffected() != 1 {
-		fmt.Println("Thing", id, "not found")
-		return "", errors.New("thingNotFound")
 	}
 
 	if err = tx.Commit(ctx); err != nil {
 		return "", fail(err)
 	}
 
-	return id, nil
+	return deletedId, nil
 }
 
 func (r *thingsRepo) Update(ctx context.Context, thing *models.Thing) (*models.Thing, error) {
@@ -127,22 +124,22 @@ func (r *thingsRepo) Update(ctx context.Context, thing *models.Thing) (*models.T
 	}
 	defer tx.Rollback(ctx)
 
-	commandTag, err := r.db.conn.Exec(context.Background(),
-		"UPDATE things SET key=$1, name=$2, user_id=$3 WHERE id=$4",
-		thing.Key, thing.Name, thing.UserId, thing.Id)
+	var createdAt time.Time
+
+	err = tx.QueryRow(ctx,
+		"UPDATE things SET key=$1, name=$2, user_id=$3 WHERE id=$4 RETURNING key, name, user_id, created_at",
+		thing.Key, thing.Name, thing.UserId, thing.Id).Scan(&thing.Key, &thing.Name, &thing.UserId, &createdAt)
 
 	if err != nil {
 		fmt.Println("Error:", err)
 		return nil, err
 	}
-	if commandTag.RowsAffected() != 1 {
-		fmt.Println("Thing", thing.Id, "not found")
-		return nil, errors.New("thingNotFound")
-	}
 
 	if err = tx.Commit(ctx); err != nil {
 		return nil, fail(err)
 	}
+
+	thing.CreatedAt = createdAt.Format(time.RFC3339)
 
 	return thing, nil
 }

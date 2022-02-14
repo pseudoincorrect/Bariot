@@ -2,50 +2,65 @@ package main
 
 import (
 	"fmt"
-	"time"
 
-	"maximeclement.com/service_1/postgres"
+	"github.com/pseudoincorrect/bariot/users/api"
+	"github.com/pseudoincorrect/bariot/users/db"
+	"github.com/pseudoincorrect/bariot/users/service"
+	util "github.com/pseudoincorrect/bariot/users/utilities"
 )
 
-func main() {
-	fmt.Println("The Service 1 is starting")
-
-	postgres.Connect()
-	for {
-		time.Sleep(2 * time.Second)
-		fmt.Println("Service 1 is running")
-	}
+type config struct {
+	httpPort   string
+	dbHost     string
+	dbPort     string
+	dbUser     string
+	dbPassword string
+	dbName     string
 }
 
-// package main
+func loadConfig() config {
+	var conf = config{
+		httpPort:   util.GetEnv("HTTP_PORT"),
+		dbHost:     util.GetEnv("PG_HOST"),
+		dbPort:     util.GetEnv("PG_PORT"),
+		dbName:     util.GetEnv("PG_DATABASE"),
+		dbUser:     util.GetEnv("PG_USER"),
+		dbPassword: util.GetEnv("PG_PASSWORD"),
+	}
+	return conf
+}
 
-// import (
-// 	"net/http"
-// 	"os"
+func createService() service.Users {
+	conf := loadConfig()
 
-// 	"github.com/labstack/echo/v4"
-// 	"github.com/labstack/echo/v4/middleware"
-// )
+	dbConf := db.DbConfig{
+		Host:     conf.dbHost,
+		Port:     conf.dbPort,
+		Dbname:   conf.dbName,
+		User:     conf.dbUser,
+		Password: conf.dbPassword,
+	}
+	database, err := db.Init(dbConf)
 
-// func main() {
+	if err != nil {
+		fmt.Println("Database Init error:", err)
+	}
+	usersRepo := db.New(database)
 
-// 	e := echo.New()
+	return service.New(usersRepo)
 
-// 	e.Use(middleware.Logger())
-// 	e.Use(middleware.Recover())
+}
+func testHttp(s service.Users) {
+	conf := loadConfig()
 
-// 	e.GET("/", func(c echo.Context) error {
-// 		return c.HTML(http.StatusOK, "Hello, Docker! <3")
-// 	})
+	api.InitApi(conf.httpPort, s)
+}
 
-// 	e.GET("/ping", func(c echo.Context) error {
-// 		return c.JSON(http.StatusOK, struct{ Status string }{Status: "OK"})
-// 	})
+func main() {
+	fmt.Println("Users service online")
 
-// 	httpPort := os.Getenv("HTTP_PORT")
-// 	if httpPort == "" {
-// 		httpPort = "8080"
-// 	}
+	usersService := createService()
 
-// 	e.Logger.Fatal(e.Start(":" + httpPort))
-// }
+	testHttp(usersService)
+
+}

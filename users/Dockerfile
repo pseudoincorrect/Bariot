@@ -1,18 +1,16 @@
-# syntax=docker/dockerfile:1
+FROM golang:alpine3.15
 
-# base step
-FROM golang:alpine3.15 as base
+WORKDIR /go/src/app
 
-WORKDIR /go/src/service_1
-COPY go.mod ./
-COPY go.sum ./
+COPY go.mod .
+COPY go.sum .
+# Only download updates if modules files have changed
 RUN go mod download
 
-# Development step
-FROM base as dev
+COPY ./ ./
 
-COPY . /go/src/service_1
-RUN ls
-RUN go build -o /service_1
+RUN go build main.go
+# RUN go get -d -v ./...
+RUN go install -v ./...
 
-ENTRYPOINT ["/service_1"]
+CMD ["users"]

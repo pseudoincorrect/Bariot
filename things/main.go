@@ -204,7 +204,7 @@ func testHttp(s service.Things) {
 }
 
 func main() {
-	fmt.Println(" device service...")
+	fmt.Println("Things service online")
 
 	thingsService := createService()
 

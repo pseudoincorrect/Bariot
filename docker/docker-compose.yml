@@ -1,19 +1,48 @@
 version: "3"
 
 volumes:
-  things_db_data:
-  emqx_license:
-  emqx_data:
-  emqx_etc:
-  emqx_log:
+  bariot_things_db_data:
+  bariot_users_db_data:
+  bariot_emqx_license:
+  bariot_emqx_data:
+  bariot_emqx_etc:
+  bariot_emqx_log:
 
 services:
+
+  users:
+    build: ../users
+    depends_on:
+      - users_db
+    environment:
+      HTTP_PORT: 8080
+      PG_HOST: users_db
+      PG_PORT: 5432
+      PG_DATABASE: ${USERS_DB_NAME}
+      PG_USER: ${USERS_DB_USERNAME}
+      PG_PASSWORD: ${USERS_DB_PASSWORD}
+      PG_CONNECT_TIMEOUT: 5
+    ports:
+      - 8082:8080
+
+  users_db:
+    image: postgres:14-alpine
+    restart: always
+    volumes:
+      - bariot_users_db_data:/var/lib/postgresql/data
+      - ./users_db_init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_DB: ${USERS_DB_NAME}
+      POSTGRES_USER: ${USERS_DB_USERNAME}
+      POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
+    # ports:
+    #   - 5432:5432
 
   things:
     build: ../things
     depends_on:
       - things_db
-      - emqx
+      # - emqx
     environment:
       HTTP_PORT: 8080
       MQTT_HOST: emqx
@@ -26,20 +55,20 @@ services:
       PG_PASSWORD: ${THINGS_DB_PASSWORD}
       PG_CONNECT_TIMEOUT: 5
     ports:
-      - 8082:8080
+      - 8083:8080
 
   things_db:
     image: postgres:14-alpine
     restart: always
     volumes:
-      - things_db_data:/var/lib/postgresql/data
+      - bariot_things_db_data:/var/lib/postgresql/data
       - ./things_db_init:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_DB: ${THINGS_DB_NAME}
       POSTGRES_USER: ${THINGS_DB_USERNAME}
       POSTGRES_PASSWORD: ${THINGS_DB_PASSWORD}
-    ports:
-      - 5432:5432
+    # ports:
+    #   - 5432:5432
 
   adminer:
     image: adminer
@@ -47,26 +76,26 @@ services:
     ports:
       - 8080:8080
 
-  emqx:
-    image: emqx/emqx:4.3.11
-    environment:
-      - "EMQX_NAME=emqx"
-      - "EMQX_HOST=emqx.broker.io"
-      - "EMQX_CLUSTER__DISCOVERY=static"
-      - "EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx.broker.io"
-      - "EMQX_ZONE__EXTERNAL__RETRY_INTERVAL=2s"
-      - "EMQX_MQTT__MAX_TOPIC_ALIAS=10"
-    volumes:
-      - emqx_license:/opt/emqx/etc/emqx.lic
-      - emqx_data:/opt/emqx/data
-      - emqx_etc:/opt/emqx/etc
-      - emqx_log:/opt/emqx/log
-    healthcheck:
-      test: [ "CMD", "/opt/emqx/bin/emqx_ctl", "status" ]
-      interval: 5s
-      timeout: 25s
-      retries: 5
-    ports:
-      - 1883:1883   # MQTT
-      - 8081:8081   # Health check
-      - 18083:18083 # Management
+  # emqx:
+  #   image: emqx/emqx:4.3.11
+  #   environment:
+  #     - "EMQX_NAME=emqx"
+  #     - "EMQX_HOST=emqx.broker.io"
+  #     - "EMQX_CLUSTER__DISCOVERY=static"
+  #     - "EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx.broker.io"
+  #     - "EMQX_ZONE__EXTERNAL__RETRY_INTERVAL=2s"
+  #     - "EMQX_MQTT__MAX_TOPIC_ALIAS=10"
+  #   volumes:
+  #     - bariot_emqx_license:/opt/emqx/etc/emqx.lic
+  #     - bariot_emqx_data:/opt/emqx/data
+  #     - bariot_emqx_etc:/opt/emqx/etc
+  #     - bariot_emqx_log:/opt/emqx/log
+  #   healthcheck:
+  #     test: [ "CMD", "/opt/emqx/bin/emqx_ctl", "status" ]
+  #     interval: 5s
+  #     timeout: 25s
+  #     retries: 5
+  #   ports:
+  #     - 1883:1883   # MQTT
+  #     - 8081:8081   # Health check
+  #     - 18083:18083 # Management

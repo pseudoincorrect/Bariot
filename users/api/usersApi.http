@@ -1,0 +1,45 @@
+# Be sure to update the environments in your "".vscode/setting.json"
+#
+#    "dev": {
+#         "host": "https://blablabla.com",
+#         "token": "yourToken"
+#     },
+#
+# Tutorial:
+# https://www.youtube.com/watch?v=RcxvrhQKv8I
+#
+
+@userId = b25c25d9-1d40-4cd9-aaaf-cac9f69d65ec
+@userEmail = quidonc@nimportequoi.com
+@userFullName = Thibaux Toizossi
+@userNewFullName = Jacques Cellere
+@userMetadata = {}
+@host = http://localhost:8082
+@token = noTokenYet
+
+### GET user by id
+GET {{host}}/{{userId}}
+
+### Create a user
+POST {{host}}/
+Authorization: {{token}}
+content-type: application/json
+
+{
+"FullName": "{{userFullName}}",
+"Email" : "{{userEmail}}"
+} 
+
+### Update a user
+PUT {{host}}/{{userId}}
+Authorization: {{token}}
+content-type: application/json
+
+{
+"FullName": "{{userNewFullName}}",
+"Email" : "{{userEmail}}"
+}
+
+### Delete a user
+Delete {{host}}/{{userId}}
+Authorization: {{token}}
