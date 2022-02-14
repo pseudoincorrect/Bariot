@@ -3,6 +3,9 @@ package utilities
 import (
 	"fmt"
 	"os"
+
+	"github.com/google/uuid"
+	"github.com/pseudoincorrect/bariot/things/utilities/errors"
 )
 
 /// GetEnv returns the value of the environment variable named by the key.
@@ -25,4 +28,11 @@ func GetEnv(key string) string {
 		panic("Environment variable " + key + " is not set and")
 	}
 	return value
+}
+
+func ValidateUuid(id string) error {
+	if _, err := uuid.Parse(id); err != nil {
+		return errors.NewValidationError("Thing Id is incorrect")
+	}
+	return nil
 }

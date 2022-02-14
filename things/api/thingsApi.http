@@ -9,14 +9,17 @@
 # https://www.youtube.com/watch?v=RcxvrhQKv8I
 #
 
+@thingId = 26d0a820-427e-4c7e-a2f6-1b6132320f4b
 @thingName = Device1
 @thingNewName = Device2
-@thingId = UUID
+@thingKey = 1234567890
+@thingUserId = d91112eb-c44a-4fe3-ab84-89e46880e2cd
+@thingMetadata = {}
 @host = http://localhost:8082
 @token = noTokenYet
 
 ### GET Thing by id
-GET {{host}}/
+GET {{host}}/{{thingId}}
 
 ### Create a thing
 POST {{host}}/
@@ -24,16 +27,20 @@ Authorization: {{token}}
 content-type: application/json
 
 {
-"Name": "{{thingName}}"
+"Name": "{{thingName}}",
+"Key" : "{{thingKey}}",
+"UserId" : "{{thingUserId}}"
 } 
 
 ### Update a thing
-PUT {{host}}/{{thingId}}/
+PUT {{host}}/{{thingId}}
 Authorization: {{token}}
 content-type: application/json
 
 {
-"Name": "{{thingNewName}}"
+"Name": "{{thingNewName}}",
+"Key" : "{{thingKey}}",
+"UserId" : "{{thingUserId}}"
 }
 
 ### Delete a thing

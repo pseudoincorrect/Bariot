@@ -4,14 +4,18 @@ type error interface {
 	Error() string
 }
 
-type validationError struct {
+type AppError struct {
 	msg string
 }
 
-func (e *validationError) Error() string {
+func (e *AppError) Error() string {
 	return e.msg
 }
 
 func NewValidationError(text string) error {
-	return &validationError{text}
+	return &AppError{text}
+}
+
+func NewThingNotFoundError(id string) error {
+	return &AppError{"Thing " + id + " not found"}
 }

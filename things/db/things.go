@@ -35,13 +35,15 @@ func (r *thingsRepo) Save(ctx context.Context, t *models.Thing) (*models.Thing, 
 	defer tx.Rollback(ctx)
 
 	var id string
+	var createdAt time.Time
 
-	err = tx.QueryRow(ctx, "INSERT INTO things (key, name, user_id) VALUES ($1, $2, $3) returning id;",
+	err = tx.QueryRow(ctx, "INSERT INTO things (key, name, user_id) VALUES ($1, $2, $3) returning id, created_at ;",
 		t.Key,
 		t.Name,
-		t.UserId).Scan(&id)
+		t.UserId).Scan(&id, &createdAt)
 
 	t.Id = id
+	t.CreatedAt = createdAt.Format(time.RFC3339)
 
 	if err != nil {
 		return nil, fail(err)

@@ -12,12 +12,12 @@ type Metadata map[string]interface{}
 // }
 
 type Thing struct {
-	Id        string   `json:"id"`
-	CreatedAt string   `json:"createdAt"`
-	Key       string   `json:"key"`
-	Name      string   `json:"name"`
-	UserId    string   `json:"userId"`
-	Metadata  Metadata `json:"metadata"`
+	Id        string   `json:"Id"`
+	CreatedAt string   `json:"CreatedAt"`
+	Key       string   `json:"Key"`
+	Name      string   `json:"Name"`
+	UserId    string   `json:"UserId"`
+	Metadata  Metadata `json:"Metadata"`
 }
 
 func (t Thing) String() string {
