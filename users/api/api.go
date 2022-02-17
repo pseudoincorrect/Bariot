@@ -185,3 +185,38 @@ func userPutEndpoint(s service.Users) http.HandlerFunc {
 		json.NewEncoder(res).Encode(updatedUser)
 	}
 }
+
+type loginPostRequest struct {
+	Email    string `json:"Email"`
+	Password string `json:"Password"`
+}
+
+func (req *loginPostRequest) validate() error {
+	if req.Email == "" || len(req.Email) > 100 || len(req.Email) < 3 {
+		return errors.NewValidationError("Invalid user email")
+	}
+	if req.Password == "" || len(req.Password) > 100 || len(req.Password) < 3 {
+		return errors.NewValidationError("Invalid user password")
+	}
+
+	return nil
+}
+
+func loginEndpoint(s service.Users) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+
+		loginReq := loginPostRequest{}
+
+		err := json.NewDecoder(req.Body).Decode(&loginReq)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if err = loginReq.validate(); err != nil {
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+	}
+}

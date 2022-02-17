@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/google/uuid"
-	"github.com/pseudoincorrect/bariot/users/utilities/errors"
+	"github.com/pseudoincorrect/bariot/auth/utilities/errors"
 )
 
 /// GetEnv returns the value of the environment variable named by the key.

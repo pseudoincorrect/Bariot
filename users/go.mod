@@ -6,7 +6,6 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.15.0
-	github.com/pseudoincorrect/bariot/things v0.0.0-20220214083814-5eab984d6b19
 )
 
 require (

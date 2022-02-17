@@ -17,16 +17,15 @@ COMM  Grpc Communication with Auth service
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
-DB    CRUD user
-HTTP  CRUD user
 GRPC  USER auth token generation
 
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
-14/02/2022  HTTP  Create a Thing over HTTP and send it to DB
-12/02/2022  DB    CRUD operation in DB 
+14/02/2022  HTTP  CRUD user
+14/02/2022  HTTP  CRUD thing
+12/02/2022  DB    CRUD thing operation in DB 
 11/02/2022  DB    Store thing data in postgres DB
 07/02/2022  DOCK  Add a mqtt broker service
 05/02/2022  INIT  Init development enviroment
