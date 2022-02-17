@@ -5,7 +5,7 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "github.com/pseudoincorrect/Bariot/auth/rpc/auth";
+option go_package = "github.com/pseudoincorrect/Bariot/user/rpc/auth";
 
 
 service Auth {

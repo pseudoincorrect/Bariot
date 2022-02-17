@@ -1,23 +1,22 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/pseudoincorrect/bariot/auth/rpc/proto/authProto"
+	pb "github.com/pseudoincorrect/bariot/auth/rpc/auth"
+	util "github.com/pseudoincorrect/bariot/auth/utilities"
 	"google.golang.org/grpc"
 )
 
 type config struct {
-	httpPort   string
-	dbHost     string
-	dbPort     string
-	dbUser     string
-	dbPassword string
-	dbName     string
+	rpcHost     string
+	rpcPort     string
+	adminSecret string
+	jwtSecret   string
 }
 
 func loadConfig() config {
@@ -30,19 +29,37 @@ func loadConfig() config {
 	return conf
 }
 
+// server is used to implement helloworld.GreeterServer.
+type server struct {
+	pb.UnimplementedAuthServer
+}
+
+func (s *server) GetAdminToken(ctx context.Context, in *pb.GetAdminTokenRequest) (*pb.GetAdminTokenResponse, error) {
+	fmt.Println("Got a GetAdminToken Request")
+	return &pb.GetAdminTokenResponse{Jwt: "admin_token"}, nil
+}
+
 func main() {
 	fmt.Println("Auth service...")
+	conf := loadConfig()
 
 	flag.Parse()
+	// addr := conf.rpcHost + ":" + conf.rpcPort
+	addr := ":" + conf.rpcPort
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *port))
+	fmt.Println("Starting Auth GRPC on", addr)
+
+	lis, err := net.Listen("tcp", addr)
+
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	var opts []grpc.ServerOption
-	grpcServer := grpc.NewServer(opts...)
-	authProto.RegisterRouteGuideServer(grpcServer, newServer())
-	grpcServer.Serve(lis)
-	proto.Equal()
+	s := grpc.NewServer()
+
+	pb.RegisterAuthServer(s, &server{})
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }
