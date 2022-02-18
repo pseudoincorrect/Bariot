@@ -5,23 +5,30 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "github.com/pseudoincorrect/Bariot/user/rpc/auth";
+option go_package = "github.com/pseudoincorrect/Bariot/users/rpc/auth";
 
 
 service Auth {
   rpc GetAdminToken(GetAdminTokenRequest) returns (GetAdminTokenResponse) {}
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse) {}
   // rpc AuthorizeUser(AuthoriseUserRequest) returns (AuthoriseUserResponse) {}
   // rpc AuthorizeThing(AuthoriseUserRequest) returns (AuthoriseThingResponse) {}
   // rpc createTokenUser(CreateTokenUserRequest) returns (CreateTokenUserResponse) {}
 }
 
 message GetAdminTokenRequest {
-  string password = 1;
-
 }
 
 message GetAdminTokenResponse{
   string jwt = 1;
+}
+
+message ValidateTokenRequest {
+  string jwt = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
 }
 
 // message AuthorizeUserRequest{

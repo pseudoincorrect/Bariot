@@ -3,6 +3,7 @@ module github.com/pseudoincorrect/bariot/auth
 go 1.17
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
 	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.27.1

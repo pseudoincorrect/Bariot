@@ -94,15 +94,21 @@ func main() {
 
 	fmt.Println("GRPC get admin token request")
 
-	res, err := c.GetAdminToken(ctx, &pb.GetAdminTokenRequest{Password: "admin_password"})
+	resToken, err := c.GetAdminToken(ctx, &pb.GetAdminTokenRequest{})
 
 	if err != nil {
 		fmt.Println("GRPC get admin token error:", err)
 	}
 	if err == nil {
-		fmt.Println(res.GetJwt())
+		fmt.Println(resToken.GetJwt())
 	}
 
 	fmt.Println("shutting down Users service")
-
+	resValid, err := c.ValidateToken(ctx, &pb.ValidateTokenRequest{Jwt: resToken.GetJwt()})
+	if err != nil {
+		fmt.Println("GRPC validate token error:", err)
+	}
+	if err == nil {
+		fmt.Println("is JWT valid, ", resValid.GetValid())
+	}
 }

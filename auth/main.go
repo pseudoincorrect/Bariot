@@ -1,18 +1,15 @@
 package main
 
 import (
-	"context"
-	"flag"
 	"fmt"
-	"log"
-	"net"
 
-	pb "github.com/pseudoincorrect/bariot/auth/rpc/auth"
+	"github.com/pseudoincorrect/bariot/auth/rpc/server"
+	"github.com/pseudoincorrect/bariot/auth/service"
 	util "github.com/pseudoincorrect/bariot/auth/utilities"
-	"google.golang.org/grpc"
 )
 
 type config struct {
+	environment string
 	rpcHost     string
 	rpcPort     string
 	adminSecret string
@@ -21,6 +18,7 @@ type config struct {
 
 func loadConfig() config {
 	var conf = config{
+		environment: util.GetEnv("BARIOT_ENV"),
 		rpcHost:     util.GetEnv("RPC_HOST"),
 		rpcPort:     util.GetEnv("RPC_PORT"),
 		adminSecret: util.GetEnv("ADMIN_SECRET"),
@@ -29,37 +27,25 @@ func loadConfig() config {
 	return conf
 }
 
-// server is used to implement helloworld.GreeterServer.
-type server struct {
-	pb.UnimplementedAuthServer
-}
-
-func (s *server) GetAdminToken(ctx context.Context, in *pb.GetAdminTokenRequest) (*pb.GetAdminTokenResponse, error) {
-	fmt.Println("Got a GetAdminToken Request")
-	return &pb.GetAdminTokenResponse{Jwt: "admin_token"}, nil
-}
-
 func main() {
 	fmt.Println("Auth service...")
+
 	conf := loadConfig()
 
-	flag.Parse()
-	// addr := conf.rpcHost + ":" + conf.rpcPort
-	addr := ":" + conf.rpcPort
+	serviceConf := service.ServiceConf{
+		Secret:      conf.jwtSecret,
+		Environment: conf.environment,
+	}
+	service := service.New(serviceConf)
 
-	fmt.Println("Starting Auth GRPC on", addr)
-
-	lis, err := net.Listen("tcp", addr)
-
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+	serverConf := server.ServerConf{
+		AuthService: service,
+		Port:        conf.rpcPort,
 	}
 
-	s := grpc.NewServer()
+	err := server.Start(serverConf)
 
-	pb.RegisterAuthServer(s, &server{})
-
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+	if err != nil {
+		fmt.Println(err)
 	}
 }

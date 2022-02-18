@@ -16,6 +16,7 @@ services:
     depends_on:
       - users_db
     environment:
+      BARIOT_ENV: ${BARIOT_ENV}
       HTTP_PORT: 8080
       RPC_AUTH_HOST: auth
       RPC_AUTH_PORT: ${USER_RPC_AUTH_PORT}
@@ -35,6 +36,7 @@ services:
       - bariot_users_db_data:/var/lib/postgresql/data
       - ./users_db_init:/docker-entrypoint-initdb.d
     environment:
+      BARIOT_ENV: ${BARIOT_ENV}
       POSTGRES_DB: ${USERS_DB_NAME}
       POSTGRES_USER: ${USERS_DB_USERNAME}
       POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
@@ -45,6 +47,7 @@ services:
     depends_on:
       - things_db
     environment:
+      BARIOT_ENV: ${BARIOT_ENV}
       HTTP_PORT: 8080
       MQTT_HOST: emqx
       MQTT_PORT: 1883
@@ -65,6 +68,7 @@ services:
       - bariot_things_db_data:/var/lib/postgresql/data
       - ./things_db_init:/docker-entrypoint-initdb.d
     environment:
+      BARIOT_ENV: ${BARIOT_ENV}
       POSTGRES_DB: ${THINGS_DB_NAME}
       POSTGRES_USER: ${THINGS_DB_USERNAME}
       POSTGRES_PASSWORD: ${THINGS_DB_PASSWORD}
@@ -73,6 +77,7 @@ services:
     build: ../auth
     image: auth_service
     environment:
+      BARIOT_ENV: ${BARIOT_ENV}
       RPC_HOST: ${RPC_HOST}
       RPC_PORT: ${RPC_PORT}
       ADMIN_SECRET: ${ADMIN_SECRET}
@@ -87,12 +92,13 @@ services:
   # emqx:
   #   image: emqx/emqx:4.3.11
   #   environment:
-  #     - "EMQX_NAME=emqx"
-  #     - "EMQX_HOST=emqx.broker.io"
-  #     - "EMQX_CLUSTER__DISCOVERY=static"
-  #     - "EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx.broker.io"
-  #     - "EMQX_ZONE__EXTERNAL__RETRY_INTERVAL=2s"
-  #     - "EMQX_MQTT__MAX_TOPIC_ALIAS=10"
+  #     BARIOT_ENV: ${BARIOT_ENV}
+  #     EMQX_NAME: emqx
+  #     EMQX_HOST: emqx.broker.io
+  #     EMQX_CLUSTER__DISCOVERY: static
+  #     EMQX_CLUSTER__STATIC__SEEDS: emqx@emqx.broker.io
+  #     EMQX_ZONE__EXTERNAL__RETRY_INTERVAL: 2s
+  #     EMQX_MQTT__MAX_TOPIC_ALIAS: 10
   #   volumes:
   #     - bariot_emqx_license:/opt/emqx/etc/emqx.lic
   #     - bariot_emqx_data:/opt/emqx/data
