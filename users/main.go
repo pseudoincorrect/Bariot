@@ -111,4 +111,16 @@ func main() {
 	if err == nil {
 		fmt.Println("is JWT valid, ", resValid.GetValid())
 	}
+
+	resClaim, err := c.GetClaimsToken(ctx, &pb.GetClaimsTokenRequest{Jwt: resToken.GetJwt()})
+	if err != nil {
+		fmt.Println("GRPC validate token error:", err)
+	}
+	if err == nil {
+		fmt.Println("Role ", resClaim.GetRole())
+		fmt.Println("Subject ", resClaim.GetSubject())
+		fmt.Println("Issuer", resClaim.GetIssuer())
+		fmt.Println("IssuedAt", time.Unix(resClaim.GetIssuedAt(), 0).Format(time.RFC822))
+		fmt.Println("ExpireAt", time.Unix(resClaim.GetExpiresAt(), 0).Format(time.RFC822))
+	}
 }

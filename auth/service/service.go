@@ -7,9 +7,18 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+const (
+	admin = "admin"
+	user  = "user"
+	thing = "thing"
+)
+
 type Auth interface {
 	GetAdminToken() (string, error)
+	GetUserToken(string) (string, error)
+	GetThingToken(string) (string, error)
 	ValidateToken(string) (bool, error)
+	GetClaimsToken(string) (*AuthClaim, error)
 }
 
 var _ Auth = (*authService)(nil)
@@ -37,10 +46,34 @@ type AuthClaim struct {
 }
 
 func (s *authService) GetAdminToken() (string, error) {
+	token, err := s.makeToken(admin, "0")
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
+func (s *authService) GetUserToken(userId string) (string, error) {
+	token, err := s.makeToken(user, userId)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
+func (s *authService) GetThingToken(thingId string) (string, error) {
+	token, err := s.makeToken(thing, thingId)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
+func (s *authService) makeToken(role string, subjet string) (string, error) {
 	claims := AuthClaim{
-		"admin",
+		role,
 		jwt.StandardClaims{
-			Subject:   "0",
+			Subject:   subjet,
 			IssuedAt:  time.Now().Unix(),
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
 			Issuer:    s.environment,
@@ -62,9 +95,22 @@ func (s *authService) ValidateToken(tokenString string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if claims, ok := token.Claims.(*AuthClaim); ok && token.Valid {
-		fmt.Println(claims.Role)
+	if _, ok := token.Claims.(*AuthClaim); ok && token.Valid {
 		return true, nil
 	}
-	return false, nil
+	return false, jwt.ErrInvalidKey
+}
+
+func (s *authService) GetClaimsToken(tokenString string) (*AuthClaim, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &AuthClaim{}, func(token *jwt.Token) (interface{}, error) {
+		return s.secret, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if claims, ok := token.Claims.(*AuthClaim); ok && token.Valid {
+		fmt.Println(claims)
+		return claims, nil
+	}
+	return nil, jwt.ErrInvalidKey
 }

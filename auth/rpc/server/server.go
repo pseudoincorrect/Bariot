@@ -25,12 +25,42 @@ func (s *server) GetAdminToken(ctx context.Context, in *pb.GetAdminTokenRequest)
 	return &pb.GetAdminTokenResponse{Jwt: token}, nil
 }
 
-func (s *server) ValidateToken(ctx context.Context, in *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
-	valid, err := s.AuthService.ValidateToken(in.Jwt)
+func (s *server) GetUserToken(ctx context.Context, in *pb.GetUserTokenRequest) (*pb.GetUserTokenResponse, error) {
+	token, err := s.AuthService.GetUserToken(in.UserId)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.ValidateTokenResponse{Valid: valid}, nil
+	return &pb.GetUserTokenResponse{Jwt: token}, nil
+}
+
+func (s *server) GetThingToken(ctx context.Context, in *pb.GetThingTokenRequest) (*pb.GetThingTokenResponse, error) {
+	token, err := s.AuthService.GetThingToken(in.ThingId)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetThingTokenResponse{Jwt: token}, nil
+}
+
+// func (s *server) ValidateToken(ctx context.Context, in *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
+// 	valid, err := s.AuthService.ValidateToken(in.Jwt)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return &pb.ValidateTokenResponse{Valid: valid}, nil
+// }
+
+func (s *server) GetClaimsToken(ctx context.Context, in *pb.GetClaimsTokenRequest) (*pb.GetClaimsTokenResponse, error) {
+	claims, err := s.AuthService.GetClaimsToken(in.Jwt)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetClaimsTokenResponse{
+		Role:      claims.Role,
+		Subject:   claims.Subject,
+		IssuedAt:  claims.IssuedAt,
+		ExpiresAt: claims.ExpiresAt,
+		Issuer:    claims.Issuer,
+	}, nil
 }
 
 type ServerConf struct {

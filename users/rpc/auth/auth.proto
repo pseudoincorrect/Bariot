@@ -5,15 +5,13 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "github.com/pseudoincorrect/Bariot/users/rpc/auth";
-
+option go_package = "github.com/pseudoincorrect/Bariot/user/rpc/auth";
 
 service Auth {
   rpc GetAdminToken(GetAdminTokenRequest) returns (GetAdminTokenResponse) {}
-  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse) {}
-  // rpc AuthorizeUser(AuthoriseUserRequest) returns (AuthoriseUserResponse) {}
-  // rpc AuthorizeThing(AuthoriseUserRequest) returns (AuthoriseThingResponse) {}
-  // rpc createTokenUser(CreateTokenUserRequest) returns (CreateTokenUserResponse) {}
+  rpc GetUserToken(GetUserTokenRequest) returns (GetUserTokenResponse) {}
+  rpc GetThingToken(GetThingTokenRequest) returns (GetThingTokenResponse) {}
+  rpc GetClaimsToken(GetClaimsTokenRequest) returns (GetClaimsTokenResponse) {}
 }
 
 message GetAdminTokenRequest {
@@ -23,29 +21,30 @@ message GetAdminTokenResponse{
   string jwt = 1;
 }
 
-message ValidateTokenRequest {
+message GetUserTokenRequest {
+  string userId = 1;
+}
+
+message GetUserTokenResponse{
   string jwt = 1;
 }
 
-message ValidateTokenResponse {
-  bool valid = 1;
+message GetThingTokenRequest {
+  string thingId = 1;
 }
 
-// message AuthorizeUserRequest{
-//   string jwt = 1;
-// }
+message GetThingTokenResponse{
+  string jwt = 1;
+}
 
-// message AuthorizeUserResponse {}
+message GetClaimsTokenRequest {
+  string jwt = 1;
+}
 
-// message AuthorizeUserRequest {
-//   string jwt = 1;
-// }
-
-// message AuthorizeThingResponse {}
-
-// message CreateTokenUserRequest {
-//   string jwt = 1;
-//   string userPassword = 2;
-// }
-
-// message CreateTokenUserResponse {}
+message GetClaimsTokenResponse {
+  string Role = 1;
+  string Subject = 2;
+  int64 IssuedAt = 3;
+  int64 ExpiresAt = 4;
+  string Issuer = 5;
+}
