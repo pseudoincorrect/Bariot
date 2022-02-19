@@ -3,15 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/pseudoincorrect/bariot/users/api"
 	"github.com/pseudoincorrect/bariot/users/db"
+	"github.com/pseudoincorrect/bariot/users/rpc/auth/client"
 	"github.com/pseudoincorrect/bariot/users/service"
 	util "github.com/pseudoincorrect/bariot/users/utilities"
-
-	pb "github.com/pseudoincorrect/bariot/users/rpc/auth"
-	"google.golang.org/grpc"
 )
 
 type config struct {
@@ -76,51 +73,26 @@ func main() {
 		testHttp(usersService)
 	}()
 
-	// time.Sleep(time.Second * 8)
+	authClientConf := client.AuthClientConf{
+		Host: conf.rpcAuthHost,
+		Port: conf.rpcAuthPort,
+	}
 
-	addr := conf.rpcAuthHost + ":" + conf.rpcAuthPort
-
-	fmt.Println("init user service GRPC client to ", addr)
-
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	authClient := client.New(authClientConf)
+	err := authClient.StartAuthClient()
 	if err != nil {
-		fmt.Println("did not connect:", err)
-	}
-	defer conn.Close()
-	c := pb.NewAuthClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	fmt.Println("GRPC get admin token request")
-
-	resToken, err := c.GetAdminToken(ctx, &pb.GetAdminTokenRequest{})
-
-	if err != nil {
-		fmt.Println("GRPC get admin token error:", err)
-	}
-	if err == nil {
-		fmt.Println(resToken.GetJwt())
+		fmt.Println("Auth client error:", err)
+		return
 	}
 
-	fmt.Println("shutting down Users service")
-	resValid, err := c.ValidateToken(ctx, &pb.ValidateTokenRequest{Jwt: resToken.GetJwt()})
+	jwt, err := authClient.GetUserToken(context.Background(), "123456789")
+	fmt.Println("jwt:", jwt)
+
+	isUser, userId, err := authClient.IsWhichUser(context.Background(), jwt)
 	if err != nil {
 		fmt.Println("GRPC validate token error:", err)
 	}
 	if err == nil {
-		fmt.Println("is JWT valid, ", resValid.GetValid())
-	}
-
-	resClaim, err := c.GetClaimsToken(ctx, &pb.GetClaimsTokenRequest{Jwt: resToken.GetJwt()})
-	if err != nil {
-		fmt.Println("GRPC validate token error:", err)
-	}
-	if err == nil {
-		fmt.Println("Role ", resClaim.GetRole())
-		fmt.Println("Subject ", resClaim.GetSubject())
-		fmt.Println("Issuer", resClaim.GetIssuer())
-		fmt.Println("IssuedAt", time.Unix(resClaim.GetIssuedAt(), 0).Format(time.RFC822))
-		fmt.Println("ExpireAt", time.Unix(resClaim.GetExpiresAt(), 0).Format(time.RFC822))
+		fmt.Println("isUser:", isUser, ", UserId: ", userId)
 	}
 }

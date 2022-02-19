@@ -41,7 +41,7 @@ func New(c ServiceConf) Auth {
 }
 
 type AuthClaim struct {
-	Role string `json:"foo"`
+	Role string `json:"Role"`
 	jwt.StandardClaims
 }
 
