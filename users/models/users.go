@@ -20,11 +20,12 @@ type User struct {
 	CreatedAt string   `json:"CreatedAt"`
 	Email     string   `json:"Email"`
 	FullName  string   `json:"FullName"`
+	HashPass  string   `json:"HashPass"`
 	Metadata  Metadata `json:"Metadata"`
 }
 
 func (t User) String() string {
-	return fmt.Sprintf("User{\n  Id: %s,\n  CreatedAt: %s,\n  Email: %s,\n  FullName: %s,\n   Metadata: %v\n}", t.Id, t.CreatedAt, t.Email, t.FullName, t.Metadata)
+	return fmt.Sprintf("User{\n  Id: %s,\n  CreatedAt: %s,\n  Email: %s,\n  FullName: %s,\n  HashPass: %s,\n Metadata: %v\n}", t.Id, t.CreatedAt, t.Email, t.FullName, t.HashPass, t.Metadata)
 }
 
 type UsersRepository interface {
@@ -32,4 +33,5 @@ type UsersRepository interface {
 	Get(context.Context, string) (*User, error)
 	Delete(context.Context, string) (string, error)
 	Update(context.Context, *User) (*User, error)
+	GetByEmail(context.Context, string) (*User, error)
 }

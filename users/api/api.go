@@ -32,6 +32,7 @@ func createEndpoint(s service.Users, router *chi.Mux) {
 	router.Post("/", userPostEndpoint(s))
 	router.Delete("/{id}", userDeleteEndpoint(s))
 	router.Put("/{id}", userPutEndpoint(s))
+	router.Post("/login", loginEndpoint(s))
 }
 
 func startRouter(port string, router *chi.Mux) {
@@ -42,12 +43,10 @@ func startRouter(port string, router *chi.Mux) {
 func userGetEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-
 		if err := utils.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		user, err := s.GetUser(context.Background(), id)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -57,7 +56,6 @@ func userGetEndpoint(s service.Users) http.HandlerFunc {
 			http.Error(res, errors.NewUserNotFoundError(id).Error(), http.StatusNotFound)
 			return
 		}
-
 		res.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(res).Encode(user)
 	}
@@ -66,6 +64,7 @@ func userGetEndpoint(s service.Users) http.HandlerFunc {
 type userPostRequest struct {
 	Email    string `json:"Email"`
 	FullName string `json:"FullName"`
+	Password string `json:"Password"`
 }
 
 func (r *userPostRequest) validate() error {
@@ -73,38 +72,43 @@ func (r *userPostRequest) validate() error {
 		return errors.NewValidationError("Invalid user name")
 	}
 	if r.Email == "" || len(r.Email) > 100 || len(r.Email) < 3 {
-		return errors.NewValidationError("Invalid user name")
+		return errors.NewValidationError("Invalid email")
 	}
-
+	if r.Password == "" || len(r.Password) > 100 || len(r.Password) < 3 {
+		return errors.NewValidationError("Invalid Password")
+	}
 	return nil
 }
 
 func userPostEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		userReq := userPostRequest{}
-
 		err := json.NewDecoder(req.Body).Decode(&userReq)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		if err = userReq.validate(); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		hashPass, err := utils.HashPassword(userReq.Password)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		user := models.User{
 			Email:    userReq.Email,
 			FullName: userReq.FullName,
+			HashPass: hashPass,
 		}
-
 		savedUser, err := s.SaveUser(context.Background(), &user)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		res.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(res).Encode(savedUser)
 	}
@@ -117,18 +121,15 @@ type userDeleteResponse struct {
 func userDeleteEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-
 		if err := utils.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		userId, err := s.DeleteUser(context.Background(), id)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		json.NewEncoder(res).Encode(userDeleteResponse{Id: userId})
 	}
 }
@@ -145,38 +146,31 @@ func (r *userPutRequest) validate() error {
 	if r.Email == "" || len(r.Email) > 100 || len(r.Email) < 3 {
 		return errors.NewValidationError("Invalid user email")
 	}
-
 	return nil
 }
 
 func userPutEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-
 		if err := utils.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		userReq := userPutRequest{}
-
 		err := json.NewDecoder(req.Body).Decode(&userReq)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		if err = userReq.validate(); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		user := models.User{
 			Id:       id,
 			Email:    userReq.Email,
 			FullName: userReq.FullName,
 		}
-
 		updatedUser, err := s.UpdateUser(context.Background(), &user)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -198,21 +192,17 @@ func (req *loginPostRequest) validate() error {
 	if req.Password == "" || len(req.Password) > 100 || len(req.Password) < 3 {
 		return errors.NewValidationError("Invalid user password")
 	}
-
 	return nil
 }
 
 func loginEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-
 		loginReq := loginPostRequest{}
-
 		err := json.NewDecoder(req.Body).Decode(&loginReq)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		if err = loginReq.validate(); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return

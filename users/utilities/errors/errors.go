@@ -19,3 +19,15 @@ func NewValidationError(text string) error {
 func NewUserNotFoundError(id string) error {
 	return &AppError{"User " + id + " not found"}
 }
+
+func NewDbError(text string) error {
+	return &AppError{"Database error: " + text}
+}
+
+func NewPasswordError() error {
+	return &AppError{"Incorect password"}
+}
+
+func NewAuthError(text string) error {
+	return &AppError{"Authentication/Authorization error: " + text}
+}

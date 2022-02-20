@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pseudoincorrect/bariot/users/utilities/errors"
+	"golang.org/x/crypto/bcrypt"
 )
 
 /// GetEnv returns the value of the environment variable named by the key.
@@ -35,4 +36,14 @@ func ValidateUuid(id string) error {
 		return errors.NewValidationError("Thing Id is incorrect")
 	}
 	return nil
+}
+
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
