@@ -16,7 +16,9 @@ type Users interface {
 	GetByEmail(context.Context, string) (*models.User, error)
 	DeleteUser(context.Context, string) (string, error)
 	UpdateUser(context.Context, *models.User) (*models.User, error)
-	Login(context.Context, string, string) (string, error)
+	LoginUser(context.Context, string, string) (string, error)
+	LoginAdmin(context.Context, string, string) (string, error)
+	IsAdmin(context.Context, string) (bool, error)
 }
 
 // type check on userService
@@ -81,7 +83,7 @@ func (s *usersService) UpdateUser(ctx context.Context, user *models.User) (*mode
 	return updatedUser, nil
 }
 
-func (s *usersService) Login(ctx context.Context, email string, password string) (string, error) {
+func (s *usersService) LoginUser(ctx context.Context, email string, password string) (string, error) {
 	user, err := s.GetByEmail(context.Background(), email)
 	if err != nil {
 		return "", errors.NewDbError(err.Error())
@@ -97,4 +99,26 @@ func (s *usersService) Login(ctx context.Context, email string, password string)
 		return "", errors.NewAuthError(err.Error())
 	}
 	return token, nil
+}
+
+func (s *usersService) LoginAdmin(ctx context.Context, email string, password string) (string, error) {
+	user, err := s.GetByEmail(context.Background(), email)
+	if err != nil {
+		return "", errors.NewDbError(err.Error())
+	}
+	if user == nil {
+		return "", errors.NewUserNotFoundError(email)
+	}
+	if !utils.CheckPasswordHash(password, user.HashPass) {
+		return "", errors.NewPasswordError()
+	}
+	token, err := s.auth.GetAdminToken(ctx)
+	if err != nil {
+		return "", errors.NewAuthError(err.Error())
+	}
+	return token, nil
+}
+
+func (s *usersService) IsAdmin(ctx context.Context, token string) (bool, error) {
+	return s.auth.IsAdmin(ctx, token)
 }

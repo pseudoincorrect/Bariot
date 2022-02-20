@@ -9,16 +9,20 @@
 # https://www.youtube.com/watch?v=RcxvrhQKv8I
 #
 
-@userId = b25c25d9-1d40-4cd9-aaaf-cac9f69d65ec
+@host = http://localhost:8082
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoiYWRtaW4iLCJleHAiOjE2NDUzNzcxOTksImlhdCI6MTY0NTM3MzU5OSwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiMCJ9.QX_BhllH7qFnO0WQDIfveQkZcmvOamUp_hDYspDJFoQ
+@userId = a8531068-2819-438e-8959-e06023e5adac
 @userEmail = quidonc@nimportequoi.com
+@userPassword = superStrongPassword
 @userFullName = Thibaux Toizossi
 @userNewFullName = Jacques Cellere
 @userMetadata = {}
-@host = http://localhost:8082
-@token = noTokenYet
+@adminEmail = admin@bariot.com
+@adminPassword = xOJNmAWTezOArlcvJ9vw6Vb5xK6wapcCw1lPIJCuAxweQYSkDTTHiMe2UXkxMCS
 
 ### GET user by id
 GET {{host}}/{{userId}}
+Authorization: {{token}}
 
 ### Create a user
 POST {{host}}/
@@ -27,7 +31,8 @@ content-type: application/json
 
 {
 "FullName": "{{userFullName}}",
-"Email" : "{{userEmail}}"
+"Email" : "{{userEmail}}",
+"Password" : "{{userPassword}}"
 } 
 
 ### Update a user
@@ -41,5 +46,27 @@ content-type: application/json
 }
 
 ### Delete a user
-Delete {{host}}/{{userId}}
+DELETE {{host}}/{{userId}}
 Authorization: {{token}}
+{}
+
+### Login a user
+POST {{host}}/login
+Authorization: {{token}}
+content-type: application/json
+
+{
+"Email" : "{{userEmail}}",
+"Password": "{{userPassword}}"
+}
+
+
+### Login a admin
+POST {{host}}/login/admin
+Authorization: {{token}}
+content-type: application/json
+
+{
+"Email" : "{{adminEmail}}",
+"Password": "{{adminPassword}}"
+}

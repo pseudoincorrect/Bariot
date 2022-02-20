@@ -20,7 +20,7 @@ type User struct {
 	CreatedAt string   `json:"CreatedAt"`
 	Email     string   `json:"Email"`
 	FullName  string   `json:"FullName"`
-	HashPass  string   `json:"HashPass"`
+	HashPass  string   `json:"-"`
 	Metadata  Metadata `json:"Metadata"`
 }
 

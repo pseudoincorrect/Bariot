@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -27,17 +28,20 @@ func createRouter() *chi.Mux {
 	return r
 }
 
-func createEndpoint(s service.Users, router *chi.Mux) {
-	router.Get("/{id}", userGetEndpoint(s))
-	router.Post("/", userPostEndpoint(s))
-	router.Delete("/{id}", userDeleteEndpoint(s))
-	router.Put("/{id}", userPutEndpoint(s))
-	router.Post("/login", loginEndpoint(s))
+func createEndpoint(s service.Users, r *chi.Mux) {
+	adminGroup := r.Group(nil)
+	adminGroup.Use(AdminOnly(s))
+	adminGroup.Get("/{id}", userGetEndpoint(s))
+	adminGroup.Post("/", userPostEndpoint(s))
+	adminGroup.Delete("/{id}", userDeleteEndpoint(s))
+	adminGroup.Put("/{id}", userPutEndpoint(s))
+	r.Post("/login", loginUserEndpoint(s))
+	r.Post("/login/admin", loginAdminEndpoint(s))
 }
 
-func startRouter(port string, router *chi.Mux) {
+func startRouter(port string, r *chi.Mux) {
 	addr := ":" + port
-	http.ListenAndServe(addr, router)
+	http.ListenAndServe(addr, r)
 }
 
 func userGetEndpoint(s service.Users) http.HandlerFunc {
@@ -57,6 +61,7 @@ func userGetEndpoint(s service.Users) http.HandlerFunc {
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
+		removeHashPass(user)
 		json.NewEncoder(res).Encode(user)
 	}
 }
@@ -110,6 +115,7 @@ func userPostEndpoint(s service.Users) http.HandlerFunc {
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
+		removeHashPass(savedUser)
 		json.NewEncoder(res).Encode(savedUser)
 	}
 }
@@ -176,6 +182,7 @@ func userPutEndpoint(s service.Users) http.HandlerFunc {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		removeHashPass(updatedUser)
 		json.NewEncoder(res).Encode(updatedUser)
 	}
 }
@@ -183,6 +190,10 @@ func userPutEndpoint(s service.Users) http.HandlerFunc {
 type loginPostRequest struct {
 	Email    string `json:"Email"`
 	Password string `json:"Password"`
+}
+
+type loginPostResponse struct {
+	Token string `json:"Token"`
 }
 
 func (req *loginPostRequest) validate() error {
@@ -195,7 +206,7 @@ func (req *loginPostRequest) validate() error {
 	return nil
 }
 
-func loginEndpoint(s service.Users) http.HandlerFunc {
+func loginUserEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		loginReq := loginPostRequest{}
 		err := json.NewDecoder(req.Body).Decode(&loginReq)
@@ -207,6 +218,57 @@ func loginEndpoint(s service.Users) http.HandlerFunc {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
+		token, err := s.LoginUser(context.Background(), loginReq.Email, loginReq.Password)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(res).Encode(loginPostResponse{Token: token})
+	}
+}
 
+func loginAdminEndpoint(s service.Users) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		loginReq := loginPostRequest{}
+		err := json.NewDecoder(req.Body).Decode(&loginReq)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if err = loginReq.validate(); err != nil {
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+		token, err := s.LoginAdmin(context.Background(), loginReq.Email, loginReq.Password)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(res).Encode(loginPostResponse{Token: token})
+	}
+}
+
+func removeHashPass(user *models.User) {
+	user.HashPass = ""
+}
+
+type middlewareFunc func(http.Handler) http.Handler
+
+func AdminOnly(s service.Users) middlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			token := req.Header.Get("Authorization")
+			fmt.Println("AdminOnly route !", token)
+			isAuthorized, err := s.IsAdmin(req.Context(), token)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			if !isAuthorized {
+				http.Error(res, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+			next.ServeHTTP(res, req)
+		})
 	}
 }

@@ -8,21 +8,22 @@ INFX  Put data to influxDb
 DOCK  Add Grafana service
 GRAF  Display data with Grafana
 DOCK  Add Ngnx reverse proxy 
-AUTH  Create a Auth/JWT service
 CYB   Authorize mqtt with JWT
 CYB   encrypt mqtt (TLS) with self signed certificates
 MQTT  get all thing related mqtt messages
-COMM  Grpc Communication with Auth service
+
 
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
-GRPC  USER auth token generation
+Endpoint authentication USER/THINGS
 
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
+17/02/2022  AUTH  AUTH token generation 
+15/02/2022  GRPC  Create a Auth/JWT service with GRPC
 14/02/2022  HTTP  CRUD user
 14/02/2022  HTTP  CRUD thing
 12/02/2022  DB    CRUD thing operation in DB 

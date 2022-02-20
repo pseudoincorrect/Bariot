@@ -42,12 +42,10 @@ func startRouter(port string, router *chi.Mux) {
 func thingGetEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-
 		if err := utils.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		thing, err := s.GetThing(context.Background(), id)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -57,7 +55,6 @@ func thingGetEndpoint(s service.Things) http.HandlerFunc {
 			http.Error(res, errors.NewThingNotFoundError(id).Error(), http.StatusNotFound)
 			return
 		}
-
 		res.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(res).Encode(thing)
 	}
@@ -85,30 +82,25 @@ func (r *thingPostRequest) validate() error {
 func thingPostEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		thingReq := thingPostRequest{}
-
 		err := json.NewDecoder(req.Body).Decode(&thingReq)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		if err = thingReq.validate(); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		thing := models.Thing{
 			Key:    thingReq.Key,
 			Name:   thingReq.Name,
 			UserId: thingReq.UserId,
 		}
-
 		savedThing, err := s.SaveThing(context.Background(), &thing)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		res.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(res).Encode(savedThing)
 	}
@@ -121,18 +113,15 @@ type thingDeleteResponse struct {
 func thingDeleteEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-
 		if err := utils.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		thingId, err := s.DeleteThing(context.Background(), id)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		json.NewEncoder(res).Encode(thingDeleteResponse{Id: thingId})
 	}
 }
@@ -159,27 +148,22 @@ func (r *thingPutRequest) validate() error {
 func thingPutEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-
 		if err := utils.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		thingReq := thingPutRequest{}
-
 		err := json.NewDecoder(req.Body).Decode(&thingReq)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		thing := models.Thing{
 			Id:     id,
 			Key:    thingReq.Key,
 			Name:   thingReq.Name,
 			UserId: thingReq.UserId,
 		}
-
 		updatedThing, err := s.UpdateThing(context.Background(), &thing)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)

@@ -46,7 +46,7 @@ type AuthClaim struct {
 }
 
 func (s *authService) GetAdminToken() (string, error) {
-	token, err := s.makeToken(admin, "0")
+	token, err := s.makeToken(admin, "0", 1)
 	if err != nil {
 		return "", err
 	}
@@ -54,7 +54,7 @@ func (s *authService) GetAdminToken() (string, error) {
 }
 
 func (s *authService) GetUserToken(userId string) (string, error) {
-	token, err := s.makeToken(user, userId)
+	token, err := s.makeToken(user, userId, 24)
 	if err != nil {
 		return "", err
 	}
@@ -62,20 +62,20 @@ func (s *authService) GetUserToken(userId string) (string, error) {
 }
 
 func (s *authService) GetThingToken(thingId string) (string, error) {
-	token, err := s.makeToken(thing, thingId)
+	token, err := s.makeToken(thing, thingId, 24)
 	if err != nil {
 		return "", err
 	}
 	return token, nil
 }
 
-func (s *authService) makeToken(role string, subjet string) (string, error) {
+func (s *authService) makeToken(role string, subjet string, hours time.Duration) (string, error) {
 	claims := AuthClaim{
 		role,
 		jwt.StandardClaims{
 			Subject:   subjet,
 			IssuedAt:  time.Now().Unix(),
-			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * hours).Unix(),
 			Issuer:    s.environment,
 		},
 	}
