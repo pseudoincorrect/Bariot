@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -18,10 +18,11 @@ type ctxKey int
 
 const userIdKey ctxKey = iota
 
-func InitApi(port string, s service.Things) {
+func InitApi(port string, s service.Things) error {
 	router := createRouter()
 	createEndpoint(s, router)
-	startRouter(port, router)
+	err := startRouter(port, router)
+	return err
 }
 
 func createRouter() *chi.Mux {
@@ -48,9 +49,10 @@ func createEndpoint(s service.Things, r *chi.Mux) {
 	userOfThingOnlyGroup.Put("/{id}", thingPutEndpoint(s))
 }
 
-func startRouter(port string, r *chi.Mux) {
+func startRouter(port string, r *chi.Mux) error {
 	addr := ":" + port
-	http.ListenAndServe(addr, r)
+	err := http.ListenAndServe(addr, r)
+	return err
 }
 
 func thingGetEndpoint(s service.Things) http.HandlerFunc {
@@ -95,7 +97,7 @@ func (r *thingPostRequest) validate() error {
 func thingPostEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		userId := req.Context().Value(userIdKey).(string)
-		fmt.Println("user id", userId)
+		log.Println("user id", userId)
 		thingReq := thingPostRequest{}
 		err := json.NewDecoder(req.Body).Decode(&thingReq)
 		if err != nil {
@@ -183,7 +185,7 @@ func thingPutEndpoint(s service.Things) http.HandlerFunc {
 			Name:   thingReq.Name,
 			UserId: userId,
 		}
-		fmt.Println("TODO: check thing belong to user")
+		log.Println("TODO: check thing belong to user")
 		updatedThing, err := s.UpdateThing(context.Background(), &thing)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -199,11 +201,10 @@ func userOfThingOrAdmin(s service.Things) middlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			token := req.Header.Get("Authorization")
-			fmt.Println("userOfThingOrAdmin route", token)
 			thingId := chi.URLParam(req, "id")
 			userId, err := s.UserOfThingOrAdmin(context.Background(), token, thingId)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -216,11 +217,10 @@ func userOfThingOnly(s service.Things) middlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			token := req.Header.Get("Authorization")
-			fmt.Println("userOfThingOnly route", token)
 			thingId := chi.URLParam(req, "id")
 			userId, err := s.UserOfThingOnly(context.Background(), token, thingId)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -233,10 +233,9 @@ func userOnly(s service.Things) middlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			token := req.Header.Get("Authorization")
-			fmt.Println("userOnly route", token)
 			userId, err := s.UserOnly(context.Background(), token)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
 			}

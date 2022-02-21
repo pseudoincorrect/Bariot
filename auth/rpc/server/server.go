@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 
@@ -70,7 +69,7 @@ type ServerConf struct {
 
 func Start(c ServerConf) error {
 	addr := ":" + c.Port
-	fmt.Println("Starting Auth GRPC on", addr)
+	log.Println("Starting Auth GRPC on", addr)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

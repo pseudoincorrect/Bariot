@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/pseudoincorrect/bariot/users/models"
 	"github.com/pseudoincorrect/bariot/users/rpc/client"
 	utils "github.com/pseudoincorrect/bariot/users/utilities"
-	"github.com/pseudoincorrect/bariot/users/utilities/errors"
+	appErr "github.com/pseudoincorrect/bariot/users/utilities/errors"
 )
 
 type ctxt context.Context
@@ -40,7 +40,7 @@ func New(repository models.UsersRepository, auth client.Auth) Users {
 func (s *usersService) SaveUser(ctx ctxt, user *models.User) (*models.User, error) {
 	savedUser, err := s.repository.Save(ctx, user)
 	if err != nil {
-		fmt.Println("Save User error:", err)
+		log.Println("Save User error:", err)
 		return nil, err
 	}
 	return savedUser, nil
@@ -50,7 +50,7 @@ func (s *usersService) SaveUser(ctx ctxt, user *models.User) (*models.User, erro
 func (s *usersService) GetUser(ctx ctxt, id string) (*models.User, error) {
 	user, err := s.repository.Get(ctx, id)
 	if err != nil {
-		fmt.Println("Get User error:", err)
+		log.Println("Get User error:", err)
 		return nil, err
 	}
 	return user, nil
@@ -59,7 +59,7 @@ func (s *usersService) GetUser(ctx ctxt, id string) (*models.User, error) {
 func (s *usersService) GetByEmail(ctx ctxt, email string) (*models.User, error) {
 	user, err := s.repository.GetByEmail(ctx, email)
 	if err != nil {
-		fmt.Println("Get User by email error:", err)
+		log.Println("Get User by email error:", err)
 		return nil, err
 	}
 	return user, nil
@@ -69,7 +69,7 @@ func (s *usersService) GetByEmail(ctx ctxt, email string) (*models.User, error) 
 func (s *usersService) DeleteUser(ctx ctxt, id string) (string, error) {
 	resId, err := s.repository.Delete(ctx, id)
 	if err != nil {
-		fmt.Println("Delete User error:", err)
+		log.Println("Delete User error:", err)
 		return "", err
 	}
 	return resId, nil
@@ -79,7 +79,7 @@ func (s *usersService) DeleteUser(ctx ctxt, id string) (string, error) {
 func (s *usersService) UpdateUser(ctx ctxt, user *models.User) (*models.User, error) {
 	updatedUser, err := s.repository.Update(ctx, user)
 	if err != nil {
-		fmt.Println("Update User error:", err)
+		log.Println("Update User error:", err)
 		return nil, err
 	}
 	return updatedUser, nil
@@ -88,17 +88,17 @@ func (s *usersService) UpdateUser(ctx ctxt, user *models.User) (*models.User, er
 func (s *usersService) LoginUser(ctx ctxt, email string, password string) (string, error) {
 	user, err := s.GetByEmail(context.Background(), email)
 	if err != nil {
-		return "", errors.NewDbError(err.Error())
+		return "", appErr.ErrDb
 	}
 	if user == nil {
-		return "", errors.NewUserNotFoundError(email)
+		return "", appErr.ErrUserNotFound
 	}
 	if !utils.CheckPasswordHash(password, user.HashPass) {
-		return "", errors.NewPasswordError()
+		return "", appErr.ErrPassword
 	}
 	token, err := s.auth.GetUserToken(ctx, user.Id)
 	if err != nil {
-		return "", errors.NewAuthError(err.Error())
+		return "", appErr.ErrAuthentication
 	}
 	return token, nil
 }
@@ -106,17 +106,17 @@ func (s *usersService) LoginUser(ctx ctxt, email string, password string) (strin
 func (s *usersService) LoginAdmin(ctx ctxt, email string, password string) (string, error) {
 	user, err := s.GetByEmail(context.Background(), email)
 	if err != nil {
-		return "", errors.NewDbError(err.Error())
+		return "", appErr.ErrDb
 	}
 	if user == nil {
-		return "", errors.NewUserNotFoundError(email)
+		return "", appErr.ErrUserNotFound
 	}
 	if !utils.CheckPasswordHash(password, user.HashPass) {
-		return "", errors.NewPasswordError()
+		return "", appErr.ErrPassword
 	}
 	token, err := s.auth.GetAdminToken(ctx)
 	if err != nil {
-		return "", errors.NewAuthError(err.Error())
+		return "", appErr.ErrAuthentication
 	}
 	return token, nil
 }

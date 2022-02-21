@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -11,13 +11,14 @@ import (
 	"github.com/pseudoincorrect/bariot/users/models"
 	"github.com/pseudoincorrect/bariot/users/service"
 	utils "github.com/pseudoincorrect/bariot/users/utilities"
-	"github.com/pseudoincorrect/bariot/users/utilities/errors"
+	appErr "github.com/pseudoincorrect/bariot/users/utilities/errors"
 )
 
-func InitApi(port string, s service.Users) {
+func InitApi(port string, s service.Users) error {
 	router := createRouter()
 	createEndpoint(s, router)
-	startRouter(port, router)
+	err := startRouter(port, router)
+	return err
 }
 
 func createRouter() *chi.Mux {
@@ -40,9 +41,10 @@ func createEndpoint(s service.Users, r *chi.Mux) {
 	r.Post("/login/admin", loginAdminEndpoint(s))
 }
 
-func startRouter(port string, r *chi.Mux) {
+func startRouter(port string, r *chi.Mux) error {
 	addr := ":" + port
-	http.ListenAndServe(addr, r)
+	err := http.ListenAndServe(addr, r)
+	return err
 }
 
 func userGetEndpoint(s service.Users) http.HandlerFunc {
@@ -58,7 +60,7 @@ func userGetEndpoint(s service.Users) http.HandlerFunc {
 			return
 		}
 		if user == nil {
-			http.Error(res, errors.NewUserNotFoundError(id).Error(), http.StatusNotFound)
+			http.Error(res, appErr.ErrUserNotFound.Error(), http.StatusNotFound)
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
@@ -75,13 +77,13 @@ type userPostRequest struct {
 
 func (r *userPostRequest) validate() error {
 	if r.FullName == "" || len(r.FullName) > 100 || len(r.FullName) < 3 {
-		return errors.NewValidationError("Invalid user name")
+		return appErr.ErrValidation
 	}
 	if r.Email == "" || len(r.Email) > 100 || len(r.Email) < 3 {
-		return errors.NewValidationError("Invalid email")
+		return appErr.ErrValidation
 	}
 	if r.Password == "" || len(r.Password) > 100 || len(r.Password) < 3 {
-		return errors.NewValidationError("Invalid Password")
+		return appErr.ErrValidation
 	}
 	return nil
 }
@@ -148,10 +150,10 @@ type userPutRequest struct {
 
 func (r *userPutRequest) validate() error {
 	if r.FullName == "" || len(r.FullName) > 100 || len(r.FullName) < 3 {
-		return errors.NewValidationError("Invalid user name")
+		return appErr.ErrValidation
 	}
 	if r.Email == "" || len(r.Email) > 100 || len(r.Email) < 3 {
-		return errors.NewValidationError("Invalid user email")
+		return appErr.ErrValidation
 	}
 	return nil
 }
@@ -199,10 +201,10 @@ type loginPostResponse struct {
 
 func (req *loginPostRequest) validate() error {
 	if req.Email == "" || len(req.Email) > 100 || len(req.Email) < 3 {
-		return errors.NewValidationError("Invalid user email")
+		return appErr.ErrValidation
 	}
 	if req.Password == "" || len(req.Password) > 100 || len(req.Password) < 3 {
-		return errors.NewValidationError("Invalid user password")
+		return appErr.ErrValidation
 	}
 	return nil
 }
@@ -259,7 +261,7 @@ func AdminOnly(s service.Users) middlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			token := req.Header.Get("Authorization")
-			fmt.Println("AdminOnly route !", token)
+			log.Println("AdminOnly route !", token)
 			isAuthorized, err := s.IsAdmin(req.Context(), token)
 			if err != nil {
 				http.Error(res, err.Error(), http.StatusInternalServerError)

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -51,15 +52,15 @@ func loadConfig() config {
 }
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+	log.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 }
 
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
-	fmt.Println("Connected")
+	log.Println("Connected")
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
-	fmt.Printf("Connect lost: %v", err)
+	log.Printf("Connect lost: %v", err)
 }
 
 func publish(client mqtt.Client) {
@@ -76,7 +77,7 @@ func sub(client mqtt.Client) {
 	topic := "topic/test"
 	token := client.Subscribe(topic, 1, nil)
 	token.Wait()
-	fmt.Printf("Subscribed to topic: %s", topic)
+	log.Printf("Subscribed to topic: %s", topic)
 }
 
 func connectMqttBroker(conf config) (mqtt.Client, error) {
@@ -93,7 +94,7 @@ func connectMqttBroker(conf config) (mqtt.Client, error) {
 	tryCnt := 0
 
 	for !isMqttOnline(conf) {
-		fmt.Println("Waiting for MQTT broker...")
+		log.Println("Waiting for MQTT broker...")
 		tryCnt++
 		if tryCnt > 5 {
 			return nil, errors.New("mqtt broker is not online")
@@ -112,22 +113,22 @@ func connectMqttBroker(conf config) (mqtt.Client, error) {
 func isMqttOnline(conf config) bool {
 	res, err := http.Get(fmt.Sprintf("http://%s:%s/status", conf.mqttHost, conf.mqttStatusPort))
 	if err != nil {
-		fmt.Printf("isMqttOnline error: %v", err)
+		log.Printf("isMqttOnline error: %v", err)
 		return false
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		fmt.Printf("isMqttOnline error: %v", err)
+		log.Printf("isMqttOnline error: %v", err)
 		return false
 	}
-	fmt.Printf("isMqttOnline: %s", body)
+	log.Printf("isMqttOnline: %s", body)
 
 	return true
 }
 
 func testDb() {
-	fmt.Println("Test Db")
+	log.Println("Test Db")
 	conf := loadConfig()
 
 	dbConf := db.DbConfig{
@@ -140,7 +141,7 @@ func testDb() {
 	database, err := db.Init(dbConf)
 
 	if err != nil {
-		fmt.Println("Database Init error:", err)
+		log.Println("Database Init error:", err)
 	}
 	thingsRepo := db.New(database)
 
@@ -155,15 +156,15 @@ func testDb() {
 	thing, err = thingsRepo.Save(ctx, thing)
 
 	if err != nil {
-		fmt.Println("Save Thing error:", err)
+		log.Println("Save Thing error:", err)
 		return
 	}
 
-	fmt.Println("Getting thing")
+	log.Println("Getting thing")
 	thing, _ = thingsRepo.Get(ctx, thing.Id)
-	fmt.Println(thing.String())
+	log.Println(thing.String())
 
-	fmt.Println("Updating thing")
+	log.Println("Updating thing")
 	thing, _ = thingsRepo.Update(ctx, &models.Thing{
 		Id:     thing.Id,
 		Key:    "TheNewKey",
@@ -173,12 +174,12 @@ func testDb() {
 
 	thing, _ = thingsRepo.Get(ctx, thing.Id)
 
-	fmt.Println("Deleting thing")
+	log.Println("Deleting thing")
 	thingsRepo.Delete(ctx, thing.Id)
 
 	thing, _ = thingsRepo.Get(ctx, thing.Id)
 	if thing == nil {
-		fmt.Println("Success, no Thing found")
+		log.Println("Success, no Thing found")
 	}
 }
 
@@ -195,7 +196,7 @@ func createService() (service.Things, error) {
 	database, err := db.Init(dbConf)
 
 	if err != nil {
-		fmt.Println("Database Init error:", err)
+		log.Println("Database Init error:", err)
 	}
 	thingsRepo := db.New(database)
 
@@ -207,34 +208,36 @@ func createService() (service.Things, error) {
 	authClient := client.New(authClientConf)
 	err = authClient.StartAuthClient()
 	if err != nil {
-		fmt.Println("Auth client error:", err)
+		log.Println("Auth client error:", err)
 		return nil, err
 	}
 
 	return service.New(thingsRepo, authClient), nil
 
 }
-func testHttp(s service.Things) {
+func startHttp(s service.Things) error {
 	conf := loadConfig()
 
-	api.InitApi(conf.httpPort, s)
+	err := api.InitApi(conf.httpPort, s)
+	return err
 }
 
 func main() {
-	fmt.Println("Things service online")
+	log.Println("Things service online")
 
 	thingsService, err := createService()
-
 	if err != nil {
-		fmt.Println("Create service error:", err)
-		return
+		log.Panic("Create service error:", err)
 	}
 
-	testHttp(thingsService)
+	err = startHttp(thingsService)
+	if err != nil {
+		log.Panic("Start http error:", err)
+	}
 
 	// client, err := connectMqttBroker(conf)
 	// if err != nil {
-	// 	fmt.Printf("connectMqttBroker error: %v", err)
+	// 	log.Printf("connectMqttBroker error: %v", err)
 	// 	return
 	// }
 	// sub(client)

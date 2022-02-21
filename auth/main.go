@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/pseudoincorrect/bariot/auth/rpc/server"
 	"github.com/pseudoincorrect/bariot/auth/service"
@@ -28,7 +28,7 @@ func loadConfig() config {
 }
 
 func main() {
-	fmt.Println("Auth service...")
+	log.Println("Auth service...")
 
 	conf := loadConfig()
 
@@ -44,8 +44,7 @@ func main() {
 	}
 
 	err := server.Start(serverConf)
-
 	if err != nil {
-		fmt.Println(err)
+		log.Panic("Error starting GRPC server:", err)
 	}
 }

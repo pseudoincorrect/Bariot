@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/pseudoincorrect/bariot/things/models"
 	"github.com/pseudoincorrect/bariot/things/rpc/client"
@@ -38,7 +38,7 @@ func New(repository models.ThingsRepository, auth client.Auth) Things {
 func (s *thingsService) SaveThing(ctx ctxt, thing *models.Thing) (*models.Thing, error) {
 	savedThing, err := s.repository.Save(ctx, thing)
 	if err != nil {
-		fmt.Println("Save Thing error:", err)
+		log.Println("Save Thing error:", err)
 		return nil, err
 	}
 	return savedThing, nil
@@ -48,7 +48,7 @@ func (s *thingsService) SaveThing(ctx ctxt, thing *models.Thing) (*models.Thing,
 func (s *thingsService) GetThing(ctx ctxt, id string) (*models.Thing, error) {
 	thing, err := s.repository.Get(ctx, id)
 	if err != nil {
-		fmt.Println("Get Thing error:", err)
+		log.Println("Get Thing error:", err)
 		return nil, err
 	}
 	return thing, nil
@@ -58,7 +58,7 @@ func (s *thingsService) GetThing(ctx ctxt, id string) (*models.Thing, error) {
 func (s *thingsService) DeleteThing(ctx ctxt, id string) (string, error) {
 	resId, err := s.repository.Delete(ctx, id)
 	if err != nil {
-		fmt.Println("Delete Thing error:", err)
+		log.Println("Delete Thing error:", err)
 		return "", err
 	}
 	return resId, nil
@@ -68,7 +68,7 @@ func (s *thingsService) DeleteThing(ctx ctxt, id string) (string, error) {
 func (s *thingsService) UpdateThing(ctx ctxt, thing *models.Thing) (*models.Thing, error) {
 	updatedThing, err := s.repository.Update(ctx, thing)
 	if err != nil {
-		fmt.Println("Update Thing error:", err)
+		log.Println("Update Thing error:", err)
 		return nil, err
 	}
 	return updatedThing, nil

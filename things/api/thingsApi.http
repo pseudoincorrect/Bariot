@@ -11,11 +11,10 @@
 
 @host = http://localhost:8083
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoidXNlciIsImV4cCI6MTY0NTUzNDYxMiwiaWF0IjoxNjQ1NDQ4MjEyLCJpc3MiOiJkZXZfbG9jYWwiLCJzdWIiOiJhODUzMTA2OC0yODE5LTQzOGUtODk1OS1lMDYwMjNlNWFkYWMifQ.I4EHSJY706LY8JAsSLzsrjw17YZ0DoA4J59e30EObS4
-@thingId = db3ae8a0-c771-4557-8340-cbcabdf5b57b
+@thingId = 150dd700-66af-4ac2-b815-b7290ad7d9ff
 @thingName = Device1
 @thingNewName = Device2
 @thingKey = 1234567890
-@thingUserId = d91112eb-c44a-4fe3-ab84-89e46880e2cd
 @thingMetadata = {}
 
 ### GET Thing by id

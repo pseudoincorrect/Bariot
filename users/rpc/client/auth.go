@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	pb "github.com/pseudoincorrect/bariot/users/rpc/auth"
 	"google.golang.org/grpc"
@@ -41,10 +41,10 @@ type authClient struct {
 
 func (c *authClient) StartAuthClient() error {
 	addr := c.Conf.Host + ":" + c.Conf.Port
-	fmt.Println("init user service GRPC client to ", addr)
+	log.Println("init user service GRPC client to ", addr)
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
-		fmt.Println("did not connect:", err)
+		log.Println("did not connect:", err)
 		return err
 	}
 	// defer conn.Close()
@@ -56,7 +56,7 @@ func (c *authClient) StartAuthClient() error {
 func (c *authClient) GetAdminToken(ctx context.Context) (string, error) {
 	resToken, err := c.Client.GetAdminToken(ctx, &pb.GetAdminTokenRequest{})
 	if err != nil {
-		fmt.Println("GRPC get admin token error:", err)
+		log.Println("GRPC get admin token error:", err)
 		return "", err
 	}
 	return resToken.GetJwt(), nil
@@ -65,7 +65,7 @@ func (c *authClient) GetAdminToken(ctx context.Context) (string, error) {
 func (c *authClient) GetUserToken(ctx context.Context, userId string) (string, error) {
 	resToken, err := c.Client.GetUserToken(ctx, &pb.GetUserTokenRequest{UserId: userId})
 	if err != nil {
-		fmt.Println("GRPC get admin token error:", err)
+		log.Println("GRPC get admin token error:", err)
 		return "", err
 	}
 	return resToken.GetJwt(), nil

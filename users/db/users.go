@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,7 +22,8 @@ func New(db *Database) models.UsersRepository {
 
 func (r *usersRepo) Save(ctx context.Context, t *models.User) (*models.User, error) {
 	fail := func(err error) error {
-		return fmt.Errorf("failed to save user: %v", err)
+		log.Println("failed to save user: %v", err)
+		return err
 	}
 	tx, err := r.db.conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -95,7 +97,8 @@ func (r *usersRepo) GetByEmail(ctx context.Context, email string) (*models.User,
 
 func (r *usersRepo) Delete(ctx context.Context, id string) (string, error) {
 	fail := func(err error) error {
-		return fmt.Errorf("failed to save user: %v", err)
+		log.Println("failed to save user: %v", err)
+		return err
 	}
 	tx, err := r.db.conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -107,7 +110,7 @@ func (r *usersRepo) Delete(ctx context.Context, id string) (string, error) {
 	// 	"DELETE FROM users WHERE id=$1", id)
 	err = tx.QueryRow(ctx, "DELETE FROM users WHERE id=$1 RETURNING id", id).Scan(&deletedId)
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 		return "", err
 	}
 	if err = tx.Commit(ctx); err != nil {
@@ -118,7 +121,7 @@ func (r *usersRepo) Delete(ctx context.Context, id string) (string, error) {
 
 func (r *usersRepo) Update(ctx context.Context, user *models.User) (*models.User, error) {
 	fail := func(err error) error {
-		return fmt.Errorf("failed to save user: %v", err)
+		return log.Errorf("failed to save user: %v", err)
 	}
 	tx, err := r.db.conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -130,7 +133,7 @@ func (r *usersRepo) Update(ctx context.Context, user *models.User) (*models.User
 		"UPDATE users SET email=$1, full_name=$2 WHERE id=$3 RETURNING email, full_name, created_at",
 		user.Email, user.FullName, user.Id).Scan(&user.Email, &user.FullName, &createdAt)
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 		return nil, err
 	}
 	if err = tx.Commit(ctx); err != nil {

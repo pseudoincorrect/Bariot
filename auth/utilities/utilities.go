@@ -1,7 +1,7 @@
 package utilities
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/google/uuid"
@@ -23,8 +23,8 @@ func GetEnvFb(key string, defaultValue string) string {
 func GetEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
-		fmt.Println("Environment variable", key, "is not set")
-		fmt.Println("Please set it and try again")
+		log.Println("Environment variable", key, "is not set")
+		log.Println("Please set it and try again")
 		panic("Environment variable " + key + " is not set and")
 	}
 	return value

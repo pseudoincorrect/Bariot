@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,7 +23,8 @@ func New(db *Database) models.ThingsRepository {
 
 func (r *thingsRepo) Save(ctx context.Context, t *models.Thing) (*models.Thing, error) {
 	fail := func(err error) error {
-		return fmt.Errorf("failed to save thing: %v", err)
+		log.Println("failed to save thing:", err)
+		return err
 	}
 
 	tx, err := r.db.conn.BeginTx(ctx, pgx.TxOptions{})
@@ -86,7 +87,8 @@ func (r *thingsRepo) Get(ctx context.Context, id string) (*models.Thing, error) 
 
 func (r *thingsRepo) Delete(ctx context.Context, id string) (string, error) {
 	fail := func(err error) error {
-		return fmt.Errorf("failed to save thing: %v", err)
+		log.Println("failed to save thing: %v", err)
+		return err
 	}
 
 	tx, err := r.db.conn.BeginTx(ctx, pgx.TxOptions{})
@@ -101,7 +103,7 @@ func (r *thingsRepo) Delete(ctx context.Context, id string) (string, error) {
 	err = tx.QueryRow(ctx, "DELETE FROM things WHERE id=$1 RETURNING id", id).Scan(&deletedId)
 
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 		return "", err
 	}
 
@@ -114,7 +116,8 @@ func (r *thingsRepo) Delete(ctx context.Context, id string) (string, error) {
 
 func (r *thingsRepo) Update(ctx context.Context, thing *models.Thing) (*models.Thing, error) {
 	fail := func(err error) error {
-		return fmt.Errorf("failed to save thing: %v", err)
+		log.Println("failed to save thing: %v", err)
+		return err
 	}
 
 	tx, err := r.db.conn.BeginTx(ctx, pgx.TxOptions{})
@@ -131,7 +134,7 @@ func (r *thingsRepo) Update(ctx context.Context, thing *models.Thing) (*models.T
 		thing.Key, thing.Name, thing.UserId, thing.Id).Scan(&thing.Key, &thing.Name, &thing.UserId, &createdAt)
 
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 		return nil, err
 	}
 

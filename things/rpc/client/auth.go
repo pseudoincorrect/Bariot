@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	pb "github.com/pseudoincorrect/bariot/things/rpc/auth"
 	"google.golang.org/grpc"
@@ -39,10 +39,10 @@ type authClient struct {
 
 func (c *authClient) StartAuthClient() error {
 	addr := c.Conf.Host + ":" + c.Conf.Port
-	fmt.Println("init user service GRPC client to ", addr)
+	log.Println("init user service GRPC client to ", addr)
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
-		fmt.Println("did not connect:", err)
+		log.Println("did not connect:", err)
 		return err
 	}
 	// defer conn.Close()
@@ -54,7 +54,7 @@ func (c *authClient) StartAuthClient() error {
 func (c *authClient) IsAdmin(ctx context.Context, jwt string) (bool, error) {
 	claims, err := c.Client.GetClaimsToken(ctx, &pb.GetClaimsTokenRequest{Jwt: jwt})
 	if err != nil {
-		fmt.Println("IsWhichUser GetClaimsToken error:", err)
+		log.Println("IsWhichUser GetClaimsToken error:", err)
 		return false, err
 	}
 	return claims.GetRole() == Admin, nil
@@ -63,7 +63,7 @@ func (c *authClient) IsAdmin(ctx context.Context, jwt string) (bool, error) {
 func (c *authClient) IsWhichUser(ctx context.Context, jwt string) (string, string, error) {
 	claims, err := c.Client.GetClaimsToken(ctx, &pb.GetClaimsTokenRequest{Jwt: jwt})
 	if err != nil {
-		fmt.Println("IsWhichUser GetClaimsToken error:", err)
+		log.Println("IsWhichUser GetClaimsToken error:", err)
 		return "", "", err
 	}
 	return claims.GetRole(), claims.GetSubject(), nil

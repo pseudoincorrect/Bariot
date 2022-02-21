@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -84,7 +84,7 @@ func (s *authService) makeToken(role string, subjet string, hours time.Duration)
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(tokenString, err)
+	log.Println(tokenString, err)
 	return tokenString, nil
 }
 
@@ -109,7 +109,7 @@ func (s *authService) GetClaimsToken(tokenString string) (*AuthClaim, error) {
 		return nil, err
 	}
 	if claims, ok := token.Claims.(*AuthClaim); ok && token.Valid {
-		fmt.Println(claims)
+		log.Println(claims)
 		return claims, nil
 	}
 	return nil, jwt.ErrInvalidKey

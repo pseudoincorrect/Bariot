@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/pseudoincorrect/bariot/users/api"
@@ -53,7 +53,8 @@ func createService() (service.Users, error) {
 	}
 	database, err := db.Init(dbConf)
 	if err != nil {
-		fmt.Println("Database Init error:", err)
+		log.Println("Database Init error:", err)
+		return nil, err
 	}
 	usersRepo := db.New(database)
 	authClientConf := client.AuthClientConf{
@@ -63,16 +64,16 @@ func createService() (service.Users, error) {
 	authClient := client.New(authClientConf)
 	err = authClient.StartAuthClient()
 	if err != nil {
-		fmt.Println("Auth client error:", err)
+		log.Println("Auth client error:", err)
 		return nil, err
 	}
 	return service.New(usersRepo, authClient), nil
 
 }
 
-func testHttp(s service.Users) {
+func startHttp(s service.Users) error {
 	conf := loadConfig()
-	api.InitApi(conf.httpPort, s)
+	return api.InitApi(conf.httpPort, s)
 }
 
 func createAdmin(s service.Users) error {
@@ -82,7 +83,7 @@ func createAdmin(s service.Users) error {
 		return err
 	}
 	if user == nil {
-		fmt.Println("Admin does not exist, creating him...")
+		log.Println("Admin does not exist, creating him...")
 		hashPass, err := util.HashPassword(conf.adminPassword)
 		if err != nil {
 			return err
@@ -102,27 +103,25 @@ func createAdmin(s service.Users) error {
 }
 
 func main() {
-	fmt.Println("Users service online")
+	log.Println("Users service online")
 	usersService, err := createService()
 	if err != nil {
-		fmt.Println("Service error:", err)
-		return
+		log.Panic("Users service creation error", err)
 	}
-	createAdmin(usersService)
-	fmt.Println("init user service HTTP server")
+	err = createAdmin(usersService)
+	if err != nil {
+		log.Panic("Admin creation error", err)
+	}
+
+	log.Println("init user service HTTP server")
 	go func() {
-		testHttp(usersService)
+		err = startHttp(usersService)
+		if err != nil {
+			log.Panic("Users service HTTP server error", err)
+		}
 	}()
+	// infinite loop
 	for {
 		time.Sleep(time.Second)
 	}
-	// jwt, err := userService..GetUserToken(context.Background(), "123456789")
-	// fmt.Println("jwt:", jwt)
-	// isUser, userId, err := authClient.IsWhichUser(context.Background(), jwt)
-	// if err != nil {
-	// 	fmt.Println("GRPC validate token error:", err)
-	// }
-	// if err == nil {
-	// 	fmt.Println("isUser:", isUser, ", UserId: ", userId)
-	// }
 }

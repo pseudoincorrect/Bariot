@@ -1,11 +1,11 @@
 package utilities
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/google/uuid"
-	"github.com/pseudoincorrect/bariot/users/utilities/errors"
+	appErr "github.com/pseudoincorrect/bariot/users/utilities/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -24,8 +24,8 @@ func GetEnvFb(key string, defaultValue string) string {
 func GetEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
-		fmt.Println("Environment variable", key, "is not set")
-		fmt.Println("Please set it and try again")
+		log.Println("Environment variable", key, "is not set")
+		log.Println("Please set it and try again")
 		panic("Environment variable " + key + " is not set and")
 	}
 	return value
@@ -33,7 +33,7 @@ func GetEnv(key string) string {
 
 func ValidateUuid(id string) error {
 	if _, err := uuid.Parse(id); err != nil {
-		return errors.NewValidationError("Thing Id is incorrect")
+		return appErr.ErrValidation
 	}
 	return nil
 }

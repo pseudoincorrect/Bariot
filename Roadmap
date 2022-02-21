@@ -16,12 +16,12 @@ MQTT  get all thing related mqtt messages
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
-Endpoint authentication USER/THINGS
 
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
+21/02/2022  AUTH  Endpoint authentication USER/THINGS
 17/02/2022  AUTH  AUTH token generation 
 15/02/2022  GRPC  Create a Auth/JWT service with GRPC
 14/02/2022  HTTP  CRUD user
