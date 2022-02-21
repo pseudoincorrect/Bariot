@@ -8,7 +8,7 @@ import (
 	"github.com/pseudoincorrect/bariot/users/api"
 	"github.com/pseudoincorrect/bariot/users/db"
 	"github.com/pseudoincorrect/bariot/users/models"
-	"github.com/pseudoincorrect/bariot/users/rpc/auth/client"
+	"github.com/pseudoincorrect/bariot/users/rpc/client"
 	"github.com/pseudoincorrect/bariot/users/service"
 	util "github.com/pseudoincorrect/bariot/users/utilities"
 )
