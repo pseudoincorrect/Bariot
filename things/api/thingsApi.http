@@ -9,17 +9,18 @@
 # https://www.youtube.com/watch?v=RcxvrhQKv8I
 #
 
-@thingId = c8d124ee-6f2f-4c44-9fee-9a67ee707478
+@host = http://localhost:8083
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoidXNlciIsImV4cCI6MTY0NTUzNDYxMiwiaWF0IjoxNjQ1NDQ4MjEyLCJpc3MiOiJkZXZfbG9jYWwiLCJzdWIiOiJhODUzMTA2OC0yODE5LTQzOGUtODk1OS1lMDYwMjNlNWFkYWMifQ.I4EHSJY706LY8JAsSLzsrjw17YZ0DoA4J59e30EObS4
+@thingId = db3ae8a0-c771-4557-8340-cbcabdf5b57b
 @thingName = Device1
 @thingNewName = Device2
 @thingKey = 1234567890
 @thingUserId = d91112eb-c44a-4fe3-ab84-89e46880e2cd
 @thingMetadata = {}
-@host = http://localhost:8083
-@token = noTokenYet
 
 ### GET Thing by id
 GET {{host}}/{{thingId}}
+Authorization: {{token}}
 
 ### Create a thing
 POST {{host}}/
@@ -28,8 +29,7 @@ content-type: application/json
 
 {
 "Name": "{{thingName}}",
-"Key" : "{{thingKey}}",
-"UserId" : "{{thingUserId}}"
+"Key" : "{{thingKey}}"
 } 
 
 ### Update a thing
@@ -39,8 +39,7 @@ content-type: application/json
 
 {
 "Name": "{{thingNewName}}",
-"Key" : "{{thingKey}}",
-"UserId" : "{{thingUserId}}"
+"Key" : "{{thingKey}}"
 }
 
 ### Delete a thing

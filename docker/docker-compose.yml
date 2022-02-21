@@ -51,6 +51,8 @@ services:
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
       HTTP_PORT: 8080
+      RPC_AUTH_HOST: auth
+      RPC_AUTH_PORT: ${THINGS_RPC_AUTH_PORT}
       MQTT_HOST: emqx
       MQTT_PORT: 1883
       MQTT_STATUS_PORT: 8081

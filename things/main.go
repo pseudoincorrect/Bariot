@@ -14,12 +14,15 @@ import (
 	"github.com/pseudoincorrect/bariot/things/api"
 	"github.com/pseudoincorrect/bariot/things/db"
 	"github.com/pseudoincorrect/bariot/things/models"
+	"github.com/pseudoincorrect/bariot/things/rpc/client"
 	"github.com/pseudoincorrect/bariot/things/service"
 	util "github.com/pseudoincorrect/bariot/things/utilities"
 )
 
 type config struct {
 	httpPort       string
+	rpcAuthHost    string
+	rpcAuthPort    string
 	mqttHost       string
 	mqttPort       string
 	mqttStatusPort string
@@ -33,6 +36,8 @@ type config struct {
 func loadConfig() config {
 	var conf = config{
 		httpPort:       util.GetEnv("HTTP_PORT"),
+		rpcAuthHost:    util.GetEnv("RPC_AUTH_HOST"),
+		rpcAuthPort:    util.GetEnv("RPC_AUTH_PORT"),
 		mqttHost:       util.GetEnv("MQTT_HOST"),
 		mqttPort:       util.GetEnv("MQTT_PORT"),
 		mqttStatusPort: util.GetEnv("MQTT_STATUS_PORT"),
@@ -177,7 +182,7 @@ func testDb() {
 	}
 }
 
-func createService() service.Things {
+func createService() (service.Things, error) {
 	conf := loadConfig()
 
 	dbConf := db.DbConfig{
@@ -194,7 +199,19 @@ func createService() service.Things {
 	}
 	thingsRepo := db.New(database)
 
-	return service.New(thingsRepo)
+	authClientConf := client.AuthClientConf{
+		Host: conf.rpcAuthHost,
+		Port: conf.rpcAuthPort,
+	}
+
+	authClient := client.New(authClientConf)
+	err = authClient.StartAuthClient()
+	if err != nil {
+		fmt.Println("Auth client error:", err)
+		return nil, err
+	}
+
+	return service.New(thingsRepo, authClient), nil
 
 }
 func testHttp(s service.Things) {
@@ -206,7 +223,12 @@ func testHttp(s service.Things) {
 func main() {
 	fmt.Println("Things service online")
 
-	thingsService := createService()
+	thingsService, err := createService()
+
+	if err != nil {
+		fmt.Println("Create service error:", err)
+		return
+	}
 
 	testHttp(thingsService)
 

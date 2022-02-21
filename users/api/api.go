@@ -29,6 +29,7 @@ func createRouter() *chi.Mux {
 }
 
 func createEndpoint(s service.Users, r *chi.Mux) {
+	// only admins can manage users
 	adminGroup := r.Group(nil)
 	adminGroup.Use(AdminOnly(s))
 	adminGroup.Get("/{id}", userGetEndpoint(s))

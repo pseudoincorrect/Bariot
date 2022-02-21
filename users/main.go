@@ -44,7 +44,6 @@ func loadConfig() config {
 
 func createService() (service.Users, error) {
 	conf := loadConfig()
-
 	dbConf := db.DbConfig{
 		Host:     conf.dbHost,
 		Port:     conf.dbPort,
@@ -53,24 +52,20 @@ func createService() (service.Users, error) {
 		Password: conf.dbPassword,
 	}
 	database, err := db.Init(dbConf)
-
 	if err != nil {
 		fmt.Println("Database Init error:", err)
 	}
 	usersRepo := db.New(database)
-
 	authClientConf := client.AuthClientConf{
 		Host: conf.rpcAuthHost,
 		Port: conf.rpcAuthPort,
 	}
-
 	authClient := client.New(authClientConf)
 	err = authClient.StartAuthClient()
 	if err != nil {
 		fmt.Println("Auth client error:", err)
 		return nil, err
 	}
-
 	return service.New(usersRepo, authClient), nil
 
 }
@@ -108,27 +103,21 @@ func createAdmin(s service.Users) error {
 
 func main() {
 	fmt.Println("Users service online")
-
 	usersService, err := createService()
 	if err != nil {
 		fmt.Println("Service error:", err)
 		return
 	}
-
 	createAdmin(usersService)
-
 	fmt.Println("init user service HTTP server")
-
 	go func() {
 		testHttp(usersService)
 	}()
-
 	for {
 		time.Sleep(time.Second)
 	}
 	// jwt, err := userService..GetUserToken(context.Background(), "123456789")
 	// fmt.Println("jwt:", jwt)
-
 	// isUser, userId, err := authClient.IsWhichUser(context.Background(), jwt)
 	// if err != nil {
 	// 	fmt.Println("GRPC validate token error:", err)

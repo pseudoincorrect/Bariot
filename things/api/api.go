@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -10,8 +11,12 @@ import (
 	"github.com/pseudoincorrect/bariot/things/models"
 	"github.com/pseudoincorrect/bariot/things/service"
 	utils "github.com/pseudoincorrect/bariot/things/utilities"
-	"github.com/pseudoincorrect/bariot/things/utilities/errors"
+	appErr "github.com/pseudoincorrect/bariot/things/utilities/errors"
 )
+
+type ctxKey int
+
+const userIdKey ctxKey = iota
 
 func InitApi(port string, s service.Things) {
 	router := createRouter()
@@ -27,16 +32,25 @@ func createRouter() *chi.Mux {
 	return r
 }
 
-func createEndpoint(s service.Things, router *chi.Mux) {
-	router.Get("/{id}", thingGetEndpoint(s))
-	router.Post("/", thingPostEndpoint(s))
-	router.Delete("/{id}", thingDeleteEndpoint(s))
-	router.Put("/{id}", thingPutEndpoint(s))
+func createEndpoint(s service.Things, r *chi.Mux) {
+	// only user can create a thing (associated with user id)
+	userOnlyGroup := r.Group(nil)
+	userOnlyGroup.Use(userOnly(s))
+	userOnlyGroup.Post("/", thingPostEndpoint(s))
+	// only user of thing or admin can get delete a thing
+	userOfThingOrAdminGroup := r.Group(nil)
+	userOfThingOrAdminGroup.Use(userOfThingOrAdmin(s))
+	userOfThingOrAdminGroup.Get("/{id}", thingGetEndpoint(s))
+	userOfThingOrAdminGroup.Delete("/{id}", thingDeleteEndpoint(s))
+	// only a user of a thing can update it
+	userOfThingOnlyGroup := r.Group(nil)
+	userOfThingOnlyGroup.Use(userOfThingOnly(s))
+	userOfThingOnlyGroup.Put("/{id}", thingPutEndpoint(s))
 }
 
-func startRouter(port string, router *chi.Mux) {
+func startRouter(port string, r *chi.Mux) {
 	addr := ":" + port
-	http.ListenAndServe(addr, router)
+	http.ListenAndServe(addr, r)
 }
 
 func thingGetEndpoint(s service.Things) http.HandlerFunc {
@@ -52,7 +66,7 @@ func thingGetEndpoint(s service.Things) http.HandlerFunc {
 			return
 		}
 		if thing == nil {
-			http.Error(res, errors.NewThingNotFoundError(id).Error(), http.StatusNotFound)
+			http.Error(res, "thing not found", http.StatusNotFound)
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
@@ -61,26 +75,27 @@ func thingGetEndpoint(s service.Things) http.HandlerFunc {
 }
 
 type thingPostRequest struct {
-	Name   string `json:"Name"`
-	Key    string `json:"Key"`
-	UserId string `json:"UserId"`
+	Name string `json:"Name"`
+	Key  string `json:"Key"`
 }
 
 func (r *thingPostRequest) validate() error {
 	if r.Name == "" {
-		return errors.NewValidationError("Thing name is required")
+		return appErr.ErrValidation
 	}
 	if len(r.Name) > 100 {
-		return errors.NewValidationError("Thing name is too long")
+		return appErr.ErrValidation
 	}
 	if len(r.Name) < 3 {
-		return errors.NewValidationError("Thing name is too short")
+		return appErr.ErrValidation
 	}
 	return nil
 }
 
 func thingPostEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
+		userId := req.Context().Value(userIdKey).(string)
+		fmt.Println("user id", userId)
 		thingReq := thingPostRequest{}
 		err := json.NewDecoder(req.Body).Decode(&thingReq)
 		if err != nil {
@@ -94,7 +109,7 @@ func thingPostEndpoint(s service.Things) http.HandlerFunc {
 		thing := models.Thing{
 			Key:    thingReq.Key,
 			Name:   thingReq.Name,
-			UserId: thingReq.UserId,
+			UserId: userId,
 		}
 		savedThing, err := s.SaveThing(context.Background(), &thing)
 		if err != nil {
@@ -127,26 +142,26 @@ func thingDeleteEndpoint(s service.Things) http.HandlerFunc {
 }
 
 type thingPutRequest struct {
-	Name   string `json:"Name"`
-	Key    string `json:"Key"`
-	UserId string `json:"UserId"`
+	Name string `json:"Name"`
+	Key  string `json:"Key"`
 }
 
 func (r *thingPutRequest) validate() error {
 	if r.Name == "" {
-		return errors.NewValidationError("Thing name is required")
+		return appErr.ErrValidation
 	}
 	if len(r.Name) > 100 {
-		return errors.NewValidationError("Thing name is too long")
+		return appErr.ErrValidation
 	}
 	if len(r.Name) < 3 {
-		return errors.NewValidationError("Thing name is too short")
+		return appErr.ErrValidation
 	}
 	return nil
 }
 
 func thingPutEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
+		userId := req.Context().Value(userIdKey).(string)
 		id := chi.URLParam(req, "id")
 		if err := utils.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
@@ -158,17 +173,74 @@ func thingPutEndpoint(s service.Things) http.HandlerFunc {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
+		if err = thingReq.validate(); err != nil {
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
 		thing := models.Thing{
 			Id:     id,
 			Key:    thingReq.Key,
 			Name:   thingReq.Name,
-			UserId: thingReq.UserId,
+			UserId: userId,
 		}
+		fmt.Println("TODO: check thing belong to user")
 		updatedThing, err := s.UpdateThing(context.Background(), &thing)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		json.NewEncoder(res).Encode(updatedThing)
+	}
+}
+
+type middlewareFunc func(http.Handler) http.Handler
+
+func userOfThingOrAdmin(s service.Things) middlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			token := req.Header.Get("Authorization")
+			fmt.Println("userOfThingOrAdmin route", token)
+			thingId := chi.URLParam(req, "id")
+			userId, err := s.UserOfThingOrAdmin(context.Background(), token, thingId)
+			if err != nil {
+				fmt.Println(err)
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))
+		})
+	}
+}
+
+func userOfThingOnly(s service.Things) middlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			token := req.Header.Get("Authorization")
+			fmt.Println("userOfThingOnly route", token)
+			thingId := chi.URLParam(req, "id")
+			userId, err := s.UserOfThingOnly(context.Background(), token, thingId)
+			if err != nil {
+				fmt.Println(err)
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))
+		})
+	}
+}
+
+func userOnly(s service.Things) middlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			token := req.Header.Get("Authorization")
+			fmt.Println("userOnly route", token)
+			userId, err := s.UserOnly(context.Background(), token)
+			if err != nil {
+				fmt.Println(err)
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))
+		})
 	}
 }

@@ -9,15 +9,15 @@ import (
 )
 
 const (
-	admin = "admin"
-	user  = "user"
-	thing = "thing"
+	Admin = "admin"
+	User  = "user"
+	Thing = "thing"
 )
 
 type Auth interface {
 	StartAuthClient() error
 	IsAdmin(context.Context, string) (bool, error)
-	IsWhichUser(context.Context, string) (bool, string, error)
+	IsWhichUser(context.Context, string) (string, string, error)
 }
 
 var _ Auth = (*authClient)(nil)
@@ -54,15 +54,17 @@ func (c *authClient) StartAuthClient() error {
 func (c *authClient) IsAdmin(ctx context.Context, jwt string) (bool, error) {
 	claims, err := c.Client.GetClaimsToken(ctx, &pb.GetClaimsTokenRequest{Jwt: jwt})
 	if err != nil {
+		fmt.Println("IsWhichUser GetClaimsToken error:", err)
 		return false, err
 	}
-	return claims.GetRole() == admin, nil
+	return claims.GetRole() == Admin, nil
 }
 
-func (c *authClient) IsWhichUser(ctx context.Context, jwt string) (bool, string, error) {
+func (c *authClient) IsWhichUser(ctx context.Context, jwt string) (string, string, error) {
 	claims, err := c.Client.GetClaimsToken(ctx, &pb.GetClaimsTokenRequest{Jwt: jwt})
 	if err != nil {
-		return false, "", err
+		fmt.Println("IsWhichUser GetClaimsToken error:", err)
+		return "", "", err
 	}
-	return claims.GetRole() == user, claims.GetSubject(), nil
+	return claims.GetRole(), claims.GetSubject(), nil
 }

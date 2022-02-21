@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/google/uuid"
-	"github.com/pseudoincorrect/bariot/things/utilities/errors"
+	appErr "github.com/pseudoincorrect/bariot/things/utilities/errors"
 )
 
 /// GetEnv returns the value of the environment variable named by the key.
@@ -32,7 +32,7 @@ func GetEnv(key string) string {
 
 func ValidateUuid(id string) error {
 	if _, err := uuid.Parse(id); err != nil {
-		return errors.NewValidationError("Thing Id is incorrect")
+		return appErr.ErrValidation
 	}
 	return nil
 }

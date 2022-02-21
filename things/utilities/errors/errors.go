@@ -1,21 +1,23 @@
 package errors
 
-type error interface {
-	Error() string
-}
+import "errors"
 
-type AppError struct {
-	msg string
-}
+var ErrValidation = errors.New("validation error")
 
-func (e *AppError) Error() string {
-	return e.msg
-}
+// type ErrValidation error
 
-func NewValidationError(text string) error {
-	return &AppError{text}
-}
+// func NewErrValidation(msg string) ErrValidation {
+// 	return ErrValidation(errors.New(msg))
+// }
 
-func NewThingNotFoundError(id string) error {
-	return &AppError{"Thing " + id + " not found"}
-}
+var ErrThingNotFound = errors.New("thing not found error")
+
+var ErrUserNotFound = errors.New("user not found error")
+
+var ErrDb = errors.New("database error")
+
+var ErrPassword = errors.New("password error")
+
+var ErrAuthentication = errors.New("authentication error")
+
+var ErrAuthorization = errors.New("authorization error")
