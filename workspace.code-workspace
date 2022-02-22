@@ -13,6 +13,9 @@
       "path": "frontend"
     },
     {
+      "path": "mqtt"
+    },
+    {
       "path": "support"
     },
     {
