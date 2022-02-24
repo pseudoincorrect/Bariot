@@ -29,3 +29,8 @@ $ docker-compose up --no-deps --build <docker_compose_service_name>
 ``` console
 \\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\
 ```
+
+### Install Micro (text editor) on a alpine container
+``` console  
+$ cd && curl https://getmic.ro | bash && sudo mv micro /usr/local/bin/micro
+```

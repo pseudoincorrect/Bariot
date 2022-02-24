@@ -121,7 +121,8 @@ func (r *usersRepo) Delete(ctx context.Context, id string) (string, error) {
 
 func (r *usersRepo) Update(ctx context.Context, user *models.User) (*models.User, error) {
 	fail := func(err error) error {
-		return log.Errorf("failed to save user: %v", err)
+		log.Println("failed to save user: %v", err)
+		return err
 	}
 	tx, err := r.db.conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {

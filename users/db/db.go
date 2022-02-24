@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/jackc/pgx/v4"
@@ -28,7 +29,7 @@ func Init(conf DbConfig) (*Database, error) {
 }
 
 func connect(conf DbConfig) (*Database, error) {
-	dbUrl := log.Sprintf("postgres://%s:%s@%s:%s/%s", conf.User, conf.Password, conf.Host, conf.Port, conf.Dbname)
+	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.User, conf.Password, conf.Host, conf.Port, conf.Dbname)
 	conn, err := pgx.Connect(context.Background(), dbUrl)
 	if err != nil {
 		log.Println("Unable to connect to database:", err)

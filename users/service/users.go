@@ -1,12 +1,12 @@
 package service
 
 import (
+	"Projects/Bariot/users/utilities/hash"
 	"context"
 	"log"
 
 	"github.com/pseudoincorrect/bariot/users/models"
 	"github.com/pseudoincorrect/bariot/users/rpc/client"
-	utils "github.com/pseudoincorrect/bariot/users/utilities"
 	appErr "github.com/pseudoincorrect/bariot/users/utilities/errors"
 )
 
@@ -93,7 +93,7 @@ func (s *usersService) LoginUser(ctx ctxt, email string, password string) (strin
 	if user == nil {
 		return "", appErr.ErrUserNotFound
 	}
-	if !utils.CheckPasswordHash(password, user.HashPass) {
+	if !hash.CheckPasswordHash(password, user.HashPass) {
 		return "", appErr.ErrPassword
 	}
 	token, err := s.auth.GetUserToken(ctx, user.Id)
@@ -111,7 +111,7 @@ func (s *usersService) LoginAdmin(ctx ctxt, email string, password string) (stri
 	if user == nil {
 		return "", appErr.ErrUserNotFound
 	}
-	if !utils.CheckPasswordHash(password, user.HashPass) {
+	if !hash.CheckPasswordHash(password, user.HashPass) {
 		return "", appErr.ErrPassword
 	}
 	token, err := s.auth.GetAdminToken(ctx)
