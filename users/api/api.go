@@ -9,8 +9,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/pseudoincorrect/bariot/pkg/errors"
+	"github.com/pseudoincorrect/bariot/pkg/validation"
 	"github.com/pseudoincorrect/bariot/users/models"
 	"github.com/pseudoincorrect/bariot/users/service"
+	"github.com/pseudoincorrect/bariot/users/utilities/hash"
 )
 
 func InitApi(port string, s service.Users) error {
@@ -49,7 +51,7 @@ func startRouter(port string, r *chi.Mux) error {
 func userGetEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-		if err := utils.ValidateUuid(id); err != nil {
+		if err := validation.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -100,7 +102,7 @@ func userPostEndpoint(s service.Users) http.HandlerFunc {
 			return
 		}
 
-		hashPass, err := utils.HashPassword(userReq.Password)
+		hashPass, err := hash.HashPassword(userReq.Password)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -129,7 +131,7 @@ type userDeleteResponse struct {
 func userDeleteEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-		if err := utils.ValidateUuid(id); err != nil {
+		if err := validation.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -160,7 +162,7 @@ func (r *userPutRequest) validate() error {
 func userPutEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-		if err := utils.ValidateUuid(id); err != nil {
+		if err := validation.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}

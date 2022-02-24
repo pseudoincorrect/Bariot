@@ -105,6 +105,7 @@ func createAdmin(s service.Users) error {
 
 func main() {
 	log.Println("Users service online")
+
 	usersService, err := createService()
 	if err != nil {
 		log.Panic("Users service creation error", err)

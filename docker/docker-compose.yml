@@ -11,10 +11,14 @@ volumes:
 services:
 
   users:
-    build: ../users
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SVC: users
     image: users_service:latest
-    depends_on:
-      - users_db
+    # depends_on:
+    #   - users_db
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
       HTTP_PORT: 8080
@@ -44,7 +48,11 @@ services:
       POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
 
   things:
-    build: ../things
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SVC: things
     image: things_service:latest
     depends_on:
       - things_db
@@ -78,7 +86,11 @@ services:
       POSTGRES_PASSWORD: ${THINGS_DB_PASSWORD}
   
   auth:
-    build: ../auth
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SVC: auth
     image: auth_service:latest
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
@@ -88,7 +100,11 @@ services:
       JWT_SECRET: ${JWT_SECRET}
 
   mqtt:
-    build: ../mqtt
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SVC: mqtt
     image: mqtt_service:latest
     environment:
       MQTT_HOST: ${MQTT_HOST}
