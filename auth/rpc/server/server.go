@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/pseudoincorrect/bariot/auth/rpc/auth"
+	pb "github.com/pseudoincorrect/bariot/pkg/grpc/auth"
 	"google.golang.org/grpc"
 
 	"github.com/pseudoincorrect/bariot/auth/service"

@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
+	appErr "github.com/pseudoincorrect/bariot/pkg/errors"
 	"github.com/pseudoincorrect/bariot/things/models"
 	"github.com/pseudoincorrect/bariot/things/rpc/client"
-	appErr "github.com/pseudoincorrect/bariot/things/utilities/errors"
 )
 
 type ctxt context.Context

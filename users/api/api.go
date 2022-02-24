@@ -8,10 +8,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/pseudoincorrect/bariot/pkg/errors"
 	"github.com/pseudoincorrect/bariot/users/models"
 	"github.com/pseudoincorrect/bariot/users/service"
-	utils "github.com/pseudoincorrect/bariot/users/utilities"
-	appErr "github.com/pseudoincorrect/bariot/users/utilities/errors"
 )
 
 func InitApi(port string, s service.Users) error {
@@ -60,7 +59,7 @@ func userGetEndpoint(s service.Users) http.HandlerFunc {
 			return
 		}
 		if user == nil {
-			http.Error(res, appErr.ErrUserNotFound.Error(), http.StatusNotFound)
+			http.Error(res, errors.ErrUserNotFound.Error(), http.StatusNotFound)
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
@@ -77,13 +76,13 @@ type userPostRequest struct {
 
 func (r *userPostRequest) validate() error {
 	if r.FullName == "" || len(r.FullName) > 100 || len(r.FullName) < 3 {
-		return appErr.ErrValidation
+		return errors.ErrValidation
 	}
 	if r.Email == "" || len(r.Email) > 100 || len(r.Email) < 3 {
-		return appErr.ErrValidation
+		return errors.ErrValidation
 	}
 	if r.Password == "" || len(r.Password) > 100 || len(r.Password) < 3 {
-		return appErr.ErrValidation
+		return errors.ErrValidation
 	}
 	return nil
 }
@@ -150,10 +149,10 @@ type userPutRequest struct {
 
 func (r *userPutRequest) validate() error {
 	if r.FullName == "" || len(r.FullName) > 100 || len(r.FullName) < 3 {
-		return appErr.ErrValidation
+		return errors.ErrValidation
 	}
 	if r.Email == "" || len(r.Email) > 100 || len(r.Email) < 3 {
-		return appErr.ErrValidation
+		return errors.ErrValidation
 	}
 	return nil
 }
@@ -201,10 +200,10 @@ type loginPostResponse struct {
 
 func (req *loginPostRequest) validate() error {
 	if req.Email == "" || len(req.Email) > 100 || len(req.Email) < 3 {
-		return appErr.ErrValidation
+		return errors.ErrValidation
 	}
 	if req.Password == "" || len(req.Password) > 100 || len(req.Password) < 3 {
-		return appErr.ErrValidation
+		return errors.ErrValidation
 	}
 	return nil
 }

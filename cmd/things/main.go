@@ -12,12 +12,12 @@ import (
 	"github.com/google/uuid"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/pseudoincorrect/bariot/pkg/env"
 	"github.com/pseudoincorrect/bariot/things/api"
 	"github.com/pseudoincorrect/bariot/things/db"
 	"github.com/pseudoincorrect/bariot/things/models"
 	"github.com/pseudoincorrect/bariot/things/rpc/client"
 	"github.com/pseudoincorrect/bariot/things/service"
-	util "github.com/pseudoincorrect/bariot/things/utilities"
 )
 
 type config struct {
@@ -36,17 +36,17 @@ type config struct {
 
 func loadConfig() config {
 	var conf = config{
-		httpPort:       util.GetEnv("HTTP_PORT"),
-		rpcAuthHost:    util.GetEnv("RPC_AUTH_HOST"),
-		rpcAuthPort:    util.GetEnv("RPC_AUTH_PORT"),
-		mqttHost:       util.GetEnv("MQTT_HOST"),
-		mqttPort:       util.GetEnv("MQTT_PORT"),
-		mqttStatusPort: util.GetEnv("MQTT_STATUS_PORT"),
-		dbHost:         util.GetEnv("PG_HOST"),
-		dbPort:         util.GetEnv("PG_PORT"),
-		dbName:         util.GetEnv("PG_DATABASE"),
-		dbUser:         util.GetEnv("PG_USER"),
-		dbPassword:     util.GetEnv("PG_PASSWORD"),
+		httpPort:       env.GetEnv("HTTP_PORT"),
+		rpcAuthHost:    env.GetEnv("RPC_AUTH_HOST"),
+		rpcAuthPort:    env.GetEnv("RPC_AUTH_PORT"),
+		mqttHost:       env.GetEnv("MQTT_HOST"),
+		mqttPort:       env.GetEnv("MQTT_PORT"),
+		mqttStatusPort: env.GetEnv("MQTT_STATUS_PORT"),
+		dbHost:         env.GetEnv("PG_HOST"),
+		dbPort:         env.GetEnv("PG_PORT"),
+		dbName:         env.GetEnv("PG_DATABASE"),
+		dbUser:         env.GetEnv("PG_USER"),
+		dbPassword:     env.GetEnv("PG_PASSWORD"),
 	}
 	return conf
 }

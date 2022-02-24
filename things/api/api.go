@@ -8,10 +8,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	appErr "github.com/pseudoincorrect/bariot/pkg/errors"
+	"github.com/pseudoincorrect/bariot/pkg/validation"
 	"github.com/pseudoincorrect/bariot/things/models"
 	"github.com/pseudoincorrect/bariot/things/service"
-	utils "github.com/pseudoincorrect/bariot/things/utilities"
-	appErr "github.com/pseudoincorrect/bariot/things/utilities/errors"
 )
 
 type ctxKey int
@@ -58,7 +58,7 @@ func startRouter(port string, r *chi.Mux) error {
 func thingGetEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-		if err := utils.ValidateUuid(id); err != nil {
+		if err := validation.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -130,7 +130,7 @@ type thingDeleteResponse struct {
 func thingDeleteEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
-		if err := utils.ValidateUuid(id); err != nil {
+		if err := validation.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -165,7 +165,7 @@ func thingPutEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		userId := req.Context().Value(userIdKey).(string)
 		id := chi.URLParam(req, "id")
-		if err := utils.ValidateUuid(id); err != nil {
+		if err := validation.ValidateUuid(id); err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}

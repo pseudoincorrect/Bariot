@@ -1,13 +1,13 @@
 package service
 
 import (
-	"Projects/Bariot/users/utilities/hash"
 	"context"
 	"log"
 
+	"github.com/pseudoincorrect/bariot/pkg/errors"
 	"github.com/pseudoincorrect/bariot/users/models"
 	"github.com/pseudoincorrect/bariot/users/rpc/client"
-	appErr "github.com/pseudoincorrect/bariot/users/utilities/errors"
+	"github.com/pseudoincorrect/bariot/users/utilities/hash"
 )
 
 type ctxt context.Context
@@ -88,17 +88,17 @@ func (s *usersService) UpdateUser(ctx ctxt, user *models.User) (*models.User, er
 func (s *usersService) LoginUser(ctx ctxt, email string, password string) (string, error) {
 	user, err := s.GetByEmail(context.Background(), email)
 	if err != nil {
-		return "", appErr.ErrDb
+		return "", errors.ErrDb
 	}
 	if user == nil {
-		return "", appErr.ErrUserNotFound
+		return "", errors.ErrUserNotFound
 	}
 	if !hash.CheckPasswordHash(password, user.HashPass) {
-		return "", appErr.ErrPassword
+		return "", errors.ErrPassword
 	}
 	token, err := s.auth.GetUserToken(ctx, user.Id)
 	if err != nil {
-		return "", appErr.ErrAuthentication
+		return "", errors.ErrAuthentication
 	}
 	return token, nil
 }
@@ -106,17 +106,17 @@ func (s *usersService) LoginUser(ctx ctxt, email string, password string) (strin
 func (s *usersService) LoginAdmin(ctx ctxt, email string, password string) (string, error) {
 	user, err := s.GetByEmail(context.Background(), email)
 	if err != nil {
-		return "", appErr.ErrDb
+		return "", errors.ErrDb
 	}
 	if user == nil {
-		return "", appErr.ErrUserNotFound
+		return "", errors.ErrUserNotFound
 	}
 	if !hash.CheckPasswordHash(password, user.HashPass) {
-		return "", appErr.ErrPassword
+		return "", errors.ErrPassword
 	}
 	token, err := s.auth.GetAdminToken(ctx)
 	if err != nil {
-		return "", appErr.ErrAuthentication
+		return "", errors.ErrAuthentication
 	}
 	return token, nil
 }

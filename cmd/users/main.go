@@ -5,12 +5,13 @@ import (
 	"log"
 	"time"
 
+	"github.com/pseudoincorrect/bariot/pkg/env"
 	"github.com/pseudoincorrect/bariot/users/api"
 	"github.com/pseudoincorrect/bariot/users/db"
 	"github.com/pseudoincorrect/bariot/users/models"
 	"github.com/pseudoincorrect/bariot/users/rpc/client"
 	"github.com/pseudoincorrect/bariot/users/service"
-	util "github.com/pseudoincorrect/bariot/users/utilities"
+	"github.com/pseudoincorrect/bariot/users/utilities/hash"
 )
 
 type config struct {
@@ -28,16 +29,16 @@ type config struct {
 
 func loadConfig() config {
 	var conf = config{
-		httpPort:      util.GetEnv("HTTP_PORT"),
-		rpcAuthPort:   util.GetEnv("RPC_AUTH_PORT"),
-		rpcAuthHost:   util.GetEnv("RPC_AUTH_HOST"),
-		dbHost:        util.GetEnv("PG_HOST"),
-		dbPort:        util.GetEnv("PG_PORT"),
-		dbName:        util.GetEnv("PG_DATABASE"),
-		dbUser:        util.GetEnv("PG_USER"),
-		dbPassword:    util.GetEnv("PG_PASSWORD"),
-		adminEmail:    util.GetEnv("ADMIN_EMAIL"),
-		adminPassword: util.GetEnv("ADMIN_PASSWORD"),
+		httpPort:      env.GetEnv("HTTP_PORT"),
+		rpcAuthPort:   env.GetEnv("RPC_AUTH_PORT"),
+		rpcAuthHost:   env.GetEnv("RPC_AUTH_HOST"),
+		dbHost:        env.GetEnv("PG_HOST"),
+		dbPort:        env.GetEnv("PG_PORT"),
+		dbName:        env.GetEnv("PG_DATABASE"),
+		dbUser:        env.GetEnv("PG_USER"),
+		dbPassword:    env.GetEnv("PG_PASSWORD"),
+		adminEmail:    env.GetEnv("ADMIN_EMAIL"),
+		adminPassword: env.GetEnv("ADMIN_PASSWORD"),
 	}
 	return conf
 }
@@ -84,7 +85,7 @@ func createAdmin(s service.Users) error {
 	}
 	if user == nil {
 		log.Println("Admin does not exist, creating him...")
-		hashPass, err := util.HashPassword(conf.adminPassword)
+		hashPass, err := hash.HashPassword(conf.adminPassword)
 		if err != nil {
 			return err
 		}
