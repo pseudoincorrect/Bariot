@@ -10,17 +10,18 @@ GRAF  Display data with Grafana
 DOCK  Add Ngnx reverse proxy 
 CYB   Authorize mqtt with JWT
 CYB   encrypt mqtt (TLS) with self signed certificates
-MQTT  get all thing related mqtt messages
-
 
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
+MQTT  get all thing related mqtt messages
 
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
+24/02/2022  ARCH  Re-architect the project to use only one go mod
+23/02/2022  MQTT  MQTT workds
 21/02/2022  AUTH  Endpoint authentication USER/THINGS
 17/02/2022  AUTH  AUTH token generation 
 15/02/2022  GRPC  Create a Auth/JWT service with GRPC

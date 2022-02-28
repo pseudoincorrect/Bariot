@@ -16,9 +16,9 @@ services:
       dockerfile: docker/Dockerfile
       args:
         SVC: users
-    image: users_service:latest
-    # depends_on:
-    #   - users_db
+    image: bariot_users_service:latest
+    depends_on:
+      - users_db
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
       HTTP_PORT: 8080
@@ -53,7 +53,7 @@ services:
       dockerfile: docker/Dockerfile
       args:
         SVC: things
-    image: things_service:latest
+    image: bariot_things_service:latest
     depends_on:
       - things_db
     environment:
@@ -91,7 +91,7 @@ services:
       dockerfile: docker/Dockerfile
       args:
         SVC: auth
-    image: auth_service:latest
+    image: bariot_auth_service:latest
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
       RPC_HOST: ${RPC_HOST}
@@ -105,7 +105,9 @@ services:
       dockerfile: docker/Dockerfile
       args:
         SVC: mqtt
-    image: mqtt_service:latest
+    image: bariot_mqtt_service:latest
+    depends_on:
+      - emqx
     environment:
       MQTT_HOST: ${MQTT_HOST}
       MQTT_PORT: ${MQTT_PORT}
@@ -136,6 +138,39 @@ services:
       - 8883:8883   # MQTT over TLS
       - 8081:8081   # Health check
       - 18083:18083 # Management
+
+  influxdb_db:
+    image: influxdb:2.1.1
+    environment:
+      BARIOT_ENV: ${BARIOT_ENV}
+      INFLUXDB_INIT_MODE: setup
+      INFLUXDB_INIT_USERNAME: ${INFLUXDB_USERNAME}
+      INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD}
+      INFLUXDB_INIT_ORG: ${INFLUXDB_ORG}
+      INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
+      INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
+      INFLUXDB_HOST: ${INFLUXDB_HOST}
+      INFLUXDB_PORT: ${INFLUXDB_PORT}
+    ports:
+    - "8086:8086"
+
+  influxdb:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        SVC: influxdb
+    image: bariot_influxdb_service:latest
+    depends_on:
+      - influxdb_db
+    environment:
+      BARIOT_ENV: ${BARIOT_ENV}
+      INFLUXDB_INIT_ORG: ${INFLUXDB_ORG}
+      INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
+      INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
+      INFLUXDB_HOST: ${INFLUXDB_HOST}
+      INFLUXDB_PORT: ${INFLUXDB_PORT}
+
 
   adminer:
     image: adminer

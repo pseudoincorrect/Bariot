@@ -1,3 +1,7 @@
+# This template is used to build every Bariot docker images.
+# to build and run a service (for development)
+# $ docker-compose up --build {service_name} 
+
 FROM golang:alpine3.15 AS packages
 ARG SVC
 
@@ -12,7 +16,7 @@ FROM packages as builder
 COPY ../. .
 
 WORKDIR /go/src/github.com/pseudoincorrect/bariot/build
-WORKDIR /go/src/github.com/pseudoincorrect/bariot/cmd/$SVC
+WORKDIR /go/src/github.com/pseudoincorrect/bariot/$SVC/main
 
 RUN go build -o /exec main.go
 
