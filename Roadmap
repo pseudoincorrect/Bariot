@@ -3,7 +3,6 @@ BARIOT ROADMAP
 -----------------------------------------------------------------
 TO DO
 -----------------------------------------------------------------
-DOCK  Add InfluxDb service
 INFX  Put data to influxDb
 DOCK  Add Grafana service
 GRAF  Display data with Grafana
@@ -14,12 +13,13 @@ CYB   encrypt mqtt (TLS) with self signed certificates
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
-MQTT  get all thing related mqtt messages
-
+DOCK  Add Nats service
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
+28/02/2022  DOCK  Add InfluxDb service
+26/02/2022  MQTT  get all thing related mqtt messages
 24/02/2022  ARCH  Re-architect the project to use only one go mod
 23/02/2022  MQTT  MQTT workds
 21/02/2022  AUTH  Endpoint authentication USER/THINGS

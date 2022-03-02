@@ -7,6 +7,9 @@ volumes:
   bariot_emqx_data:
   bariot_emqx_etc:
   bariot_emqx_log:
+  bariot_nats_conf:
+  bariot_influxdb_data:
+  bariot_influxdb_etc:
 
 services:
 
@@ -109,9 +112,11 @@ services:
     depends_on:
       - emqx
     environment:
+      BARIOT_ENV: ${BARIOT_ENV}
       MQTT_HOST: ${MQTT_HOST}
       MQTT_PORT: ${MQTT_PORT}
-      BARIOT_ENV: ${BARIOT_ENV}
+      NATS_HOST: ${NATS_HOST}
+      NATS_PORT: ${NATS_PORT}
 
   emqx:
     image: emqx/emqx:4.3.11
@@ -151,6 +156,9 @@ services:
       INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
       INFLUXDB_HOST: ${INFLUXDB_HOST}
       INFLUXDB_PORT: ${INFLUXDB_PORT}
+    volumes:
+      - bariot_influxdb_data:/var/lib/influxdb2
+      - bariot_influxdb_etc:/etc/influxdb2
     ports:
     - "8086:8086"
 
@@ -165,12 +173,24 @@ services:
       - influxdb_db
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
-      INFLUXDB_INIT_ORG: ${INFLUXDB_ORG}
-      INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
-      INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
+      INFLUXDB_ORG: ${INFLUXDB_ORG}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
       INFLUXDB_HOST: ${INFLUXDB_HOST}
       INFLUXDB_PORT: ${INFLUXDB_PORT}
+      NATS_HOST: ${NATS_HOST}
+      NATS_PORT: ${NATS_PORT}
 
+  nats:
+    image: nats:2.7-alpine
+    environment:
+      BARIOT_ENV: ${BARIOT_ENV}
+      NATS_HOST: ${NATS_HOST}
+      NATS_PORT: ${NATS_PORT}
+    volumes:
+      - bariot_nats_conf:/etc/nats
+    ports:
+    - "4222:4222"
 
   adminer:
     image: adminer

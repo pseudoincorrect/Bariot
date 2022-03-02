@@ -2,6 +2,10 @@ package errors
 
 import "errors"
 
+var ErrCreation = errors.New("instance creation error")
+
+var ErrConnection = errors.New("connection error")
+
 var ErrValidation = errors.New("validation error")
 
 var ErrThingNotFound = errors.New("thing not found error")

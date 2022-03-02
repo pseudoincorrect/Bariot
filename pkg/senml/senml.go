@@ -1,0 +1,4 @@
+package senml
+
+func Nothing() {
+}
