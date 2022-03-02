@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"time"
 
 	influxdb "github.com/influxdata/influxdb-client-go/v2"
@@ -18,17 +19,36 @@ func main() {
 	const natsThingsSubject = "thingsMsg.>"
 	const natsThingsQueue = "things"
 	config := loadConfig()
-	connectToInfluxdb(config)
+	// _, err := connectToInfluxdb(config)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+	// log.Printf("Connected to InfluxDB")
 	opts := []nats.Option{nats.Name("NATS Sample Queue Subscriber")}
 	opts = natsSetupConnOptions(opts)
 	natsConn, err := natsConnect(config, opts)
 	if err != nil {
 		log.Panic(err)
 	}
+	// defer natsDisconnect(natsConn)
+	log.Printf("Connected to nats %s", natsConn.ConnectedUrl())
+
 	err = natsSubscribe(natsConn, natsThingsSubject, natsThingsQueue, natsThingMsgHandler)
 	if err != nil {
 		log.Panic(err)
 	}
+	log.Printf("Subscribed to NATS", natsThingsSubject)
+
+	time.Sleep(20 * time.Second)
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
+	log.Println()
+	log.Printf("Draining...")
+	natsConn.Drain()
+	log.Fatalf("Exiting")
+
 }
 
 type config struct {
@@ -66,6 +86,7 @@ func connectToInfluxdb(cfg config) (influxdb.Client, error) {
 
 func natsConnect(cfg config, opts []nats.Option) (*nats.Conn, error) {
 	natsUrl := "nats://" + cfg.natsHost + ":" + cfg.natsPort
+	log.Printf("Connecting to NATS Server: %s", natsUrl)
 	nc, err := nats.Connect(natsUrl, opts...)
 	if err != nil {
 		return nil, errors.ErrConnection
@@ -73,9 +94,9 @@ func natsConnect(cfg config, opts []nats.Option) (*nats.Conn, error) {
 	return nc, nil
 }
 
-func natsDisconnect(nc *nats.Conn) {
-	nc.Close()
-}
+// func natsDisconnect(nc *nats.Conn) {
+// 	nc.Close()
+// }
 
 func natsSetupConnOptions(opts []nats.Option) []nats.Option {
 	totalWait := 10 * time.Minute
@@ -98,6 +119,10 @@ func natsSetupConnOptions(opts []nats.Option) []nats.Option {
 func natsSubscribe(nc *nats.Conn, subject string, queue string, handler nats.MsgHandler) error {
 	nc.QueueSubscribe(subject, queue, handler)
 	nc.Flush()
+	if err := nc.LastError(); err != nil {
+		log.Fatal(err)
+	}
+
 	return nil
 }
 

@@ -39,11 +39,11 @@ var defaultMessageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqt
 func main() {
 	config := loadConfig()
 
-	mqttClient, err := mqttConnect(config)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer mqttDisconnect(mqttClient)
+	// mqttClient, err := mqttConnect(config)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+	// defer mqttDisconnect(mqttClient)
 
 	opts := []nats.Option{nats.Name("NATS Sample Queue Subscriber")}
 	opts = natsSetupConnOptions(opts)
@@ -52,21 +52,23 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	defer natsDisconnect(natsConn)
+	// defer natsDisconnect(natsConn)
+	log.Printf("Connected to nats %s", natsConn.ConnectedUrl())
 
 	const mqttThingsTopic = "things/#"
 	const natsThingsSubject = "thingsMsg.>"
 
-	natsPub := natsPublisher(natsConn, natsThingsSubject)
+	// natsPub := natsPublisher(natsConn, natsThingsSubject)
 
-	err = mqttSubscriber(mqttClient, mqttThingsTopic, 0, natsPub)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer mqttUnsubscribe(mqttClient, mqttThingsTopic)
+	// err = mqttSubscriber(mqttClient, mqttThingsTopic, 0, natsPub)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+	// defer mqttUnsubscribe(mqttClient, mqttThingsTopic)
 
 	inc := 0
 	for {
+		log.Printf("Sending message %d on %s", inc, natsConn.ConnectedUrl())
 		err = natsPublish(natsConn, natsThingsSubject, strconv.Itoa(inc))
 		if err != nil {
 			log.Panic(err)

@@ -171,6 +171,7 @@ services:
     image: bariot_influxdb_service:latest
     depends_on:
       - influxdb_db
+      - nats
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
       INFLUXDB_ORG: ${INFLUXDB_ORG}
