@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"strconv"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -11,6 +10,44 @@ import (
 	"github.com/pseudoincorrect/bariot/pkg/env"
 	"github.com/pseudoincorrect/bariot/pkg/errors"
 )
+
+func main() {
+	config := loadConfig()
+
+	mqttClient, err := mqttConnect(config)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer mqttDisconnect(mqttClient)
+
+	log.Printf("Connected to MQTT broker %s:%s\n", config.mqttHost, config.mqttPort)
+
+	opts := []nats.Option{nats.Name("NATS Sample Queue Subscriber")}
+	opts = natsSetupConnOptions(opts)
+
+	natsConn, err := natsConnect(config, opts)
+	if err != nil {
+		log.Panic(err)
+	}
+	// defer natsDisconnect(natsConn)
+	log.Printf("Connected to nats %s", natsConn.ConnectedUrl())
+
+	const mqttThingsTopic = "things/#"
+	const natsThingsSubject = "thingsMsg.>"
+
+	natsPub := natsPublisher(natsConn, natsThingsSubject)
+
+	err = mqttSubscriber(mqttClient, mqttThingsTopic, 0, natsPub)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer mqttClient.Disconnect(250)
+	defer mqttUnsubscribe(mqttClient, mqttThingsTopic)
+
+	for {
+		time.Sleep(15 * time.Second)
+	}
+}
 
 type config struct {
 	bariotEnv string
@@ -36,54 +73,10 @@ var defaultMessageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqt
 	log.Printf("MSG: %s\n", msg.Payload())
 }
 
-func main() {
-	config := loadConfig()
-
-	// mqttClient, err := mqttConnect(config)
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
-	// defer mqttDisconnect(mqttClient)
-
-	opts := []nats.Option{nats.Name("NATS Sample Queue Subscriber")}
-	opts = natsSetupConnOptions(opts)
-
-	natsConn, err := natsConnect(config, opts)
-	if err != nil {
-		log.Panic(err)
-	}
-	// defer natsDisconnect(natsConn)
-	log.Printf("Connected to nats %s", natsConn.ConnectedUrl())
-
-	const mqttThingsTopic = "things/#"
-	const natsThingsSubject = "thingsMsg.>"
-
-	// natsPub := natsPublisher(natsConn, natsThingsSubject)
-
-	// err = mqttSubscriber(mqttClient, mqttThingsTopic, 0, natsPub)
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
-	// defer mqttUnsubscribe(mqttClient, mqttThingsTopic)
-
-	inc := 0
-	for {
-		log.Printf("Sending message %d on %s", inc, natsConn.ConnectedUrl())
-		err = natsPublish(natsConn, natsThingsSubject, strconv.Itoa(inc))
-		if err != nil {
-			log.Panic(err)
-		}
-		inc++
-		time.Sleep(5 * time.Second)
-	}
-
-	// time.Sleep(60 * time.Minute)
-}
-
 func mqttConnect(conf config) (mqtt.Client, error) {
-	mqtt.DEBUG = log.New(os.Stdout, "", 0)
+	// mqtt.DEBUG = log.New(os.Stdout, "", 0)
 	mqtt.ERROR = log.New(os.Stdout, "", 0)
-	opts := mqtt.NewClientOptions().AddBroker("tcp://" + conf.mqttHost + ":" + conf.mqttPort).SetClientID("emqx_client_1")
+	opts := mqtt.NewClientOptions().AddBroker("tcp://" + conf.mqttHost + ":" + conf.mqttPort).SetClientID("bariot_mqtt_things")
 
 	opts.SetKeepAlive(60 * time.Second)
 	opts.SetDefaultPublishHandler(defaultMessageHandler)
@@ -99,8 +92,10 @@ func mqttConnect(conf config) (mqtt.Client, error) {
 
 func mqttSubscriber(client mqtt.Client, topic string, qos byte, natsPub natsPubType) error {
 	stringHandler := func(client mqtt.Client, msg mqtt.Message) {
-		// msgTopic := msg.Topic()
+		msgTopic := msg.Topic()
 		msgPayload := msg.Payload()
+		log.Printf("Got MQTT msg, topic: %s, payload %s\n", msgTopic, msgPayload)
+
 		natsPub(string(msgPayload))
 	}
 
@@ -149,9 +144,9 @@ func natsConnect(cfg config, opts []nats.Option) (*nats.Conn, error) {
 	return nc, nil
 }
 
-func natsDisconnect(nc *nats.Conn) {
-	nc.Close()
-}
+// func natsDisconnect(nc *nats.Conn) {
+// 	nc.Close()
+// }
 
 func natsPublish(nc *nats.Conn, subject string, payload string) error {
 	if err := nc.Publish(subject, []byte(payload)); err != nil {

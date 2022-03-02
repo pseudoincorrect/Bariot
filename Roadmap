@@ -8,18 +8,20 @@ DOCK  Add Grafana service
 GRAF  Display data with Grafana
 DOCK  Add Ngnx reverse proxy 
 CYB   Authorize mqtt with JWT
-CYB   encrypt mqtt (TLS) with self signed certificates
+CYB   Encrypt mqtt (TLS) with self signed certificates
 
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
-DOCK  Add Nats service
+ARCH  Republish mqtt over nats
+
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
+02/03/2022  DOCK  Add Nats service
 28/02/2022  DOCK  Add InfluxDb service
-26/02/2022  MQTT  get all thing related mqtt messages
+26/02/2022  MQTT  Get all thing related mqtt messages
 24/02/2022  ARCH  Re-architect the project to use only one go mod
 23/02/2022  MQTT  MQTT workds
 21/02/2022  AUTH  Endpoint authentication USER/THINGS
