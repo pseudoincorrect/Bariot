@@ -12,9 +12,6 @@ Inspired by the beautiful architecture of [Mainflux][Mainflux].
 
 <br/>
 
---- 
-<br/>
-
 ## MOTIVATIONS
 
 Bariot is being developed to offer a simple, complete and scalable solution to wide variety of IoT projects.
@@ -27,10 +24,7 @@ Bariot is a chance to understand what technologies are used to create cloud appl
 
 Bariot is also a fun project to work on !
 
-<br/>
-
---- 
-<br/>
+<br/> 
 
 ## COMPONENTS
 
@@ -53,15 +47,8 @@ Bariot is also a fun project to work on !
 
 <br/>
 
---- 
-<br/>
+## IT IS A WORK IN PROGRESS  ;)
 
-## WORK IN PROGRESS !!!
-
-
-<br/>
-
---- 
 <br/>
 
 [IoT]: https://www.zdnet.com/article/what-is-the-internet-of-things-everything-you-need-to-know-about-the-iot-right-now/
