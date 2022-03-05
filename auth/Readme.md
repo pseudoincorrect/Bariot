@@ -1,3 +1,5 @@
-Authorization and Authentication Service
+# AUTHORIZATION AND AUTHENTICATION SERVICE
 
-Validate JWT
+Service to Validate JWT tokens through gRpc protocol
+
+

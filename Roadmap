@@ -3,27 +3,29 @@ BARIOT ROADMAP
 -----------------------------------------------------------------
 TO DO
 -----------------------------------------------------------------
-INFX  Put data to influxDb
 DOCK  Add Grafana service
 GRAF  Display data with Grafana
 DOCK  Add Ngnx reverse proxy 
 CYB   Authorize mqtt with JWT
 CYB   Encrypt mqtt (TLS) with self signed certificates
+INFX  Put data to influxDb
+DOCK  MQTT and NATS wait till healthy 
 
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
-ARCH  Republish mqtt over nats
+SML   Decode SenML messages 
 
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
+03/03/2022  ARCH  Republish mqtt over nats
 02/03/2022  DOCK  Add Nats service
 28/02/2022  DOCK  Add InfluxDb service
 26/02/2022  MQTT  Get all thing related mqtt messages
 24/02/2022  ARCH  Re-architect the project to use only one go mod
-23/02/2022  MQTT  MQTT workds
+23/02/2022  MQTT  MQTT works
 21/02/2022  AUTH  Endpoint authentication USER/THINGS
 17/02/2022  AUTH  AUTH token generation 
 15/02/2022  GRPC  Create a Auth/JWT service with GRPC
