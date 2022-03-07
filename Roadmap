@@ -8,17 +8,17 @@ GRAF  Display data with Grafana
 DOCK  Add Ngnx reverse proxy 
 CYB   Authorize mqtt with JWT
 CYB   Encrypt mqtt (TLS) with self signed certificates
-INFX  Put data to influxDb
-DOCK  MQTT and NATS wait till healthy 
 
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
+INFX  Put data to influxDb
 
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
+07/03/2022  DOCK  MQTT and NATS healthcheck
 05/03/2022  SML   Decode SenML messages 
 03/03/2022  ARCH  Republish mqtt over nats
 02/03/2022  DOCK  Add Nats service

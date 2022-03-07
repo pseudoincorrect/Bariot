@@ -18,7 +18,7 @@ Inspired by the beautiful architecture of [Mainflux][Mainflux].
 
 Bariot is being developed to offer a simple, complete and scalable solution to wide variety of IoT projects.
 
-Bariot uses the most recent (at year 2022) technologies to create a scalable and cloud agnostic IoT/IIoT platform.
+Bariot uses the most recent (ref 2022) technologies to create a scalable and cloud agnostic IoT/IIoT platform.
 
 Bariot is opinionated, in the sense that storage and communications technologies are predefined (see COMPONENTS)
 

@@ -15,17 +15,16 @@ func TestSenmlMsgFormt(t *testing.T) {
 	if err != nil {
 		t.Fatal("error creating Senml message", err)
 	}
-	// var msg2 interface{}
-	// json.Unmarshal([]byte(msg), &msg2)
-	// msg3, _ := json.MarshalIndent(msg2, "", "  ")
-	// fmt.Println(string(msg3))
 	if !json.Valid(msg) {
 		t.Fatal("\nInvalid Senml msg\n", string(msg))
 	}
 }
 
 func TestSendSenmlOverMqtt(t *testing.T) {
-
+	err := MqttConnectAndSend()
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestMqttHealthCheck(t *testing.T) {
