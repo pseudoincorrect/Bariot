@@ -14,12 +14,12 @@ DOCK  MQTT and NATS wait till healthy
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
-SML   Decode SenML messages 
 
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
+05/03/2022  SML   Decode SenML messages 
 03/03/2022  ARCH  Republish mqtt over nats
 02/03/2022  DOCK  Add Nats service
 28/02/2022  DOCK  Add InfluxDb service

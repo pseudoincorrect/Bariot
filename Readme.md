@@ -4,7 +4,9 @@
 
 Bariot is a simple solution to send, manage, secure and visualize data from connected devices/machines. 
 
-<p align="center"><img width=50% src="support/images/bariot_img.jpg"></p>
+<p align="center"><img width=75% src="support/images/bariot_img.jpeg"></p>
+
+*Image by Ngoc-Ha*
 
 Micro-services architecture build with [Go][Go] and [Docker][Docker] (compose).
 

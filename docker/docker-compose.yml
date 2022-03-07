@@ -115,6 +115,9 @@ services:
       BARIOT_ENV: ${BARIOT_ENV}
       MQTT_HOST: ${MQTT_HOST}
       MQTT_PORT: ${MQTT_PORT}
+      MQTT_HEALTH_PORT: ${MQTT_HEALTH_PORT}
+      MQTT_USER: ${MQTT_USER}
+      MQTT_PASS: ${MQTT_PASS}
       NATS_HOST: ${NATS_HOST}
       NATS_PORT: ${NATS_PORT}
 
@@ -141,7 +144,7 @@ services:
     ports:
       - 1883:1883   # MQTT
       - 8883:8883   # MQTT over TLS
-      - 8081:8081   # Health check
+      - 8084:8081   # Health check
       - 18083:18083 # Management
 
   influxdb_db:
@@ -192,6 +195,7 @@ services:
       - bariot_nats_conf:/etc/nats
     ports:
     - "4222:4222"
+    - "8222:8222"
 
   adminer:
     image: adminer
