@@ -4,7 +4,11 @@
 
 Bariot is a simple solution to send, manage, secure and visualize data from connected devices/machines. 
 
-<p align="center"><img width=75% src="support/images/bariot_img.jpeg"></p>
+<br/>
+
+<p align="center"><img width=75% src="support/images/bariot_img.jpg"></p>
+
+<br/>
 
 *Image by Ngoc-Ha*
 
