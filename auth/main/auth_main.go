@@ -5,7 +5,7 @@ import (
 
 	"github.com/pseudoincorrect/bariot/auth/rpc/server"
 	"github.com/pseudoincorrect/bariot/auth/service"
-	util "github.com/pseudoincorrect/bariot/auth/utilities"
+	"github.com/pseudoincorrect/bariot/pkg/env"
 )
 
 type config struct {
@@ -18,11 +18,11 @@ type config struct {
 
 func loadConfig() config {
 	var conf = config{
-		environment: util.GetEnv("BARIOT_ENV"),
-		rpcHost:     util.GetEnv("RPC_HOST"),
-		rpcPort:     util.GetEnv("RPC_PORT"),
-		adminSecret: util.GetEnv("ADMIN_SECRET"),
-		jwtSecret:   util.GetEnv("JWT_SECRET"),
+		environment: env.GetEnv("BARIOT_ENV"),
+		rpcHost:     env.GetEnv("RPC_HOST"),
+		rpcPort:     env.GetEnv("RPC_PORT"),
+		adminSecret: env.GetEnv("ADMIN_SECRET"),
+		jwtSecret:   env.GetEnv("JWT_SECRET"),
 	}
 	return conf
 }

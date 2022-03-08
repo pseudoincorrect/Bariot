@@ -87,7 +87,7 @@ func (r *thingsRepo) Get(ctx context.Context, id string) (*models.Thing, error) 
 
 func (r *thingsRepo) Delete(ctx context.Context, id string) (string, error) {
 	fail := func(err error) error {
-		log.Println("failed to save thing: %v", err)
+		log.Printf("failed to save thing: %v", err)
 		return err
 	}
 
@@ -116,7 +116,7 @@ func (r *thingsRepo) Delete(ctx context.Context, id string) (string, error) {
 
 func (r *thingsRepo) Update(ctx context.Context, thing *models.Thing) (*models.Thing, error) {
 	fail := func(err error) error {
-		log.Println("failed to save thing: %v", err)
+		log.Printf("failed to save thing: %v", err)
 		return err
 	}
 

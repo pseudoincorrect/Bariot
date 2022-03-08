@@ -16,9 +16,9 @@ FROM packages as builder
 COPY ../. .
 
 WORKDIR /go/src/github.com/pseudoincorrect/bariot/build
-WORKDIR /go/src/github.com/pseudoincorrect/bariot/$SVC/main
+WORKDIR /go/src/github.com/pseudoincorrect/bariot/${SVC}/main
 
-RUN go build -o /exec main.go
+RUN go build -o /exec ${SVC}_main.go
 
 WORKDIR /go/src/github.com/pseudoincorrect/bariot/build
 
