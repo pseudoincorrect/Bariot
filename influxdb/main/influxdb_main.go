@@ -14,6 +14,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/pseudoincorrect/bariot/pkg/env"
 	"github.com/pseudoincorrect/bariot/pkg/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils"
 	"github.com/pseudoincorrect/bariot/pkg/writer"
 )
 
@@ -37,7 +38,7 @@ func main() {
 	defer w.natsDisconnect()
 	log.Println("Connected to nats", w.natsConn.ConnectedUrl())
 
-	err = w.natsSubscribe(natsThingsSubject, natsThingsQueue, w.getHandler())
+	err = w.natsSubscribe(natsThingsSubject, natsThingsQueue, w.getNatsMsgHandler())
 	if err != nil {
 		log.Panic(err)
 	}
@@ -176,7 +177,7 @@ func (w *influxdbWriter) natsSubscribe(subject string, queue string, handler nat
 }
 
 // natsThingsMsgHandler handles nats message by decoding to senml format
-func (w *influxdbWriter) getHandler() nats.MsgHandler {
+func (w *influxdbWriter) getNatsMsgHandler() nats.MsgHandler {
 	return func(natsMsg *nats.Msg) {
 		printNatsMsg(natsMsg)
 		msg, err := decodeNatsThingMsg(natsMsg)
@@ -189,7 +190,13 @@ func (w *influxdbWriter) getHandler() nats.MsgHandler {
 
 // printNatsMsg print a nats message
 func printNatsMsg(m *nats.Msg) {
-	log.Printf("Nats Message Received on [%s] Queue[%s] Pid[%d]: '%s'", m.Subject, m.Sub.Queue, os.Getpid(), string(m.Data))
+	msg, err := utils.PrettyJsonString(string(m.Data))
+	if err != nil {
+		log.Println("Error printing Nats message")
+		return
+	}
+	log.Printf("NATS Message Received on [%s] Queue[%s] Pid[%d]", m.Subject, m.Sub.Queue, os.Getpid())
+	log.Printf("NATS Message Payload %s", msg)
 }
 
 // decodeSenmlMsg decodes a JSON message into a SenML message
@@ -205,7 +212,7 @@ func decodeNatsThingMsg(msg *nats.Msg) (*writer.ThingData, error) {
 		return nil, errors.ErrValidation
 	}
 	for _, senmlRecord := range senmlMsg.Records {
-		log.Println("SenML Record:", senmlRecord)
+		log.Println(utils.PrettySenmlRecord(senmlRecord))
 	}
 	// log.Println("Decoded SenML message:", senmlMsg)
 	thingId, err := getThingIdFromNatsSubjet(msg.Subject)

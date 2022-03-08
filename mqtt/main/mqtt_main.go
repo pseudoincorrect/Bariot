@@ -150,10 +150,11 @@ func (f *forwarder) mqttSubscriber(topic string, qos byte, natsPub natsPubType) 
 	stringHandler := func(client mqtt.Client, msg mqtt.Message) {
 		msgTopic := msg.Topic()
 		msgPayload := msg.Payload()
-		log.Printf("Got MQTT msg, topic: %s, payload %s\n", msgTopic, msgPayload)
+		log.Printf("MQTT msg RECEIVED\n")
+		log.Printf("MQTT topic:   %s\n", msgTopic)
+		log.Printf("MQTT payload: %s\n", msgPayload)
 		natsPub(string(msgPayload))
 	}
-
 	token := f.mqttClient.Subscribe(topic, qos, stringHandler)
 	if token.Wait() && token.Error() != nil {
 		log.Panic(token.Error())
