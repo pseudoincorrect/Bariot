@@ -34,3 +34,8 @@ $ docker-compose up --no-deps --build <docker_compose_service_name>
 ``` console  
 $ cd && curl https://getmic.ro | bash && sudo mv micro /usr/local/bin/micro
 ```
+
+## Golang clean test cache (useful for MQTT test)
+``` console  
+$ go clean -testcache
+```

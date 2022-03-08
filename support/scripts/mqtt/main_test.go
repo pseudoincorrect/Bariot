@@ -4,13 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/pseudoincorrect/bariot/pkg/utils"
 )
 
-func TestSenmlMsgFormt(t *testing.T) {
+// Publish Mqtt message, test without cache
+// go test -run TestSendSenmlOverMqtt github.com/pseudoincorrect/bariot/support/scripts/mqtt -v -count=1
+
+func TestCreateSenmlMsg(t *testing.T) {
 	msg, err := createSenmlMsg()
 	if err != nil {
 		t.Fatal("error creating Senml message", err)
@@ -21,6 +26,7 @@ func TestSenmlMsgFormt(t *testing.T) {
 }
 
 func TestSendSenmlOverMqtt(t *testing.T) {
+	log.SetOutput(os.Stdout)
 	err := MqttConnectAndSend()
 	if err != nil {
 		t.Fatal(err)

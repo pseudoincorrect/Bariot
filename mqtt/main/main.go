@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -14,6 +16,8 @@ import (
 )
 
 func main() {
+	log.SetOutput(os.Stdout)
+
 	var f forwarder
 	f.conf = loadConfig()
 
@@ -41,6 +45,7 @@ func main() {
 	natsPub := f.createNatsPublisher(natsThingsSubject)
 
 	err = f.mqttSubscriber(mqttThingsTopic, 0, natsPub)
+
 	if err != nil {
 		log.Panic(err)
 	}
@@ -48,7 +53,7 @@ func main() {
 	defer f.mqttUnsubscribe(mqttThingsTopic)
 
 	for {
-		time.Sleep(15 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
 
@@ -88,6 +93,17 @@ var defaultMessageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqt
 	log.Printf("MSG: %s\n", msg.Payload())
 }
 
+func (f *forwarder) mqttHealthCheckBlocking() error {
+	for {
+		err := f.mqttHealthCheck()
+		if err == nil {
+			return nil
+		}
+		fmt.Println("MQTT broker not online, retrying later...")
+		time.Sleep(5 * time.Second)
+	}
+}
+
 func (f *forwarder) mqttHealthCheck() error {
 	url := "http://" + f.conf.mqttUser + ":" + f.conf.mqttPass + "@" +
 		f.conf.mqttHost + ":" + f.conf.mqttHealthPort + "/api/v4/brokers"
@@ -103,21 +119,23 @@ func (f *forwarder) mqttHealthCheck() error {
 }
 
 func (f *forwarder) mqttConnect() error {
-	// mqtt.DEBUG = log.New(os.Stdout, "", 0)
-	mqtt.ERROR = log.New(os.Stdout, "", 0)
-	opts := mqtt.NewClientOptions().AddBroker("tcp://" + f.conf.mqttHost + ":" + f.conf.mqttPort).SetClientID("bariot_mqtt_things")
-	opts.SetKeepAlive(60 * time.Second)
-	opts.SetDefaultPublishHandler(defaultMessageHandler)
-	opts.SetPingTimeout(1 * time.Minute)
-
-	for {
-		err := f.mqttHealthCheck()
-		if err == nil {
-			break
-		}
-		fmt.Println("MQTT broker not online, retrying later...")
-		time.Sleep(5 * time.Second)
+	err := f.mqttHealthCheckBlocking()
+	if err != nil {
+		return errors.ErrConnection
 	}
+
+	// mqtt.DEBUG = log.New(os.Stdout, "", 0)
+	mqtt.WARN = log.New(os.Stdout, "", 0)
+	mqtt.ERROR = log.New(os.Stdout, "", 0)
+	r1 := rand.New(rand.NewSource(time.Now().UnixNano()))
+	clientId := "bariot_" + strconv.Itoa(r1.Intn(1000000))
+	log.Println("MQTT client ID :", clientId)
+	url := "tcp://" + f.conf.mqttHost + ":" + f.conf.mqttPort
+
+	opts := mqtt.NewClientOptions().AddBroker(url).SetClientID(clientId)
+	opts.SetKeepAlive(2 * time.Second)
+	opts.SetDefaultPublishHandler(defaultMessageHandler)
+	opts.SetPingTimeout(1 * time.Second)
 
 	c := mqtt.NewClient(opts)
 	token := c.Connect()
@@ -197,6 +215,7 @@ type natsPubType func(payload string) error
 
 func (f *forwarder) createNatsPublisher(subject string) natsPubType {
 	return func(payload string) error {
-		return natsPublish(f.natsConn, subject, payload)
+		err := natsPublish(f.natsConn, subject, payload)
+		return err
 	}
 }

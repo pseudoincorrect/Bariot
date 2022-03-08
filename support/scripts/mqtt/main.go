@@ -36,11 +36,13 @@ func MqttConnectAndSend() error {
 		// return err
 	}
 	defer m.mqttDisconnect()
+	log.Println("Connected to mqtt")
 	msg, _ := createSenmlMsg()
-	err = m.mqttPublish(string(msg))
+	log.Println("Publishing to mqtt")
+	topic := "things/123456789"
+	err = m.mqttPublish(topic, string(msg))
 	if err != nil {
 		log.Panic("could not publish MQTT message")
-		// return err
 	}
 	time.Sleep(1 * time.Second)
 	return nil
@@ -62,15 +64,23 @@ func (m *mqttTester) mqttSetOpts() *mqtt.ClientOptions {
 	return opts
 }
 
-func (m *mqttTester) mqttHealthCheckBlocking() {
+func (m *mqttTester) mqttHealthCheckBlocking() error {
 	for {
 		err := m.mqttHealthCheck()
 		if err == nil {
-			break
+			return nil
 		}
 		fmt.Println("MQTT broker not online, retrying later...")
 		time.Sleep(5 * time.Second)
 	}
+}
+
+func (m *mqttTester) mqttHealthCheckOnce() error {
+	err := m.mqttHealthCheck()
+	if err == nil {
+		return nil
+	}
+	return errors.ErrConnection
 }
 
 func (m *mqttTester) mqttHealthCheck() error {
@@ -91,7 +101,11 @@ func (m *mqttTester) mqttConnect() error {
 	// mqtt.DEBUG = log.New(os.Stdout, "", 0)
 	mqtt.ERROR = log.New(os.Stdout, "", 0)
 	opts := m.mqttSetOpts()
-	m.mqttHealthCheckBlocking()
+	// err := m.mqttHealthCheckBlocking()
+	err := m.mqttHealthCheckOnce()
+	if err != nil {
+		return errors.ErrConnection
+	}
 	c := mqtt.NewClient(opts)
 	token := c.Connect()
 	if token.Wait() && token.Error() != nil {
@@ -110,8 +124,7 @@ func defaultMessageHandler(client mqtt.Client, msg mqtt.Message) {
 	log.Printf("MSG: %s\n", msg.Payload())
 }
 
-func (m *mqttTester) mqttPublish(msg string) error {
-	topic := "things/123456789"
+func (m *mqttTester) mqttPublish(topic string, msg string) error {
 	token := m.client.Publish(topic, 0, false, msg)
 	if token.Wait() && token.Error() != nil {
 		return token.Error()
