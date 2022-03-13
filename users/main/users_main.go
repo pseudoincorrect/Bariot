@@ -5,11 +5,11 @@ import (
 	"log"
 	"time"
 
+	"github.com/pseudoincorrect/bariot/pkg/auth/client/authClient"
 	"github.com/pseudoincorrect/bariot/pkg/env"
 	"github.com/pseudoincorrect/bariot/users/api"
 	"github.com/pseudoincorrect/bariot/users/db"
 	"github.com/pseudoincorrect/bariot/users/models"
-	"github.com/pseudoincorrect/bariot/users/rpc/client"
 	"github.com/pseudoincorrect/bariot/users/service"
 	"github.com/pseudoincorrect/bariot/users/utilities/hash"
 )
@@ -58,11 +58,11 @@ func createService() (service.Users, error) {
 		return nil, err
 	}
 	usersRepo := db.New(database)
-	authClientConf := client.AuthClientConf{
+	authClientConf := authClient.AuthClientConf{
 		Host: conf.rpcAuthHost,
 		Port: conf.rpcAuthPort,
 	}
-	authClient := client.New(authClientConf)
+	authClient := authClient.New(authClientConf)
 	err = authClient.StartAuthClient()
 	if err != nil {
 		log.Println("Auth client error:", err)

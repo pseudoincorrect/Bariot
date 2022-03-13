@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
+	"github.com/pseudoincorrect/bariot/pkg/auth/client/authClient"
 	"github.com/pseudoincorrect/bariot/pkg/errors"
 	"github.com/pseudoincorrect/bariot/users/models"
-	"github.com/pseudoincorrect/bariot/users/rpc/client"
 	"github.com/pseudoincorrect/bariot/users/utilities/hash"
 )
 
@@ -28,11 +28,11 @@ var _ Users = (*usersService)(nil)
 
 type usersService struct {
 	repository models.UsersRepository
-	auth       client.Auth
+	auth       authClient.Auth
 }
 
 /// New creates a new user service
-func New(repository models.UsersRepository, auth client.Auth) Users {
+func New(repository models.UsersRepository, auth authClient.Auth) Users {
 	return &usersService{repository, auth}
 }
 

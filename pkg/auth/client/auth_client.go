@@ -1,25 +1,26 @@
-package client
+package authClient
 
 import (
 	"context"
 	"log"
 
-	pb "github.com/pseudoincorrect/bariot/pkg/grpc/auth"
+	pb "github.com/pseudoincorrect/bariot/pkg/auth/grpc"
 	"google.golang.org/grpc"
 )
 
 const (
-	admin = "admin"
-	user  = "user"
-	thing = "thing"
+	Admin = "admin"
+	User  = "user"
+	Thing = "thing"
 )
+
+type ctxt context.Context
 
 type Auth interface {
 	StartAuthClient() error
-	GetAdminToken(context.Context) (string, error)
-	GetUserToken(context.Context, string) (string, error)
-	IsAdmin(context.Context, string) (bool, error)
-	IsWhichUser(context.Context, string) (bool, string, error)
+	IsAdmin(ctxt, string) (bool, error)
+	IsWhichUser(ctxt, string) (string, string, error)
+	GetThingToken(ctxt, string, string) (string, error)
 }
 
 var _ Auth = (*authClient)(nil)
@@ -53,6 +54,33 @@ func (c *authClient) StartAuthClient() error {
 	return nil
 }
 
+func (c *authClient) IsAdmin(ctx ctxt, jwt string) (bool, error) {
+	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: jwt})
+	if err != nil {
+		log.Println("IsWhichUser GetClaimsUserToken error:", err)
+		return false, err
+	}
+	return claims.GetRole() == Admin, nil
+}
+
+func (c *authClient) IsWhichUser(ctx ctxt, jwt string) (string, string, error) {
+	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: jwt})
+	if err != nil {
+		log.Println("IsWhichUser GetClaimsUserToken error:", err)
+		return "", "", err
+	}
+	return claims.GetRole(), claims.GetSubject(), nil
+}
+
+func (c *authClient) GetThingToken(ctx ctxt, thingId string, userId string) (string, error) {
+	res, err := c.Client.GetThingToken(ctx, &pb.GetThingTokenRequest{ThingId: thingId, UserId: userId})
+	if err != nil {
+		log.Println("GetThingToken error:", err)
+		return "", err
+	}
+	return res.Jwt, nil
+}
+
 func (c *authClient) GetAdminToken(ctx context.Context) (string, error) {
 	resToken, err := c.Client.GetAdminToken(ctx, &pb.GetAdminTokenRequest{})
 	if err != nil {
@@ -69,20 +97,4 @@ func (c *authClient) GetUserToken(ctx context.Context, userId string) (string, e
 		return "", err
 	}
 	return resToken.GetJwt(), nil
-}
-
-func (c *authClient) IsAdmin(ctx context.Context, jwt string) (bool, error) {
-	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: jwt})
-	if err != nil {
-		return false, err
-	}
-	return claims.GetRole() == admin, nil
-}
-
-func (c *authClient) IsWhichUser(ctx context.Context, jwt string) (bool, string, error) {
-	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: jwt})
-	if err != nil {
-		return false, "", err
-	}
-	return claims.GetRole() == user, claims.GetSubject(), nil
 }

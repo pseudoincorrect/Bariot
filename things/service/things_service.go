@@ -9,9 +9,9 @@ import (
 	"context"
 	"log"
 
+	auth "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	appErr "github.com/pseudoincorrect/bariot/pkg/errors"
 	"github.com/pseudoincorrect/bariot/things/models"
-	"github.com/pseudoincorrect/bariot/things/rpc/client"
 )
 
 type ctxt context.Context
@@ -32,11 +32,11 @@ var _ Things = (*thingsService)(nil)
 
 type thingsService struct {
 	repository models.ThingsRepository
-	auth       client.Auth
+	auth       auth.Auth
 }
 
 /// New creates a new thing service
-func New(repository models.ThingsRepository, auth client.Auth) Things {
+func New(repository models.ThingsRepository, auth auth.Auth) Things {
 	return &thingsService{repository, auth}
 }
 

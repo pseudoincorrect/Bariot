@@ -12,11 +12,11 @@ import (
 	"github.com/google/uuid"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/pseudoincorrect/bariot/pkg/auth/client/authClient"
 	"github.com/pseudoincorrect/bariot/pkg/env"
 	"github.com/pseudoincorrect/bariot/things/api"
 	"github.com/pseudoincorrect/bariot/things/db"
 	"github.com/pseudoincorrect/bariot/things/models"
-	"github.com/pseudoincorrect/bariot/things/rpc/client"
 	"github.com/pseudoincorrect/bariot/things/service"
 )
 
@@ -200,12 +200,12 @@ func createService() (service.Things, error) {
 	}
 	thingsRepo := db.New(database)
 
-	authClientConf := client.AuthClientConf{
+	authClientConf := authClient.AuthClientConf{
 		Host: conf.rpcAuthHost,
 		Port: conf.rpcAuthPort,
 	}
 
-	authClient := client.New(authClientConf)
+	authClient := authClient.New(authClientConf)
 	err = authClient.StartAuthClient()
 	if err != nil {
 		log.Println("Auth client error:", err)

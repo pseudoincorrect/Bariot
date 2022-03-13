@@ -17,41 +17,31 @@ import (
 
 func main() {
 	log.SetOutput(os.Stdout)
-
 	var f forwarder
 	f.conf = loadConfig()
-
 	err := f.mqttConnect()
 	if err != nil {
 		log.Panic(err)
 	}
 	defer f.mqttDisconnect()
-
 	log.Printf("Connected to MQTT broker %s:%s\n", f.conf.mqttHost, f.conf.mqttPort)
-
 	opts := []nats.Option{nats.Name("NATS Sample Queue Subscriber")}
 	opts = natsSetupConnOptions(opts)
-
 	err = f.natsConnect(opts)
 	if err != nil {
 		log.Panic(err)
 	}
-	// defer natsDisconnect(natsConn)
+	defer f.natsDisconnect()
 	log.Printf("Connected to nats %s", f.natsConn.ConnectedUrl())
-
 	const mqttThingsTopic = "things/#"
 	const natsThingsSubject = "thingsMsg.>"
-
 	natsPub := f.createNatsPublisher(natsThingsSubject)
-
 	err = f.mqttSubscriber(mqttThingsTopic, 0, natsPub)
-
 	if err != nil {
 		log.Panic(err)
 	}
 	defer f.mqttClient.Disconnect(250)
 	defer f.mqttUnsubscribe(mqttThingsTopic)
-
 	for {
 		time.Sleep(5 * time.Second)
 	}
@@ -123,7 +113,6 @@ func (f *forwarder) mqttConnect() error {
 	if err != nil {
 		return errors.ErrConnection
 	}
-
 	// mqtt.DEBUG = log.New(os.Stdout, "", 0)
 	mqtt.WARN = log.New(os.Stdout, "", 0)
 	mqtt.ERROR = log.New(os.Stdout, "", 0)
@@ -200,9 +189,9 @@ func (f *forwarder) natsConnect(opts []nats.Option) error {
 	return nil
 }
 
-// func natsDisconnect(nc *nats.Conn) {
-// 	nc.Close()
-// }
+func (f *forwarder) natsDisconnect() {
+	f.natsConn.Close()
+}
 
 func natsPublish(nc *nats.Conn, subject string, payload string) error {
 	if err := nc.Publish(subject, []byte(payload)); err != nil {
