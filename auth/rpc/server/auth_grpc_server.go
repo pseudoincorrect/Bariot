@@ -33,7 +33,7 @@ func (s *server) GetUserToken(ctx context.Context, in *pb.GetUserTokenRequest) (
 }
 
 func (s *server) GetThingToken(ctx context.Context, in *pb.GetThingTokenRequest) (*pb.GetThingTokenResponse, error) {
-	token, err := s.AuthService.GetThingToken(in.ThingId)
+	token, err := s.AuthService.GetThingToken(in.ThingId, in.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -48,13 +48,27 @@ func (s *server) GetThingToken(ctx context.Context, in *pb.GetThingTokenRequest)
 // 	return &pb.ValidateTokenResponse{Valid: valid}, nil
 // }
 
-func (s *server) GetClaimsToken(ctx context.Context, in *pb.GetClaimsTokenRequest) (*pb.GetClaimsTokenResponse, error) {
-	claims, err := s.AuthService.GetClaimsToken(in.Jwt)
+func (s *server) GetClaimsUserToken(ctx context.Context, in *pb.GetClaimsUserTokenRequest) (*pb.GetClaimsUserTokenResponse, error) {
+	claims, err := s.AuthService.GetClaimsUserToken(in.Jwt)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetClaimsTokenResponse{
+	return &pb.GetClaimsUserTokenResponse{
 		Role:      claims.Role,
+		Subject:   claims.Subject,
+		IssuedAt:  claims.IssuedAt,
+		ExpiresAt: claims.ExpiresAt,
+		Issuer:    claims.Issuer,
+	}, nil
+}
+
+func (s *server) GetClaimsThingToken(ctx context.Context, in *pb.GetClaimsThingTokenRequest) (*pb.GetClaimsThingTokenResponse, error) {
+	claims, err := s.AuthService.GetClaimsThingToken(in.Jwt)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetClaimsThingTokenResponse{
+		UserId:    claims.UserId,
 		Subject:   claims.Subject,
 		IssuedAt:  claims.IssuedAt,
 		ExpiresAt: claims.ExpiresAt,

@@ -72,7 +72,7 @@ func (c *authClient) GetUserToken(ctx context.Context, userId string) (string, e
 }
 
 func (c *authClient) IsAdmin(ctx context.Context, jwt string) (bool, error) {
-	claims, err := c.Client.GetClaimsToken(ctx, &pb.GetClaimsTokenRequest{Jwt: jwt})
+	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: jwt})
 	if err != nil {
 		return false, err
 	}
@@ -80,7 +80,7 @@ func (c *authClient) IsAdmin(ctx context.Context, jwt string) (bool, error) {
 }
 
 func (c *authClient) IsWhichUser(ctx context.Context, jwt string) (bool, string, error) {
-	claims, err := c.Client.GetClaimsToken(ctx, &pb.GetClaimsTokenRequest{Jwt: jwt})
+	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: jwt})
 	if err != nil {
 		return false, "", err
 	}

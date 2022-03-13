@@ -1,3 +1,8 @@
+// Higher level function to manage things
+// note that authorization is not checked here, it is checked in
+// http hander. For instance we do not check that a user is authorized
+// to update a thing here
+
 package service
 
 import (
@@ -16,6 +21,7 @@ type Things interface {
 	GetThing(ctx ctxt, thingId string) (*models.Thing, error)
 	DeleteThing(ctx ctxt, thingId string) (string, error)
 	UpdateThing(ctx ctxt, thingModel *models.Thing) (*models.Thing, error)
+	GetThingToken(ctx ctxt, thingId string, userId string) (string, error)
 	UserOfThingOrAdmin(ctx ctxt, token string, thingId string) (string, error)
 	UserOfThingOnly(ctx ctxt, token string, thingId string) (string, error)
 	UserOnly(ctx ctxt, token string) (string, error)
@@ -72,6 +78,16 @@ func (s *thingsService) UpdateThing(ctx ctxt, thing *models.Thing) (*models.Thin
 		return nil, err
 	}
 	return updatedThing, nil
+}
+
+/// GetThingToken return a JWT Token containing thing ID and user ID
+func (s *thingsService) GetThingToken(ctx ctxt, thingId string, userId string) (string, error) {
+	jwt, err := s.auth.GetThingToken(ctx, thingId, userId)
+	if err != nil {
+		log.Println("Get thing token error: ", err)
+		return "", err
+	}
+	return jwt, nil
 }
 
 /// Check if the user is authorized to access the thing

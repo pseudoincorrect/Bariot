@@ -2,7 +2,7 @@
 #
 #    "dev": {
 #         "host": "https://blablabla.com",
-#         "token": "yourToken"
+#         "userToken": "yourToken"
 #     },
 #
 # Tutorial:
@@ -10,8 +10,8 @@
 #
 
 @host = http://localhost:8083
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoidXNlciIsImV4cCI6MTY0NTUzNDYxMiwiaWF0IjoxNjQ1NDQ4MjEyLCJpc3MiOiJkZXZfbG9jYWwiLCJzdWIiOiJhODUzMTA2OC0yODE5LTQzOGUtODk1OS1lMDYwMjNlNWFkYWMifQ.I4EHSJY706LY8JAsSLzsrjw17YZ0DoA4J59e30EObS4
-@thingId = 150dd700-66af-4ac2-b815-b7290ad7d9ff
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoidXNlciIsImV4cCI6MTY0NzI1MDY5NiwiaWF0IjoxNjQ3MTY0Mjk2LCJpc3MiOiJkZXZfbG9jYWwiLCJzdWIiOiIyYzJiMTU3Yy03OWQ5LTRlZTYtODAxMy1iYjY1MGE1NmNjYTQifQ.70q-lNSe7CO9VcC9ETralffUfMczyS0sGcBussp6Bto
+@thingId = b14f3158-b9dd-4315-b7e2-fbcf4090bfe7
 @thingName = Device1
 @thingNewName = Device2
 @thingKey = 1234567890
@@ -19,11 +19,11 @@
 
 ### GET Thing by id
 GET {{host}}/{{thingId}}
-Authorization: {{token}}
+Authorization: {{userToken}}
 
 ### Create a thing
 POST {{host}}/
-Authorization: {{token}}
+Authorization: {{userToken}}
 content-type: application/json
 
 {
@@ -33,7 +33,7 @@ content-type: application/json
 
 ### Update a thing
 PUT {{host}}/{{thingId}}
-Authorization: {{token}}
+Authorization: {{userToken}}
 content-type: application/json
 
 {
@@ -42,5 +42,9 @@ content-type: application/json
 }
 
 ### Delete a thing
-Delete {{host}}/{{thingId}}
-Authorization: {{token}}
+DELETE {{host}}/{{thingId}}
+Authorization: {{userToken}}
+
+### Get a thing Token
+GET {{host}}/{{thingId}}/token
+Authorization: {{userToken}}

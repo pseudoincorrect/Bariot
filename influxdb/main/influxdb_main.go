@@ -63,7 +63,7 @@ type influxdbWriter struct {
 type config struct {
 	bariotEnv      string
 	influxdbHost   string
-	influxdbort    string
+	influxdbPort   string
 	influxdbOrg    string
 	influxdbBucket string
 	influxdbToken  string
@@ -76,7 +76,7 @@ func loadConfig() config {
 	var conf = config{
 		bariotEnv:      env.GetEnv("BARIOT_ENV"),
 		influxdbHost:   env.GetEnv("INFLUXDB_HOST"),
-		influxdbort:    env.GetEnv("INFLUXDB_PORT"),
+		influxdbPort:   env.GetEnv("INFLUXDB_PORT"),
 		influxdbOrg:    env.GetEnv("INFLUXDB_ORG"),
 		influxdbBucket: env.GetEnv("INFLUXDB_BUCKET"),
 		influxdbToken:  env.GetEnv("INFLUXDB_TOKEN"),
@@ -88,7 +88,7 @@ func loadConfig() config {
 
 // connectToInfluxdb setup a connection to an influxdb and check for health
 func (w *influxdbWriter) connectToInfluxdb() error {
-	dbUrl := fmt.Sprintf("http://%s:%s", w.conf.influxdbHost, w.conf.influxdbort)
+	dbUrl := fmt.Sprintf("http://%s:%s", w.conf.influxdbHost, w.conf.influxdbPort)
 	client := influxdb.NewClientWithOptions(dbUrl, w.conf.influxdbToken, influxdb.DefaultOptions().SetBatchSize(2))
 	_, err := client.Health(context.Background())
 	if err != nil {
@@ -112,7 +112,7 @@ func (w *influxdbWriter) influxdbWrite(data *writer.ThingData) {
 	for _, r := range data.SensorsData.Records {
 		p := influxdb.NewPointWithMeasurement(r.Name).
 			AddTag("unit", r.Unit).
-			AddField("thingId", data.ThingId).
+			AddTag("thingId", data.ThingId).
 			SetTime(time.Unix(int64(r.Time), 0))
 		if r.Value != nil {
 			p.AddField("value", r.Value)

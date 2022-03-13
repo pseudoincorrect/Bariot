@@ -21,7 +21,8 @@ type AuthClient interface {
 	GetAdminToken(ctx context.Context, in *GetAdminTokenRequest, opts ...grpc.CallOption) (*GetAdminTokenResponse, error)
 	GetUserToken(ctx context.Context, in *GetUserTokenRequest, opts ...grpc.CallOption) (*GetUserTokenResponse, error)
 	GetThingToken(ctx context.Context, in *GetThingTokenRequest, opts ...grpc.CallOption) (*GetThingTokenResponse, error)
-	GetClaimsToken(ctx context.Context, in *GetClaimsTokenRequest, opts ...grpc.CallOption) (*GetClaimsTokenResponse, error)
+	GetClaimsUserToken(ctx context.Context, in *GetClaimsUserTokenRequest, opts ...grpc.CallOption) (*GetClaimsUserTokenResponse, error)
+	GetClaimsThingToken(ctx context.Context, in *GetClaimsThingTokenRequest, opts ...grpc.CallOption) (*GetClaimsThingTokenResponse, error)
 }
 
 type authClient struct {
@@ -59,9 +60,18 @@ func (c *authClient) GetThingToken(ctx context.Context, in *GetThingTokenRequest
 	return out, nil
 }
 
-func (c *authClient) GetClaimsToken(ctx context.Context, in *GetClaimsTokenRequest, opts ...grpc.CallOption) (*GetClaimsTokenResponse, error) {
-	out := new(GetClaimsTokenResponse)
-	err := c.cc.Invoke(ctx, "/auth.Auth/GetClaimsToken", in, out, opts...)
+func (c *authClient) GetClaimsUserToken(ctx context.Context, in *GetClaimsUserTokenRequest, opts ...grpc.CallOption) (*GetClaimsUserTokenResponse, error) {
+	out := new(GetClaimsUserTokenResponse)
+	err := c.cc.Invoke(ctx, "/auth.Auth/GetClaimsUserToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) GetClaimsThingToken(ctx context.Context, in *GetClaimsThingTokenRequest, opts ...grpc.CallOption) (*GetClaimsThingTokenResponse, error) {
+	out := new(GetClaimsThingTokenResponse)
+	err := c.cc.Invoke(ctx, "/auth.Auth/GetClaimsThingToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +85,8 @@ type AuthServer interface {
 	GetAdminToken(context.Context, *GetAdminTokenRequest) (*GetAdminTokenResponse, error)
 	GetUserToken(context.Context, *GetUserTokenRequest) (*GetUserTokenResponse, error)
 	GetThingToken(context.Context, *GetThingTokenRequest) (*GetThingTokenResponse, error)
-	GetClaimsToken(context.Context, *GetClaimsTokenRequest) (*GetClaimsTokenResponse, error)
+	GetClaimsUserToken(context.Context, *GetClaimsUserTokenRequest) (*GetClaimsUserTokenResponse, error)
+	GetClaimsThingToken(context.Context, *GetClaimsThingTokenRequest) (*GetClaimsThingTokenResponse, error)
 	mustEmbedUnimplementedAuthServer()
 }
 
@@ -92,8 +103,11 @@ func (UnimplementedAuthServer) GetUserToken(context.Context, *GetUserTokenReques
 func (UnimplementedAuthServer) GetThingToken(context.Context, *GetThingTokenRequest) (*GetThingTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetThingToken not implemented")
 }
-func (UnimplementedAuthServer) GetClaimsToken(context.Context, *GetClaimsTokenRequest) (*GetClaimsTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetClaimsToken not implemented")
+func (UnimplementedAuthServer) GetClaimsUserToken(context.Context, *GetClaimsUserTokenRequest) (*GetClaimsUserTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClaimsUserToken not implemented")
+}
+func (UnimplementedAuthServer) GetClaimsThingToken(context.Context, *GetClaimsThingTokenRequest) (*GetClaimsThingTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClaimsThingToken not implemented")
 }
 func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 
@@ -162,20 +176,38 @@ func _Auth_GetThingToken_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Auth_GetClaimsToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetClaimsTokenRequest)
+func _Auth_GetClaimsUserToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClaimsUserTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServer).GetClaimsToken(ctx, in)
+		return srv.(AuthServer).GetClaimsUserToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/auth.Auth/GetClaimsToken",
+		FullMethod: "/auth.Auth/GetClaimsUserToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServer).GetClaimsToken(ctx, req.(*GetClaimsTokenRequest))
+		return srv.(AuthServer).GetClaimsUserToken(ctx, req.(*GetClaimsUserTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_GetClaimsThingToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClaimsThingTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).GetClaimsThingToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.Auth/GetClaimsThingToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).GetClaimsThingToken(ctx, req.(*GetClaimsThingTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -200,8 +232,12 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Auth_GetThingToken_Handler,
 		},
 		{
-			MethodName: "GetClaimsToken",
-			Handler:    _Auth_GetClaimsToken_Handler,
+			MethodName: "GetClaimsUserToken",
+			Handler:    _Auth_GetClaimsUserToken_Handler,
+		},
+		{
+			MethodName: "GetClaimsThingToken",
+			Handler:    _Auth_GetClaimsThingToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

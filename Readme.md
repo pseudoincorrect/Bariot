@@ -25,7 +25,7 @@ Bariot uses the most recent (ref 2022) technologies to create a scalable and clo
 
 Bariot is opinionated, in the sense that storage and communications technologies are predefined (see COMPONENTS)
 
-Bariot is a chance to understand what technologies are used to create cloud applications with modern standard of security, scalability, performances and devops practices. Whether it is purely serverless or containerized, these components (see below) in one form or another are often involved. 
+Bariot is a chance to understand what technologies are used to create cloud applications with modern standards of security, scalability, performances and devops practices. Whether it is purely serverless or containerized, these components (see below) in one form or another are often involved. 
 
 Bariot is also a fun project to work on !
 

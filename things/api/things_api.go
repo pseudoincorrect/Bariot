@@ -33,6 +33,7 @@ func createRouter() *chi.Mux {
 	return r
 }
 
+// createEndpoint Create all things related endpoints
 func createEndpoint(s service.Things, r *chi.Mux) {
 	// only user can create a thing (associated with user id)
 	userOnlyGroup := r.Group(nil)
@@ -42,6 +43,7 @@ func createEndpoint(s service.Things, r *chi.Mux) {
 	userOfThingOrAdminGroup := r.Group(nil)
 	userOfThingOrAdminGroup.Use(userOfThingOrAdmin(s))
 	userOfThingOrAdminGroup.Get("/{id}", thingGetEndpoint(s))
+	userOfThingOrAdminGroup.Get("/{id}/token", thingGetTokenEndpoint(s))
 	userOfThingOrAdminGroup.Delete("/{id}", thingDeleteEndpoint(s))
 	// only a user of a thing can update it
 	userOfThingOnlyGroup := r.Group(nil)
@@ -49,12 +51,14 @@ func createEndpoint(s service.Things, r *chi.Mux) {
 	userOfThingOnlyGroup.Put("/{id}", thingPutEndpoint(s))
 }
 
+// startRouter start the chi http router
 func startRouter(port string, r *chi.Mux) error {
 	addr := ":" + port
 	err := http.ListenAndServe(addr, r)
 	return err
 }
 
+// thingGetEndpoint create a handler to get a Thing by ID
 func thingGetEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
@@ -94,6 +98,7 @@ func (r *thingPostRequest) validate() error {
 	return nil
 }
 
+// thingPostEndpoint create a handler to create a thing
 func thingPostEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		userId := req.Context().Value(userIdKey).(string)
@@ -127,6 +132,7 @@ type thingDeleteResponse struct {
 	Id string `json:"Id"`
 }
 
+// thingDeleteEndpoint create a handler to delete a thing by ID
 func thingDeleteEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
@@ -161,6 +167,7 @@ func (r *thingPutRequest) validate() error {
 	return nil
 }
 
+// thingPutEndpoint create a handler to update a thing with a thing model
 func thingPutEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		userId := req.Context().Value(userIdKey).(string)
@@ -195,13 +202,37 @@ func thingPutEndpoint(s service.Things) http.HandlerFunc {
 	}
 }
 
+type thingGetTokenRes struct {
+	Jwt string
+}
+
+// thingGetTokenEndpoint create a handler to get a token associated to a thing
+func thingGetTokenEndpoint(s service.Things) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		userId := req.Context().Value(userIdKey).(string)
+		thingId := chi.URLParam(req, "id")
+		jwt, err := s.GetThingToken(context.Background(), thingId, userId)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(res).Encode(thingGetTokenRes{Jwt: jwt})
+	}
+}
+
 type middlewareFunc func(http.Handler) http.Handler
 
+// userOfThingOrAdmin middleware to check whether the token belong to an admin
+// or to the user (ID) of the thing in the request
 func userOfThingOrAdmin(s service.Things) middlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			token := req.Header.Get("Authorization")
 			thingId := chi.URLParam(req, "id")
+			if err := validation.ValidateUuid(thingId); err != nil {
+				http.Error(res, err.Error(), http.StatusBadRequest)
+				return
+			}
 			userId, err := s.UserOfThingOrAdmin(context.Background(), token, thingId)
 			if err != nil {
 				log.Println(err)
@@ -213,11 +244,17 @@ func userOfThingOrAdmin(s service.Things) middlewareFunc {
 	}
 }
 
+// userOfThingOnly middleware to check whether the token in the request belong
+// to the user of the thing in the request
 func userOfThingOnly(s service.Things) middlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			token := req.Header.Get("Authorization")
 			thingId := chi.URLParam(req, "id")
+			if err := validation.ValidateUuid(thingId); err != nil {
+				http.Error(res, err.Error(), http.StatusBadRequest)
+				return
+			}
 			userId, err := s.UserOfThingOnly(context.Background(), token, thingId)
 			if err != nil {
 				log.Println(err)
@@ -229,6 +266,7 @@ func userOfThingOnly(s service.Things) middlewareFunc {
 	}
 }
 
+// userOnly middleware to check whether the token belong to a user, and not an admin
 func userOnly(s service.Things) middlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {

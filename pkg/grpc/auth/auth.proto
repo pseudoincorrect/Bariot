@@ -11,7 +11,8 @@ service Auth {
   rpc GetAdminToken(GetAdminTokenRequest) returns (GetAdminTokenResponse) {}
   rpc GetUserToken(GetUserTokenRequest) returns (GetUserTokenResponse) {}
   rpc GetThingToken(GetThingTokenRequest) returns (GetThingTokenResponse) {}
-  rpc GetClaimsToken(GetClaimsTokenRequest) returns (GetClaimsTokenResponse) {}
+  rpc GetClaimsUserToken(GetClaimsUserTokenRequest) returns (GetClaimsUserTokenResponse) {}
+  rpc GetClaimsThingToken(GetClaimsThingTokenRequest) returns (GetClaimsThingTokenResponse) {}
 }
 
 message GetAdminTokenRequest {
@@ -31,18 +32,31 @@ message GetUserTokenResponse{
 
 message GetThingTokenRequest {
   string thingId = 1;
+  string userId = 2;
 }
 
 message GetThingTokenResponse{
   string jwt = 1;
 }
 
-message GetClaimsTokenRequest {
+message GetClaimsUserTokenRequest {
   string jwt = 1;
 }
 
-message GetClaimsTokenResponse {
+message GetClaimsUserTokenResponse {
   string Role = 1;
+  string Subject = 2;
+  int64 IssuedAt = 3;
+  int64 ExpiresAt = 4;
+  string Issuer = 5;
+}
+
+message GetClaimsThingTokenRequest {
+  string jwt = 1;
+}
+
+message GetClaimsThingTokenResponse {
+  string UserId = 1;
   string Subject = 2;
   int64 IssuedAt = 3;
   int64 ExpiresAt = 4;

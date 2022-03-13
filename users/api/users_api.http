@@ -10,8 +10,8 @@
 #
 
 @host = http://localhost:8082
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoiYWRtaW4iLCJleHAiOjE2NDUzNzcxOTksImlhdCI6MTY0NTM3MzU5OSwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiMCJ9.QX_BhllH7qFnO0WQDIfveQkZcmvOamUp_hDYspDJFoQ
-@userId = a8531068-2819-438e-8959-e06023e5adac
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoiYWRtaW4iLCJleHAiOjE2NDcxNjU2NzAsImlhdCI6MTY0NzE2MjA3MCwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiMCJ9.jR7d54uGXzGTF_R67RofguCMrTq7m7-VW1kq5vaoNSc
+@userId = 2c2b157c-79d9-4ee6-8013-bb650a56cca4
 @userEmail = quidonc@nimportequoi.com
 @userPassword = superStrongPassword
 @userFullName = Thibaux Toizossi
