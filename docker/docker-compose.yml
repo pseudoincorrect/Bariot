@@ -64,9 +64,6 @@ services:
       HTTP_PORT: 8080
       RPC_AUTH_HOST: auth
       RPC_AUTH_PORT: ${THINGS_RPC_AUTH_PORT}
-      MQTT_HOST: emqx
-      MQTT_PORT: 1883
-      MQTT_STATUS_PORT: 8081
       PG_HOST: things_db
       PG_PORT: 5432
       PG_DATABASE: ${THINGS_DB_NAME}
@@ -120,6 +117,8 @@ services:
       MQTT_PASS: ${MQTT_PASS}
       NATS_HOST: ${NATS_HOST}
       NATS_PORT: ${NATS_PORT}
+      RPC_AUTH_HOST: auth
+      RPC_AUTH_PORT: ${THINGS_RPC_AUTH_PORT}
 
   emqx:
     image: emqx/emqx:4.3.11

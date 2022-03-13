@@ -5,55 +5,55 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/pseudoincorrect/bariot/pkg/grpc/auth"
+	auth "github.com/pseudoincorrect/bariot/pkg/auth/grpc"
 	"google.golang.org/grpc"
 
 	"github.com/pseudoincorrect/bariot/auth/service"
 )
 
 type server struct {
-	pb.UnimplementedAuthServer
+	auth.UnimplementedAuthServer
 	AuthService service.Auth
 }
 
-func (s *server) GetAdminToken(ctx context.Context, in *pb.GetAdminTokenRequest) (*pb.GetAdminTokenResponse, error) {
+func (s *server) GetAdminToken(ctx context.Context, in *auth.GetAdminTokenRequest) (*auth.GetAdminTokenResponse, error) {
 	token, err := s.AuthService.GetAdminToken()
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetAdminTokenResponse{Jwt: token}, nil
+	return &auth.GetAdminTokenResponse{Jwt: token}, nil
 }
 
-func (s *server) GetUserToken(ctx context.Context, in *pb.GetUserTokenRequest) (*pb.GetUserTokenResponse, error) {
+func (s *server) GetUserToken(ctx context.Context, in *auth.GetUserTokenRequest) (*auth.GetUserTokenResponse, error) {
 	token, err := s.AuthService.GetUserToken(in.UserId)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetUserTokenResponse{Jwt: token}, nil
+	return &auth.GetUserTokenResponse{Jwt: token}, nil
 }
 
-func (s *server) GetThingToken(ctx context.Context, in *pb.GetThingTokenRequest) (*pb.GetThingTokenResponse, error) {
+func (s *server) GetThingToken(ctx context.Context, in *auth.GetThingTokenRequest) (*auth.GetThingTokenResponse, error) {
 	token, err := s.AuthService.GetThingToken(in.ThingId, in.UserId)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetThingTokenResponse{Jwt: token}, nil
+	return &auth.GetThingTokenResponse{Jwt: token}, nil
 }
 
-// func (s *server) ValidateToken(ctx context.Context, in *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
+// func (s *server) ValidateToken(ctx context.Context, in *auth.ValidateTokenRequest) (*auth.ValidateTokenResponse, error) {
 // 	valid, err := s.AuthService.ValidateToken(in.Jwt)
 // 	if err != nil {
 // 		return nil, err
 // 	}
-// 	return &pb.ValidateTokenResponse{Valid: valid}, nil
+// 	return &auth.ValidateTokenResponse{Valid: valid}, nil
 // }
 
-func (s *server) GetClaimsUserToken(ctx context.Context, in *pb.GetClaimsUserTokenRequest) (*pb.GetClaimsUserTokenResponse, error) {
+func (s *server) GetClaimsUserToken(ctx context.Context, in *auth.GetClaimsUserTokenRequest) (*auth.GetClaimsUserTokenResponse, error) {
 	claims, err := s.AuthService.GetClaimsUserToken(in.Jwt)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetClaimsUserTokenResponse{
+	return &auth.GetClaimsUserTokenResponse{
 		Role:      claims.Role,
 		Subject:   claims.Subject,
 		IssuedAt:  claims.IssuedAt,
@@ -62,12 +62,12 @@ func (s *server) GetClaimsUserToken(ctx context.Context, in *pb.GetClaimsUserTok
 	}, nil
 }
 
-func (s *server) GetClaimsThingToken(ctx context.Context, in *pb.GetClaimsThingTokenRequest) (*pb.GetClaimsThingTokenResponse, error) {
+func (s *server) GetClaimsThingToken(ctx context.Context, in *auth.GetClaimsThingTokenRequest) (*auth.GetClaimsThingTokenResponse, error) {
 	claims, err := s.AuthService.GetClaimsThingToken(in.Jwt)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetClaimsThingTokenResponse{
+	return &auth.GetClaimsThingTokenResponse{
 		UserId:    claims.UserId,
 		Subject:   claims.Subject,
 		IssuedAt:  claims.IssuedAt,
@@ -90,7 +90,7 @@ func Start(c ServerConf) error {
 		return err
 	}
 	s := grpc.NewServer()
-	pb.RegisterAuthServer(s, &server{pb.UnimplementedAuthServer{}, c.AuthService})
+	auth.RegisterAuthServer(s, &server{auth.UnimplementedAuthServer{}, c.AuthService})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 		return err

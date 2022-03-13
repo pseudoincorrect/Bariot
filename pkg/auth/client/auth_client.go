@@ -21,6 +21,8 @@ type Auth interface {
 	IsAdmin(ctxt, string) (bool, error)
 	IsWhichUser(ctxt, string) (string, string, error)
 	GetThingToken(ctxt, string, string) (string, error)
+	GetAdminToken(ctxt) (string, error)
+	GetUserToken(ctxt, string) (string, error)
 }
 
 var _ Auth = (*authClient)(nil)
@@ -81,7 +83,7 @@ func (c *authClient) GetThingToken(ctx ctxt, thingId string, userId string) (str
 	return res.Jwt, nil
 }
 
-func (c *authClient) GetAdminToken(ctx context.Context) (string, error) {
+func (c *authClient) GetAdminToken(ctx ctxt) (string, error) {
 	resToken, err := c.Client.GetAdminToken(ctx, &pb.GetAdminTokenRequest{})
 	if err != nil {
 		log.Println("GRPC get admin token error:", err)
@@ -90,7 +92,7 @@ func (c *authClient) GetAdminToken(ctx context.Context) (string, error) {
 	return resToken.GetJwt(), nil
 }
 
-func (c *authClient) GetUserToken(ctx context.Context, userId string) (string, error) {
+func (c *authClient) GetUserToken(ctx ctxt, userId string) (string, error) {
 	resToken, err := c.Client.GetUserToken(ctx, &pb.GetUserTokenRequest{UserId: userId})
 	if err != nil {
 		log.Println("GRPC get admin token error:", err)

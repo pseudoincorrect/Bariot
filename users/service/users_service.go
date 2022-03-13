@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/pseudoincorrect/bariot/pkg/auth/client/authClient"
+	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	"github.com/pseudoincorrect/bariot/pkg/errors"
 	"github.com/pseudoincorrect/bariot/users/models"
 	"github.com/pseudoincorrect/bariot/users/utilities/hash"

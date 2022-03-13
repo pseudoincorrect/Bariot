@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/pseudoincorrect/bariot/pkg/auth/client/authClient"
+	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	"github.com/pseudoincorrect/bariot/pkg/env"
 	"github.com/pseudoincorrect/bariot/users/api"
 	"github.com/pseudoincorrect/bariot/users/db"
@@ -13,6 +13,28 @@ import (
 	"github.com/pseudoincorrect/bariot/users/service"
 	"github.com/pseudoincorrect/bariot/users/utilities/hash"
 )
+
+func main() {
+	log.Println("Users service online")
+	usersService, err := createService()
+	if err != nil {
+		log.Panic("Users service creation error", err)
+	}
+	err = createAdmin(usersService)
+	if err != nil {
+		log.Panic("Admin creation error", err)
+	}
+	log.Println("init user service HTTP server")
+	go func() {
+		err = startHttp(usersService)
+		if err != nil {
+			log.Panic("Users service HTTP server error", err)
+		}
+	}()
+	for {
+		time.Sleep(time.Second)
+	}
+}
 
 type config struct {
 	httpPort      string
@@ -101,29 +123,4 @@ func createAdmin(s service.Users) error {
 		}
 	}
 	return nil
-}
-
-func main() {
-	log.Println("Users service online")
-
-	usersService, err := createService()
-	if err != nil {
-		log.Panic("Users service creation error", err)
-	}
-	err = createAdmin(usersService)
-	if err != nil {
-		log.Panic("Admin creation error", err)
-	}
-
-	log.Println("init user service HTTP server")
-	go func() {
-		err = startHttp(usersService)
-		if err != nil {
-			log.Panic("Users service HTTP server error", err)
-		}
-	}()
-	// infinite loop
-	for {
-		time.Sleep(time.Second)
-	}
 }

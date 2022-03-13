@@ -39,3 +39,12 @@ $ cd && curl https://getmic.ro | bash && sudo mv micro /usr/local/bin/micro
 ``` console  
 $ go clean -testcache
 ```
+
+## Golang import (local) package error
+file structure : myGoProject/auth/
+If your package name is the same as the go file:
+  client.go       >>   package client
+  you need to use `import "github.com/xxxx/xxx/myproject/auth/client"`
+If your package name is different than the go file:
+  auth_client.go  >>   package client
+  you  need to use `import client "github.com/xxxx/xxx/myproject/auth"`
