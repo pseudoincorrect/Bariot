@@ -9,7 +9,7 @@ import (
 )
 
 type NatsPub interface {
-	Connect(host string, port string) error
+	Connect() error
 	Disconnect()
 	Publish(subject string, payload string) error
 	CreatePublisher(subject string) NatsPubType
@@ -17,12 +17,18 @@ type NatsPub interface {
 
 var _ NatsPub = (*natsPub)(nil)
 
-func New() NatsPub {
-	return &natsPub{c: nil}
+func New(config NatsConf) NatsPub {
+	return &natsPub{c: nil, conf: config}
 }
 
 type natsPub struct {
-	c *nats.Conn
+	c    *nats.Conn
+	conf NatsConf
+}
+
+type NatsConf struct {
+	Host string
+	Port string
 }
 
 func setupConnOptions(opts []nats.Option) []nats.Option {
@@ -42,24 +48,24 @@ func setupConnOptions(opts []nats.Option) []nats.Option {
 	return opts
 }
 
-func (conn *natsPub) Connect(host string, port string) error {
+func (pub *natsPub) Connect() error {
 	opts := []nats.Option{nats.Name("NATS Sample Queue Subscriber")}
 	opts = setupConnOptions(opts)
-	natsUrl := "nats://" + host + ":" + port
+	natsUrl := "nats://" + pub.conf.Host + ":" + pub.conf.Port
 	nc, err := nats.Connect(natsUrl, opts...)
 	if err != nil {
 		return errors.ErrConnection
 	}
-	conn.c = nc
+	pub.c = nc
 	return nil
 }
 
-func (conn *natsPub) Disconnect() {
-	conn.c.Close()
+func (pub *natsPub) Disconnect() {
+	pub.c.Close()
 }
 
-func (conn *natsPub) Publish(subject string, payload string) error {
-	if err := conn.c.Publish(subject, []byte(payload)); err != nil {
+func (pub *natsPub) Publish(subject string, payload string) error {
+	if err := pub.c.Publish(subject, []byte(payload)); err != nil {
 		log.Printf("Error publishing message: %s\n", err)
 		return err
 	}
@@ -68,9 +74,9 @@ func (conn *natsPub) Publish(subject string, payload string) error {
 
 type NatsPubType func(payload string) error
 
-func (conn *natsPub) CreatePublisher(subject string) NatsPubType {
+func (pub *natsPub) CreatePublisher(subject string) NatsPubType {
 	return func(payload string) error {
-		err := conn.Publish(subject, payload)
+		err := pub.Publish(subject, payload)
 		return err
 	}
 }

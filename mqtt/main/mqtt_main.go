@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	mqttSub "github.com/pseudoincorrect/bariot/mqtt/mqtt"
+	"github.com/pseudoincorrect/bariot/mqtt/mqtt"
 	natsPub "github.com/pseudoincorrect/bariot/mqtt/nats"
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	"github.com/pseudoincorrect/bariot/pkg/env"
@@ -17,9 +17,12 @@ func main() {
 	log.SetOutput(os.Stdout)
 	conf := loadConfig()
 
-	natsPub := natsPub.New()
+	natsPub := natsPub.New(natsPub.NatsConf{
+		Host: conf.natsHost,
+		Port: conf.natsPort,
+	})
 
-	mqttSub := mqttSub.New(mqttSub.MqttSubConf{
+	mqttSub := mqtt.New(mqtt.MqttSubConf{
 		User:       conf.mqttUser,
 		Pass:       conf.mqttPass,
 		Host:       conf.mqttHost,
@@ -30,16 +33,21 @@ func main() {
 		Host: conf.rpcAuthHost,
 		Port: conf.rpcAuthPort,
 	}
-	authClient.New(authClientConf)
+	auth := authClient.New(authClientConf)
 
-	err := mqttSub.Connect()
+	err := auth.StartAuthClient()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = mqttSub.Connect()
 	if err != nil {
 		log.Panic(err)
 	}
 	defer mqttSub.Disconnect()
 	log.Printf("Connected to MQTT broker %s:%s\n", conf.mqttHost, conf.mqttPort)
 
-	err = natsPub.Connect(conf.natsHost, conf.natsPort)
+	err = natsPub.Connect()
 	if err != nil {
 		log.Panic(err)
 	}
@@ -48,7 +56,11 @@ func main() {
 	const mqttThingsTopic = "things/#"
 	const natsThingsSubject = "thingsMsg.>"
 	natsPubHandler := natsPub.CreatePublisher(natsThingsSubject)
-	err = mqttSub.Subscriber(mqttThingsTopic, 0, natsPubHandler)
+	mqttAuthorizer, err := mqtt.CreateAuthorizer(auth)
+	if err != nil {
+		log.Panic(err)
+	}
+	err = mqttSub.Subscriber(mqttThingsTopic, 0, mqttAuthorizer, natsPubHandler)
 	if err != nil {
 		log.Panic(err)
 	}

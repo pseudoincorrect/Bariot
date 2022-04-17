@@ -1,4 +1,4 @@
-package mqttSub
+package mqtt
 
 import (
 	"fmt"
@@ -9,14 +9,14 @@ import (
 	"strconv"
 	"time"
 
-	mqtt "github.com/eclipse/paho.mqtt.golang"
+	paho "github.com/eclipse/paho.mqtt.golang"
 	natsPub "github.com/pseudoincorrect/bariot/mqtt/nats"
 	"github.com/pseudoincorrect/bariot/pkg/errors"
 )
 
 type MqttSub interface {
 	Connect() error
-	Subscriber(topic string, qos byte, handler natsPub.NatsPubType) error
+	Subscriber(topic string, qos byte, authorizer Authorizer, handler natsPub.NatsPubType) error
 	Unsubscribe(topic string)
 	Disconnect()
 }
@@ -28,7 +28,7 @@ func New(config MqttSubConf) MqttSub {
 }
 
 type mqttSub struct {
-	c    mqtt.Client
+	c    paho.Client
 	conf MqttSubConf
 }
 
@@ -70,20 +70,20 @@ func (sub *mqttSub) Connect() error {
 	if err != nil {
 		return errors.ErrConnection
 	}
-	// mqtt.DEBUG = log.New(os.Stdout, "", 0)
-	mqtt.WARN = log.New(os.Stdout, "", 0)
-	mqtt.ERROR = log.New(os.Stdout, "", 0)
+	// paho.DEBUG = log.New(os.Stdout, "", 0)
+	paho.WARN = log.New(os.Stdout, "", 0)
+	paho.ERROR = log.New(os.Stdout, "", 0)
 	r1 := rand.New(rand.NewSource(time.Now().UnixNano()))
 	clientId := "bariot_" + strconv.Itoa(r1.Intn(1000000))
 	log.Println("MQTT client ID :", clientId)
 	url := "tcp://" + sub.conf.Host + ":" + sub.conf.Port
 
-	opts := mqtt.NewClientOptions().AddBroker(url).SetClientID(clientId)
+	opts := paho.NewClientOptions().AddBroker(url).SetClientID(clientId)
 	opts.SetKeepAlive(2 * time.Second)
 	opts.SetDefaultPublishHandler(defaultMessageHandler)
 	opts.SetPingTimeout(1 * time.Second)
 
-	c := mqtt.NewClient(opts)
+	c := paho.NewClient(opts)
 	token := c.Connect()
 	if token.Wait() && token.Error() != nil {
 		return token.Error()
@@ -92,13 +92,22 @@ func (sub *mqttSub) Connect() error {
 	return nil
 }
 
-func (sub *mqttSub) Subscriber(topic string, qos byte, handler natsPub.NatsPubType) error {
-	stringHandler := func(client mqtt.Client, msg mqtt.Message) {
+func (sub *mqttSub) Subscriber(topic string, qos byte,
+	authorizer Authorizer, handler natsPub.NatsPubType) error {
+	stringHandler := func(client paho.Client, msg paho.Message) {
 		msgTopic := msg.Topic()
 		msgPayload := msg.Payload()
 		log.Printf("MQTT msg RECEIVED\n")
 		log.Printf("MQTT topic:   %s\n", msgTopic)
 		log.Printf("MQTT payload: %s\n", msgPayload)
+		jwt, err := ExtractJwt(msgPayload)
+		if err != nil {
+			log.Println(err.Error())
+		}
+		err = authorizer(msgTopic, jwt)
+		if err != nil {
+			log.Println(err.Error())
+		}
 		handler(string(msgPayload))
 	}
 	token := sub.c.Subscribe(topic, qos, stringHandler)
@@ -119,7 +128,7 @@ func (sub *mqttSub) Disconnect() {
 	sub.c.Disconnect(250)
 }
 
-var defaultMessageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+var defaultMessageHandler paho.MessageHandler = func(client paho.Client, msg paho.Message) {
 	log.Printf("INCORRECT PUBLISH HERE: %s\n", msg.Topic())
 	log.Printf("MSG: %s\n", msg.Payload())
 }

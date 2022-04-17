@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,6 +22,8 @@ func main() {
 	MqttConnectAndSend()
 }
 
+const JWT = "jwt123.jwt321.jwt000"
+
 func MqttConnectAndSend() error {
 	var m mqttTester
 	m.conf = config{
@@ -37,7 +40,8 @@ func MqttConnectAndSend() error {
 	}
 	defer m.mqttDisconnect()
 	log.Println("Connected to mqtt")
-	msg, _ := createSenmlMsg()
+	sensorData := createSenmlPack()
+	msg, _ := marchalMsg(JWT, sensorData)
 	log.Println("Publishing to mqtt")
 	topic := "things/123456789"
 	err = m.mqttPublish(topic, string(msg))
@@ -130,6 +134,47 @@ func (m *mqttTester) mqttPublish(topic string, msg string) error {
 		return token.Error()
 	}
 	return nil
+}
+
+type sensorAuthMsg struct {
+	Token   string `json:"token"`
+	Sensors senml.Pack
+}
+
+func marchalMsg(token string, sensorData senml.Pack) ([]byte, error) {
+	msg := sensorAuthMsg{
+		Token:   token,
+		Sensors: sensorData,
+	}
+	return json.Marshal(msg)
+}
+
+func createSenmlPack() senml.Pack {
+	temperature := float64(38)
+	humidity := float64(75)
+	activity := float64(1.2)
+	return senml.Pack{
+		Records: []senml.Record{
+			{
+				Name:  "temperature",
+				Unit:  "degreesC",
+				Value: &temperature,
+				Time:  float64(time.Now().Unix()),
+			},
+			{
+				Name:  "humidity",
+				Unit:  "percents",
+				Value: &humidity,
+				Time:  float64(time.Now().Unix() + 1),
+			},
+			{
+				Name:  "activity",
+				Unit:  "G",
+				Value: &activity,
+				Time:  float64(time.Now().Unix() + 2),
+			},
+		},
+	}
 }
 
 func createSenmlMsg() ([]byte, error) {
