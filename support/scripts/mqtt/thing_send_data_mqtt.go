@@ -22,7 +22,9 @@ func main() {
 	MqttConnectAndSend()
 }
 
-const JWT = "jwt123.jwt321.jwt000"
+const JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIyYzJiMTU3Yy03OWQ5LTRlZTYtODAxMy1iYjY1MGE1NmNjYTQiLCJleHAiOjE2NTAyODgzMjgsImlhdCI6MTY1MDIwMTkyOCwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiNjYxMzFiMGEtNTQ0NS00ZjFhLWIzZjgtMjE4ZDhjODk1Nzk3In0.f701zikGALQ9qoEGLbs9BU-QWF3mnaQKeWnGu_TRHyc"
+
+const TOPIC = "things/66131b0a-5445-4f1a-b3f8-218d8c895797"
 
 func MqttConnectAndSend() error {
 	var m mqttTester
@@ -43,8 +45,7 @@ func MqttConnectAndSend() error {
 	sensorData := createSenmlPack()
 	msg, _ := marchalMsg(JWT, sensorData)
 	log.Println("Publishing to mqtt")
-	topic := "things/123456789"
-	err = m.mqttPublish(topic, string(msg))
+	err = m.mqttPublish(TOPIC, string(msg))
 	if err != nil {
 		log.Panic("could not publish MQTT message")
 	}

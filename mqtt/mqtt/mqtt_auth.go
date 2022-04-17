@@ -1,38 +1,34 @@
 package mqtt
 
 import (
-	"encoding/json"
+	"context"
 	"log"
+	"strings"
 
-	"github.com/mainflux/senml"
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
+	"github.com/pseudoincorrect/bariot/pkg/errors"
 )
 
 type Authorizer func(topic string, jwt string) error
 
 func CreateAuthorizer(auth authClient.Auth) (Authorizer, error) {
-	authorizer := func(topic string, payload string) error {
-		log.Println("Authorizing MQTT msg")
-		log.Println("topic = ", topic)
-		log.Println("jwt = ", payload)
+	authorizer := func(topic string, token string) error {
+		thingId, err := auth.IsWhichThing(context.Background(), token)
+		if err != nil {
+			log.Println("MQTT token AUTHENTICATION error")
+			return errors.ErrAuthorization
+		}
+		topicThingId, _ := extractThingIdFromTopic(topic)
+		if topicThingId != thingId {
+			log.Println("Thing", thingId, "NOT AUTHORIZED to publish on topic", topic)
+			return errors.ErrAuthorization
+		}
 		return nil
 	}
 	return authorizer, nil
 }
 
-type AuthenticatedMsg struct {
-	Token   string `json:"token"`
-	Sensors senml.Pack
-}
-
-func ExtractJwt(payload []byte) (string, error) {
-	msg := AuthenticatedMsg{}
-	err := json.Unmarshal(payload, &msg)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-	log.Println("JSON decoded jwt = ", msg.Token)
-	log.Println("JSON decoded data = ", msg.Sensors)
-	return msg.Token, nil
+func extractThingIdFromTopic(topic string) (string, error) {
+	thingId := strings.Split(topic, "/")[1]
+	return thingId, nil
 }

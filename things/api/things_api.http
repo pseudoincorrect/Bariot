@@ -10,12 +10,11 @@
 #
 
 @host = http://localhost:8083
-@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoidXNlciIsImV4cCI6MTY0NzI1MDY5NiwiaWF0IjoxNjQ3MTY0Mjk2LCJpc3MiOiJkZXZfbG9jYWwiLCJzdWIiOiIyYzJiMTU3Yy03OWQ5LTRlZTYtODAxMy1iYjY1MGE1NmNjYTQifQ.70q-lNSe7CO9VcC9ETralffUfMczyS0sGcBussp6Bto
-@thingId = b14f3158-b9dd-4315-b7e2-fbcf4090bfe7
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoidXNlciIsImV4cCI6MTY1MDI4ODIwNywiaWF0IjoxNjUwMjAxODA3LCJpc3MiOiJkZXZfbG9jYWwiLCJzdWIiOiIyYzJiMTU3Yy03OWQ5LTRlZTYtODAxMy1iYjY1MGE1NmNjYTQifQ.6MQJlzcQjntvu64bIeUIzPVQn44qbgJB8LpMVubs_nc
+@thingId = 66131b0a-5445-4f1a-b3f8-218d8c895797
 @thingName = Device1
 @thingNewName = Device2
 @thingKey = 1234567890
-@thingMetadata = {}
 
 ### GET Thing by id
 GET {{host}}/{{thingId}}

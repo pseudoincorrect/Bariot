@@ -29,11 +29,10 @@ func main() {
 		Port:       conf.mqttPort,
 		HealthPort: conf.mqttHealthPort})
 
-	authClientConf := authClient.AuthClientConf{
+	auth := authClient.New(authClient.AuthClientConf{
 		Host: conf.rpcAuthHost,
 		Port: conf.rpcAuthPort,
-	}
-	auth := authClient.New(authClientConf)
+	})
 
 	err := auth.StartAuthClient()
 	if err != nil {

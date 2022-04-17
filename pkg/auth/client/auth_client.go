@@ -20,6 +20,7 @@ type Auth interface {
 	StartAuthClient() error
 	IsAdmin(ctxt, string) (bool, error)
 	IsWhichUser(ctxt, string) (string, string, error)
+	IsWhichThing(ctxt, string) (string, error)
 	GetThingToken(ctxt, string, string) (string, error)
 	GetAdminToken(ctxt) (string, error)
 	GetUserToken(ctxt, string) (string, error)
@@ -72,6 +73,15 @@ func (c *authClient) IsWhichUser(ctx ctxt, jwt string) (string, string, error) {
 		return "", "", err
 	}
 	return claims.GetRole(), claims.GetSubject(), nil
+}
+
+func (c *authClient) IsWhichThing(ctx ctxt, jwt string) (string, error) {
+	claims, err := c.Client.GetClaimsThingToken(ctx, &pb.GetClaimsThingTokenRequest{Jwt: jwt})
+	if err != nil {
+		log.Println("IsWhichThing GetClaimsThingToken error:", err)
+		return "", err
+	}
+	return claims.GetSubject(), nil
 }
 
 func (c *authClient) GetThingToken(ctx ctxt, thingId string, userId string) (string, error) {
