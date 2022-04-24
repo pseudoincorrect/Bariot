@@ -11,6 +11,10 @@ volumes:
   bariot_influxdb_data:
   bariot_influxdb_etc:
 
+networks:
+  bariot-net:
+    driver: bridge
+
 services:
 
   users:
@@ -37,6 +41,8 @@ services:
       ADMIN_PASSWORD: ${USER_ADMIN_PASSWORD}
     ports:
       - 8082:8080
+    networks:
+      - bariot-net
 
   users_db:
     image: postgres:14-alpine
@@ -49,6 +55,8 @@ services:
       POSTGRES_DB: ${USERS_DB_NAME}
       POSTGRES_USER: ${USERS_DB_USERNAME}
       POSTGRES_PASSWORD: ${USERS_DB_PASSWORD}
+    networks:
+      - bariot-net
 
   things:
     build:
@@ -72,6 +80,8 @@ services:
       PG_CONNECT_TIMEOUT: 5
     ports:
       - 8083:8080
+    networks:
+      - bariot-net
 
   things_db:
     image: postgres:14-alpine
@@ -84,6 +94,8 @@ services:
       POSTGRES_DB: ${THINGS_DB_NAME}
       POSTGRES_USER: ${THINGS_DB_USERNAME}
       POSTGRES_PASSWORD: ${THINGS_DB_PASSWORD}
+    networks:
+      - bariot-net
   
   auth:
     build:
@@ -98,6 +110,8 @@ services:
       RPC_PORT: ${RPC_PORT}
       ADMIN_SECRET: ${ADMIN_SECRET}
       JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - bariot-net
 
   mqtt:
     build:
@@ -119,6 +133,8 @@ services:
       NATS_PORT: ${NATS_PORT}
       RPC_AUTH_HOST: auth
       RPC_AUTH_PORT: ${THINGS_RPC_AUTH_PORT}
+    networks:
+      - bariot-net
 
   emqx:
     image: emqx/emqx:4.3.11
@@ -145,6 +161,8 @@ services:
       - 8883:8883   # MQTT over TLS
       - 8084:8081   # Health check
       - 18083:18083 # Management
+    networks:
+      - bariot-net
 
   influxdb_db:
     image: influxdb:2.1.1
@@ -161,6 +179,8 @@ services:
       - bariot_influxdb_etc:/etc/influxdb2
     ports:
     - 8086:8086
+    networks:
+      - bariot-net
 
   influxdb:
     build:
@@ -181,6 +201,8 @@ services:
       INFLUXDB_PORT: ${INFLUXDB_PORT}
       NATS_HOST: ${NATS_HOST}
       NATS_PORT: ${NATS_PORT}
+    networks:
+      - bariot-net
 
   nats:
     image: nats:2.7-alpine
@@ -193,9 +215,22 @@ services:
     ports:
     - 4222:4222
     - 8222:8222
+    networks:
+      - bariot-net
+
+  graphana:
+    image: grafana/grafana-oss:8.4.6
+    ports: 
+    - 3000:3000
+    volumes:
+    - grafana_lib:/var/lib/grafana
+    networks:
+      - bariot-net
 
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
+    networks:
+      - bariot-net
