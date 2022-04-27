@@ -85,6 +85,7 @@ func (w *writer) Connect() error {
 	return nil
 }
 
+// Write data (state) to influxdb
 func (w *writer) Write(state *ThingState) {
 	writeAPI := w.influxClient.WriteAPI(INFLUX_ORG, INFLUX_BUCKET)
 	errChan := writeAPI.Errors()
@@ -139,6 +140,7 @@ func NewMock() Mock {
 	return &mock{}
 }
 
+// InitThings init things' state and data
 func (m *mock) InitThings() {
 
 	ds := [...]string{
@@ -208,12 +210,12 @@ func (m *mock) CreateArrayData() []ThingState {
 	return states
 }
 
+// Print the things' states
 func (m *mock) Print() {
-	for _, state := range m.States {
-		log.Println(state)
-	}
+	PrintStates(m.States)
 }
 
+// Print any thing's states
 func PrintStates(states []ThingState) {
 	log.Println()
 	for _, state := range states {
