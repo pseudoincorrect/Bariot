@@ -1,7 +1,16 @@
-# DEV GUIDE 
+## Where to start
 
-## RE-GENERATE PROTOBUFF
-with a bash terminal, navigate to utilities/proto
-``` console
-$ ./generate.sg
-```
+### Docker compose file
+### {service}_main files
+### Readme files
+
+---
+
+## Architecture
+
+### Files architecture
+### Components architecture
+
+--- 
+
+### Support documents

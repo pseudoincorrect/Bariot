@@ -25,6 +25,11 @@ $ docker volume rm $(docker volume ls -q)
 $ docker-compose up --no-deps --build <docker_compose_service_name>
 ```
 
+### To shut down a single container
+``` console
+$ docker-compose rm -s -v <docker_compose_service_name>
+```
+
 ### Volumes location in Win 11 WSL2 (windows explorer path):  
 ``` console
 \\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\
@@ -48,3 +53,30 @@ If your package name is the same as the go file:
 If your package name is different than the go file:
   auth_client.go  >>   package client
   you  need to use `import client "github.com/xxxx/xxx/myproject/auth"`
+
+
+## add domain to local network on windows
+first find you IP in a WSL (linux) terminal
+``` console
+# hostname -I
+```
+Copy the IP address outputed
+In "C:\Windows\System32\drivers\etc\hosts" add: 
+``` txt
+# Personal conf
+<outputed IP address> balancer.com
+```
+
+## Curl an insecure https endpoint (self-signed)
+``` console
+curl -k -v -L https://balancer.com/w2
+# -L : (follow) following redirection (nginx reverse proxy)
+# -k : (insecure) self-signed security issue ignoring
+# -v : (verbose)
+```
+
+## RE-GENERATE PROTOBUFF
+with a bash terminal, navigate to utilities/proto
+``` console
+$ ./generate.sg
+```

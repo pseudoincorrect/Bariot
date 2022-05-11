@@ -161,7 +161,7 @@ services:
       # - 1883:1883   # MQTT
       # - 8883:8883   # MQTTS
       # - 8084:8081   # Health check
-      # - 18083:18083 # Management
+      - 18083:18083 # Management
     networks:
       - bariot-net
 
@@ -201,7 +201,7 @@ services:
       - bariot_influxdb_data:/var/lib/influxdb2
       - bariot_influxdb_etc:/etc/influxdb2
     ports:
-    - 8086:8086
+    - 8088:8086
     networks:
       - bariot-net
 
@@ -229,15 +229,17 @@ services:
       - 1883:1883   # MQTT
       - 8883:8883   # MQTTS
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/backend-not-found.html:/var/www/html/backend-not-found.html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      # - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/snippets:/etc/nginx/snippets
       - ./nginx/ssl/dhparam.pem:/etc/ssl/certs/dhparam.pem
       - ./nginx/ssl/self-signed.key:/etc/ssl/private/self-signed.key
-      - ./nginx/ssl/self-signed.crt:/etc/ssl/certs/self-signed.certs
+      - ./nginx/ssl/self-signed.crt:/etc/ssl/certs/self-signed.crt
 
   grafana:
     image: grafana/grafana-oss:8.4.6
+    environment:
+      GF_SERVER_ROOT_URL: ${GRAFANA_GF_SERVER_ROOT_URL}
     # ports: 
     # - 3000:3000 # UI
     volumes:

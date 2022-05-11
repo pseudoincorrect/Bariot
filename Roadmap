@@ -3,7 +3,6 @@ BARIOT ROADMAP
 -----------------------------------------------------------------
 TO DO
 -----------------------------------------------------------------
-DOCK  Add Ngnx reverse proxy 
 CYB   Encrypt mqtt (TLS) with self signed certificates
 CYB   Use Vault to store secrets
 CACH  Use redis to cache auth data
@@ -12,13 +11,14 @@ HTTP  Add a user/thing data reading endpoint
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
-DOCK  Add Grafana service
+DOCK  Add Ngnx reverse proxy with TLS
 
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
-17/04/2022  AUTH   Authorize mqtt with JWT
+21/04/2022  DOCK  Add Grafana service
+17/04/2022  AUTH  Authorize mqtt with JWT
 10/03/2022  INFX  Put data to influxDb
 07/03/2022  DOCK  MQTT and NATS healthcheck
 05/03/2022  SML   Decode SenML messages 
