@@ -93,6 +93,7 @@ func (m *mqttTester) mqttHealthCheck() error {
 		m.conf.mqttHost + ":" + m.conf.mqttHealthPort + "/api/v4/brokers"
 	resp, err := http.Get(url)
 	if err != nil {
+		print("if EMQX is behind a reverse proxy, we cannot make healthcheck")
 		return errors.ErrConnection
 	}
 	defer resp.Body.Close()
@@ -107,10 +108,10 @@ func (m *mqttTester) mqttConnect() error {
 	mqtt.ERROR = log.New(os.Stdout, "", 0)
 	opts := m.mqttSetOpts()
 	// err := m.mqttHealthCheckBlocking()
-	err := m.mqttHealthCheckOnce()
-	if err != nil {
-		return errors.ErrConnection
-	}
+	// err := m.mqttHealthCheckOnce()
+	// if err != nil {
+	// 	return errors.ErrConnection
+	// }
 	c := mqtt.NewClient(opts)
 	token := c.Connect()
 	if token.Wait() && token.Error() != nil {

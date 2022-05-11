@@ -157,11 +157,11 @@ services:
       interval: 5s
       timeout: 25s
       retries: 5
-    ports:
+    # ports:
       # - 1883:1883   # MQTT
       # - 8883:8883   # MQTTS
       # - 8084:8081   # Health check
-      - 18083:18083 # Management
+      # - 18083:18083 # Management
     networks:
       - bariot-net
 
