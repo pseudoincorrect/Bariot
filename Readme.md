@@ -31,6 +31,12 @@ Bariot is also a fun project to work on !
 
 <br/> 
 
+## INSTRUCTIONS
+
+Deployment on AWS EC2 [here][AWSdeploy].
+
+<br/> 
+
 ## COMPONENTS
 
 ### Implemented
@@ -73,3 +79,4 @@ Bariot is also a fun project to work on !
 [Redis]: https://redis.io/topics/introduction
 [Vault]:https://www.vaultproject.io/docs/what-is-vault
 [Gitlab]: https://about.gitlab.com/what-is-gitlab/
+[AWSdeploy]: https://github.com/pseudoincorrect/Bariot/blob/main/instructions.md

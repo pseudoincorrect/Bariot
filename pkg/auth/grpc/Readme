@@ -1,0 +1,5 @@
+## RE-GENERATE PROTOBUFF
+With a bash terminal, navigate to utilities/proto
+``` console
+$ ./generate.sg
+```

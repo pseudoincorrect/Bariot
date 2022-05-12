@@ -6,14 +6,16 @@ FROM golang:alpine3.15 AS packages
 ARG SVC
 
 WORKDIR /go/src/github.com/pseudoincorrect/bariot
-COPY ../go.mod .
-COPY ../go.sum .
+
+COPY ./go.mod .
+COPY ./go.sum .
 
 RUN go mod download
 
 FROM packages as builder
+ARG SVC
 
-COPY ../. .
+COPY ./. .
 
 WORKDIR /go/src/github.com/pseudoincorrect/bariot/build
 WORKDIR /go/src/github.com/pseudoincorrect/bariot/${SVC}/main

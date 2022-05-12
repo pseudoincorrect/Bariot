@@ -75,13 +75,11 @@ func createService() (service.Things, error) {
 		log.Println("Auth client error:", err)
 		return nil, err
 	}
-
 	return service.New(thingsRepo, authClient), nil
-
 }
+
 func startHttp(s service.Things) error {
 	conf := loadConfig()
-
 	err := api.InitApi(conf.httpPort, s)
 	return err
 }

@@ -7,21 +7,25 @@ CYB   Encrypt mqtt (TLS) with self signed certificates
 CYB   Use Vault to store secrets
 CACH  Use redis to cache auth data
 HTTP  Add a user/thing data reading endpoint 
+NETW  Add OPC-UA
+TEST  Add End-to-end testing with gitlab
+DEPL  Precompile docker images to speed up depoyments
 
 -----------------------------------------------------------------
 IN PROCESS
 -----------------------------------------------------------------
-DOCK  Add Ngnx reverse proxy with TLS
+DEMO  Make a working demo with instructions
 
 -----------------------------------------------------------------
 DONE
 Date        TAG    Description
 -----------------------------------------------------------------
+12/05/2022  NETW  Add Ngnx reverse proxy with TLS
 21/04/2022  DOCK  Add Grafana service
 17/04/2022  AUTH  Authorize mqtt with JWT
 10/03/2022  INFX  Put data to influxDb
 07/03/2022  DOCK  MQTT and NATS healthcheck
-05/03/2022  SML   Decode SenML messages 
+05/03/2022  SNML  Decode SenML messages 
 03/03/2022  ARCH  Republish mqtt over nats
 02/03/2022  DOCK  Add Nats service
 28/02/2022  DOCK  Add InfluxDb service
