@@ -28,7 +28,7 @@ Change the security group of the VM to include:
 
 <br/>
 
-## SSH to your VM (I use putty, [Tuto][PuttyEC2])
+## SSH to your VM (with putty, [Tuto][PuttyEC2])
 
 <br/>
 
@@ -170,9 +170,12 @@ Roadmap: Deployment with precompiled images.
 
 <br/>
 
-# USAGE/TEST OF BARIOT
+# USAGE / TEST OF BARIOT
+
+<br>
 
 ## USING THE HTTP API WITH CURL (CURL)
+
 
 Save the EC2 public address
 ``` console
@@ -287,6 +290,8 @@ Response
 
 ---
 
+<br>
+
 ## Alternative to Curl
 
 Head to .../Bariot/support/http/
@@ -294,6 +299,8 @@ Head to .../Bariot/support/http/
 In there each .http file can be used with **[vscode-restclient](https://github.com/Huachao/vscode-restclient)** to accomplish the same functions as above in a more user-friendly fashion.
 
 ---
+
+<br>
 
 ## Send data through MQTT
 
@@ -313,6 +320,8 @@ $ go run thing_send_data_mqtt.go
 ```
 
 This with send a MQTT with sensor data formatted with SENML and authenticated with a JWT token.
+
+<br>
 
 ---
 
@@ -341,6 +350,27 @@ Add a data source InfluxDB
 
 The above values can be found in .../Bariot/docker/.env 
 
+You can then create a new dashboard.
+
+And add the following query: 
+``` 
+from(bucket: "bariot_bucket")
+    |> range(start: -1h)
+```
+
+You can then vizualize the data you sent through MQTT.
+
+<br>
+
+**Limit of the current system :**
+
+Please note that the above query is for **ALL things data**, at the moment we cannot restrict the data on a per user or per thing basis. 
+
+This is the next step, since Grafana is not made for user authorization and data restriction (it has access to the whole influxdb DB).  
+
+In order to enable/restrict each user to access/visualize only his data, a custom HTTP endpoint and visualization tool (frontend) has to be made.
+
+<br>
 
 --- 
 
