@@ -10,8 +10,8 @@
 #
 
 @host = http://ec2-46-51-148-15.eu-west-1.compute.amazonaws.com/users
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoiYWRtaW4iLCJleHAiOjE2NDcxNjU2NzAsImlhdCI6MTY0NzE2MjA3MCwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiMCJ9.jR7d54uGXzGTF_R67RofguCMrTq7m7-VW1kq5vaoNSc
-@userId = 2c2b157c-79d9-4ee6-8013-bb650a56cca4
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoiYWRtaW4iLCJleHAiOjE2NTIzNzU3NTQsImlhdCI6MTY1MjM3MjE1NCwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiMCJ9.tpP9zkFMABPRGyn82d0_8wqTd1VlKhDGTn6EEhixnKE
+@userId = a8000dee-ec79-4004-8cff-735369d7480d
 @userEmail = quidonc@nimportequoi.com
 @userPassword = superStrongPassword
 @userFullName = Thibaux Toizossi
@@ -66,4 +66,5 @@ content-type: application/json
 ### Delete a user
 DELETE {{host}}/{{userId}}
 Authorization: {{token}}
+
 {}

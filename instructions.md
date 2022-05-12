@@ -1,6 +1,6 @@
 # INSTRUCTIONS AND INSTALLATION OF BARIOT
 
-### These instructions seems long, but most of them are about installing docker, git and go which most of us developper already have.
+### These instructions seems long, but most of them are about installing docker, git and go.
 ### The real deployment of Bariot is not so long/complex, see "BARIOT DEPLOYMENT" part.
 
 <br/>
@@ -66,31 +66,35 @@ $ wget https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
 $ sudo tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz
 ```
 
-Edit ~/.bash_profile to export GO bins and GOPATH
-
-Add "PATH=$PATH:/usr/local/go/bin" before "export PATH"
-
-Add "export GOPATH="/home/ec2-user/go" before  "export PATH"
+Edit your bash_profile to export GO bins and GOPATH
 
 ``` console
 $ mkdir -p go/projects
 $ micro ~/.bash_profile
-... text editing ...
+... text editing, see just bellow ...
 $ source ~/.bash_profile
 ```
 
-Here is my .bash_profile (User specific part)
+Add "PATH=$PATH:/usr/local/go/bin"
+
+Add "export GOPATH="/home/ec2-user/go"
+
+Like so:
 
 ``` sh
+# Optional
 alias cdbariot="cd /home/ec2-user/go/projects/Bariot/docker"
 bind 'TAB:menu-complete'
 bind '"\e[A":history-search-backward'
 bind '"\e[B":history-search-forward'
+# Mandatory
 PATH=$PATH:$HOME/.local/bin:$HOME/bin
 PATH=$PATH:/usr/local/go/bin
 export PATH
 export GOPATH="/home/ec2-user/go"
 ``` 
+
+Few alias and settings have been added to simplify the development.
 
 <br/> 
 
@@ -152,9 +156,9 @@ It will take quite some time the first time your run it, 10 mins on a T2 medium.
 
 Bariot is downloading every docker image, go package and build all services.
 
-## ! At the moment, timing errors can happen with the start of multiple containers !
+**! At the moment, timing errors can happen with the start of multiple containers !**
 
-Re-running "docker-compose up" from another terminal usually do the trick.
+Re-running "docker-compose up -d" usually do the trick.
 
 Roadmap: Deployment with precompiled images.
 
@@ -168,27 +172,177 @@ Roadmap: Deployment with precompiled images.
 
 # USAGE/TEST OF BARIOT
 
-## Use the HTTP API with Curl
+## USING THE HTTP API WITH CURL (CURL)
+
+Save the EC2 public address
+``` console
+$ export BARIOT_HOST=ec2-xx-xx-xxx-xx.eu-west-1.compute.amazonaws.com
+``` 
+
+## Get an admin token
+
+get your admin email and password from "Bariot/docker/.env" file and replace in the bellow Curl request.
+
+``` console
+$ curl -L --request POST 
+--header "Content-Type: application/json" 
+--data '{"Email" : "admin@bariot.com","Password": "adminPass"}' 
+$BARIOT_HOST/users/login/admin
+``` 
+
+Since the api are behing a reverse proxy (nginx) we need to use the -L option of Curl.
+
+Response:
+``` json
+{"Token":"xxxxxx.xxxxxxxxxxxxxx.xxxxxx"}
+```
+
+Save the receives admin token.
+``` console
+$ export ADMIN_TOKEN=xxxxxx.xxxx(...)xxxx.xxxx
+``` 
 
 
+## Create a user
 
-### Create a user
+``` console
+$ curl -L --request POST \
+--header "Content-Type: application/json" \
+--header "Authorization: $ADMIN_TOKEN" \
+--data '{"FullName": "Jacques Cellaire", "Email": "jacques@cellaire.com", "Password": "OopsjacquesHasBeenHacked"}' \
+$BARIOT_HOST/users/
+``` 
 
-### Create a thing
+Response:
+``` json
+{
+  "Id":"0ed50174-ba43-43f8-93f0-a971daad4830",
+  "CreatedAt":"2022-05-12T17:22:09Z",
+  "Email":"jacques@cellaire.com",
+  "FullName":"Jacques Cellaire",
+  "Metadata":null
+}
+```
+
+## Get a user token
+
+
+``` console
+$ curl -L --request POST \
+--header "Content-Type: application/json" \
+--data '{"Email" : "ajacques@cellaire.co","Password": "OopsjacquesHasBeenHacked"}' \
+$BARIOT_HOST/users/login
+``` 
+
+Response:
+``` json
+{ "Token":"xxxxxx.xxxxxxxxxxxxxx.xxxxxx" }
+```
+
+Save the received user token.
+``` console
+$ export USER_TOKEN=xxxxxx.xxxx(...)xxxx.xxxx
+``` 
+
+## Create a thing
+
+``` console
+$ curl -L --request POST \
+--header "Content-Type: application/json" \
+--header "Authorization: $USER_TOKEN" \
+--data '{"Name": "smart-bottle-1", "Key": "123456789"}' \
+$BARIOT_HOST/things/
+``` 
+
+Response:
+``` json
+{ 
+  "Id":"9226093b-6b52-43d2-8345-b00e2a682a5d",
+  "CreatedAt":"2022-05-12T18:46:43Z",
+  "Key":"123456789",
+  "Name":"smart-bottle-1",
+  "UserId":"0ed50174-ba43-43f8-93f0-a971daad4830",
+  "Metadata":null
+}
+```
+
+Save the thing ID.
+``` console
+$ export THING_ID=9226093b-6b52-43d2-8345-b00e2a682a5d
+``` 
+
+### Get a thing token
+
+``` console
+$ curl -L --request GET \
+--header "Content-Type: application/json" \
+--header "Authorization: $USER_TOKEN" \
+$BARIOT_HOST/things/$THING_ID/token
+```
+
+Response
+``` json
+{ "jwt":"xxxxxx.xxxxxxxxxxxxxx.xxxxxx" }
+```
+
+---
+
+## Alternative to Curl
+
+Head to .../Bariot/support/http/
+
+In there each .http file can be used with **[vscode-restclient](https://github.com/Huachao/vscode-restclient)** to accomplish the same functions as above in a more user-friendly fashion.
 
 ---
 
 ## Send data through MQTT
 
+Head to .../Bariot/support/scripts/mqtt.
+
+Open "thing_send_data_mqtt.go" with a text editor.
+
+At the top, replace "JWT" and "THING_ID" with the Thing token and Thing ID obtained previously with curl.
+
+Also, replace MQTT_HOST with the EC2 public DNS address ($BARIOT_HOST).
+
+(example: ec2-xx-xx-xxx-xx.eu-west-1.compute.amazonaws.com)
+
+then run
+``` console
+$ go run thing_send_data_mqtt.go
+```
+
+This with send a MQTT with sensor data formatted with SENML and authenticated with a JWT token.
+
 ---
 
 ## Vizualize your data with Grafana
 
---- 
+Head to $BARIOT_HOST/grafana
 
-What's next:
-- CLI to replace Curl
-- Get thing data on a user basis
+ec2-xx-xx-xxx-xx.eu-west-1.compute.amazonaws.com/grafana
+
+```
+login:    admin
+password: admin
+```
+
+Change the password
+
+Add a data source InfluxDB
+
+| Option | Value |
+| --- | --- |
+| Query | language: Flux |
+| HTTP |  http://influxdb_db:8086 |
+| Organization |  bariot_org |
+| Token |  xxxxxxxxx |
+| Bucket |  bariot_bucket |
+
+The above values can be found in .../Bariot/docker/.env 
+
+
+--- 
 
 [PuttyEC2]: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html
 [Docker]: https://medium.com/appgambit/part-1-running-docker-on-aws-ec2-cbcf0ec7c3f8

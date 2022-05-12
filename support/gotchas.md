@@ -19,5 +19,12 @@
   CAUSE:
     Reverse-proxing influxdb UI is not really possible at the moment
     ISSUE: https://github.com/influxdata/influxdb/issues/15721
-  SOLUTiON:
+  SOLUTION:
     Please use docker compose ports to access it if needed
+
+## HTTP response 400 : EOF
+  CAUSE:
+    Golang cannot decode the JSON
+  SOLUTION:
+    do not forget the "/" at the end of the URL example:
+    http://bariot.com/users/   and NOT   http://bariot.com/users

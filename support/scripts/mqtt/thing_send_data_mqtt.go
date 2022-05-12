@@ -22,14 +22,18 @@ func main() {
 	MqttConnectAndSend()
 }
 
-const JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIyYzJiMTU3Yy03OWQ5LTRlZTYtODAxMy1iYjY1MGE1NmNjYTQiLCJleHAiOjE2NTAyODgzMjgsImlhdCI6MTY1MDIwMTkyOCwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiNjYxMzFiMGEtNTQ0NS00ZjFhLWIzZjgtMjE4ZDhjODk1Nzk3In0.f701zikGALQ9qoEGLbs9BU-QWF3mnaQKeWnGu_TRHyc"
+const MQTT_HOST = "ec2-46-51-148-15.eu-west-1.compute.amazonaws.com"
 
-const TOPIC = "things/66131b0a-5445-4f1a-b3f8-218d8c895797"
+const JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIwZWQ1MDE3NC1iYTQzLTQzZjgtOTNmMC1hOTcxZGFhZDQ4MzAiLCJleHAiOjE2NTI0NjgwNTAsImlhdCI6MTY1MjM4MTY1MCwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiOTIyNjA5M2ItNmI1Mi00M2QyLTgzNDUtYjAwZTJhNjgyYTVkIn0.b8DqwtqBlHShOKFCcte6E0oMY6jGO-zjLIDaj_DIyac"
+
+const THING_ID = "9226093b-6b52-43d2-8345-b00e2a682a5d"
+
+const TOPIC = "things/" + THING_ID
 
 func MqttConnectAndSend() error {
 	var m mqttTester
 	m.conf = config{
-		mqttHost:       "localhost",
+		mqttHost:       MQTT_HOST,
 		mqttPort:       "1883",
 		mqttUser:       "admin",
 		mqttPass:       "public",
