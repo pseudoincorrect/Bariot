@@ -9,7 +9,7 @@
 # https://www.youtube.com/watch?v=RcxvrhQKv8I
 #
 
-@host = http://localhost:8082
+@host = http://ec2-46-51-148-15.eu-west-1.compute.amazonaws.com/users
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJSb2xlIjoiYWRtaW4iLCJleHAiOjE2NDcxNjU2NzAsImlhdCI6MTY0NzE2MjA3MCwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiMCJ9.jR7d54uGXzGTF_R67RofguCMrTq7m7-VW1kq5vaoNSc
 @userId = 2c2b157c-79d9-4ee6-8013-bb650a56cca4
 @userEmail = quidonc@nimportequoi.com
@@ -19,6 +19,24 @@
 @userMetadata = {}
 @adminEmail = admin@bariot.com
 @adminPassword = xOJNmAWTezOArlcvJ9vw6Vb5xK6wapcCw1lPIJCuAxweQYSkDTTHiMe2UXkxMCS
+
+### Login a admin
+POST {{host}}/login/admin
+content-type: application/json
+
+{
+"Email" : "{{adminEmail}}",
+"Password": "{{adminPassword}}"
+}
+
+### Login a user
+POST {{host}}/login
+content-type: application/json
+
+{
+"Email" : "{{userEmail}}",
+"Password": "{{userPassword}}"
+}
 
 ### GET user by id
 GET {{host}}/{{userId}}
@@ -49,24 +67,3 @@ content-type: application/json
 DELETE {{host}}/{{userId}}
 Authorization: {{token}}
 {}
-
-### Login a user
-POST {{host}}/login
-Authorization: {{token}}
-content-type: application/json
-
-{
-"Email" : "{{userEmail}}",
-"Password": "{{userPassword}}"
-}
-
-
-### Login a admin
-POST {{host}}/login/admin
-Authorization: {{token}}
-content-type: application/json
-
-{
-"Email" : "{{adminEmail}}",
-"Password": "{{adminPassword}}"
-}
