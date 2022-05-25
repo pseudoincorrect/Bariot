@@ -389,7 +389,7 @@ And add the following query:
 
 ```
 from(bucket: "bariot_bucket")
-    |> range(start: -1h)
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
 ```
 
 You can then vizualize the data you sent through MQTT.

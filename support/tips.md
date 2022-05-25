@@ -112,7 +112,6 @@ $ ./generate.sg
 ## INFLUXDB: delete data from bucket
 
 ```console
-$ docker run -it --rm --entrypoint=sh influxdb:2.1.1
-$ influx setup -o bariot_org -t 696A5C8CF1E5CBD65F480CF15773D1251FAC36FDCDA1D0119CC7DFC78DCCE064
+$ docker exec -it <container_ID> bash
 $ influx delete --bucket bariot_bucket --start 2021-01-01T00:00:00Z --stop 2023-01-01T00:00:00Z
 ```

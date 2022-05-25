@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -177,9 +178,12 @@ func marchalMsg(token string, sensorData senml.Pack) ([]byte, error) {
 }
 
 func createSenmlPack() senml.Pack {
-	temperature := float64(38)
-	humidity := float64(75)
-	activity := float64(1.2)
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
+
+	temperature := r1.Float64()*20 + 20
+	humidity := r1.Float64() * 100
+	activity := r1.Float64() * 10
 	return senml.Pack{
 		Records: []senml.Record{
 			{

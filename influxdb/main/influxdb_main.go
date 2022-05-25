@@ -115,11 +115,11 @@ func (w *influxdbWriter) influxdbWrite(data *writer.ThingData) {
 			AddTag("thingId", data.ThingId).
 			SetTime(time.Unix(int64(r.Time), 0))
 		if r.Value != nil {
-			p.AddField("value", r.Value)
+			p.AddField("value", *r.Value)
 		} else if r.StringValue != nil {
-			p.AddField("value", r.StringValue)
+			p.AddField("value", *r.StringValue)
 		} else if r.BoolValue != nil {
-			p.AddField("value", r.BoolValue)
+			p.AddField("value", *r.BoolValue)
 		} else {
 			log.Println("No value found in senml")
 			continue
@@ -229,8 +229,6 @@ func decodeNatsThingMsg(msg *nats.Msg) (*writer.ThingData, error) {
 
 // getThingIdFromNatsSubjet extract the
 func getThingIdFromNatsSubjet(subjet string) (string, error) {
-	log.Println("splits: ", subjet)
 	splits := strings.Split(subjet, ".")
-	log.Println("splits: ", splits)
 	return splits[len(splits)-1], nil
 }

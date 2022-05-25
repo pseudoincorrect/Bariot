@@ -115,10 +115,7 @@ func (sub *mqttSub) Subscriber(topic string, qos byte,
 		msgSensors, _ := senml.Encode(sensorData, senml.JSON)
 
 		splits := strings.Split(msgTopic, "/")
-		log.Println("splits : ", splits)
 		thingId := splits[len(splits)-1]
-		log.Println("thingId : ", thingId)
-
 		handler(thingId, string(msgSensors))
 	}
 
