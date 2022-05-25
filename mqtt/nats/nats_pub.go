@@ -72,11 +72,12 @@ func (pub *natsPub) Publish(subject string, payload string) error {
 	return nil
 }
 
-type NatsPubType func(payload string) error
+type NatsPubType func(thingId string, payload string) error
 
 func (pub *natsPub) CreatePublisher(subject string) NatsPubType {
-	return func(payload string) error {
-		err := pub.Publish(subject, payload)
+	return func(thingId string, payload string) error {
+		thingIdSubjet := subject + "." + thingId
+		err := pub.Publish(thingIdSubjet, payload)
 		return err
 	}
 }

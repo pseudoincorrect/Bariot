@@ -1,45 +1,50 @@
 BARIOT ROADMAP
 
------------------------------------------------------------------
-TO DO
------------------------------------------------------------------
-CYB   Encrypt mqtt (TLS) with self signed certificates
-CYB   Use Vault to store secrets
-CACH  Use redis to cache auth data
-HTTP  Add a user/thing data reading endpoint 
-NETW  Add OPC-UA
-TEST  Add End-to-end testing with gitlab
-DEPL  Precompile docker images to speed up depoyments
+---
 
------------------------------------------------------------------
-IN PROCESS
------------------------------------------------------------------
-DEMO  Make a working demo with instructions
+## TO DO
 
------------------------------------------------------------------
+NTWK Add OPC-UA
+CYB Encrypt mqtt (TLS) with self signed certificates
+CYB Use Vault to store secrets
+TEST Add End-to-end testing with gitlab
+DEPL Precompile docker images to speed up depoyments
+
+---
+
+## IN PROCESS
+
+CACH Use redis to cache auth data
+HTTP Add a user/thing data reading endpoint
+
+---
+
 DONE
-Date        TAG    Description
------------------------------------------------------------------
-12/05/2022  NETW  Add Ngnx reverse proxy with TLS
-21/04/2022  DOCK  Add Grafana service
-17/04/2022  AUTH  Authorize mqtt with JWT
-10/03/2022  INFX  Put data to influxDb
-07/03/2022  DOCK  MQTT and NATS healthcheck
-05/03/2022  SNML  Decode SenML messages 
-03/03/2022  ARCH  Republish mqtt over nats
-02/03/2022  DOCK  Add Nats service
-28/02/2022  DOCK  Add InfluxDb service
-26/02/2022  MQTT  Get all thing related mqtt messages
-24/02/2022  ARCH  Re-architect the project to use only one go mod
-23/02/2022  MQTT  MQTT works
-21/02/2022  AUTH  Endpoint authentication USER/THINGS
-17/02/2022  AUTH  AUTH token generation 
-15/02/2022  GRPC  Create a Auth/JWT service with GRPC
-14/02/2022  HTTP  CRUD user
-14/02/2022  HTTP  CRUD thing
-12/02/2022  DB    CRUD thing operation in DB 
-11/02/2022  DB    Store thing data in postgres DB
-07/02/2022  DOCK  Add a mqtt broker service
-05/02/2022  INIT  Init development enviroment
------------------------------------------------------------------
+Date TAG Description
 
+---
+
+12/05/2022 DEMO Make a working demo with instructions
+11/05/2022 NTWK Add Ngnx reverse proxy with TLS
+21/04/2022 DOCK Add Grafana service
+17/04/2022 AUTH Authorize mqtt with JWT
+10/03/2022 INFX Put data to influxDb
+07/03/2022 DOCK MQTT and NATS healthcheck
+05/03/2022 SNML Decode SenML messages
+03/03/2022 ARCH Republish mqtt over nats
+02/03/2022 DOCK Add Nats service
+28/02/2022 DOCK Add InfluxDb service
+26/02/2022 MQTT Get all thing related mqtt messages
+24/02/2022 ARCH Re-architect the project to use only one go mod
+23/02/2022 MQTT MQTT works
+21/02/2022 AUTH Endpoint authentication USER/THINGS
+17/02/2022 AUTH AUTH token generation
+15/02/2022 GRPC Create a Auth/JWT service with GRPC
+14/02/2022 HTTP CRUD user
+14/02/2022 HTTP CRUD thing
+12/02/2022 DB CRUD thing operation in DB
+11/02/2022 DB Store thing data in postgres DB
+07/02/2022 DOCK Add a mqtt broker service
+05/02/2022 INIT Init development enviroment
+
+---

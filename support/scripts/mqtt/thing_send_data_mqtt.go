@@ -13,6 +13,27 @@ import (
 	"github.com/pseudoincorrect/bariot/pkg/errors"
 )
 
+/// GetEnv returns the value of the environment variable named by the key.
+func GetEnv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Println("Environment variable", key, "is not set")
+		log.Println("Please set it and try again")
+		panic("Environment variable " + key + " is not set")
+	}
+	return value
+}
+
+type config struct {
+	mqttHost       string
+	mqttPort       string
+	mqttUser       string
+	mqttPass       string
+	mqttHealthPort string
+	thingToken     string
+	thingId        string
+}
+
 type mqttTester struct {
 	conf   config
 	client mqtt.Client
@@ -22,22 +43,30 @@ func main() {
 	MqttConnectAndSend()
 }
 
-const MQTT_HOST = "ec2-46-51-148-15.eu-west-1.compute.amazonaws.com"
+// const BARIOT_HOST = "ec2-46-51-148-15.eu-west-1.compute.amazonaws.com"
+// const THING_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI5ODdiYTg5MS03NTg4LTRlMTgtOGUxOS1iMzY1NWQ1ZGJlNzYiLCJleHAiOjE2NTM1NTc3OTEsImlhdCI6MTY1MzQ3MTM5MSwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiMmY5NDA3MmItMDBkMy00YzZiLTk4MGYtMmY1YmY4MzJhMWNjIn0.tc0UjF3AiS965-cNAfCyccWut1255bW1w_LR3n4ZznU"
+// const THING_ID = "2f94072b-00d3-4c6b-980f-2f5bf832a1cc"
 
-const JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIwZWQ1MDE3NC1iYTQzLTQzZjgtOTNmMC1hOTcxZGFhZDQ4MzAiLCJleHAiOjE2NTI0NjgwNTAsImlhdCI6MTY1MjM4MTY1MCwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiOTIyNjA5M2ItNmI1Mi00M2QyLTgzNDUtYjAwZTJhNjgyYTVkIn0.b8DqwtqBlHShOKFCcte6E0oMY6jGO-zjLIDaj_DIyac"
-
-const THING_ID = "9226093b-6b52-43d2-8345-b00e2a682a5d"
-
-const TOPIC = "things/" + THING_ID
+// const TOPIC = "things/" + THING_ID
 
 func MqttConnectAndSend() error {
+
 	var m mqttTester
+
+	mqttHost := GetEnv("BARIOT_HOST")
+	thingToken := GetEnv("THING_TOKEN")
+	thingId := GetEnv("THING_ID")
+
+	var topic = "things/" + thingId
+
 	m.conf = config{
-		mqttHost:       MQTT_HOST,
+		mqttHost:       mqttHost,
 		mqttPort:       "1883",
 		mqttUser:       "admin",
 		mqttPass:       "public",
 		mqttHealthPort: "8084",
+		thingToken:     thingToken,
+		thingId:        thingId,
 	}
 	err := m.mqttConnect()
 	if err != nil {
@@ -47,22 +76,14 @@ func MqttConnectAndSend() error {
 	defer m.mqttDisconnect()
 	log.Println("Connected to mqtt")
 	sensorData := createSenmlPack()
-	msg, _ := marchalMsg(JWT, sensorData)
+	msg, _ := marchalMsg(m.conf.thingToken, sensorData)
 	log.Println("Publishing to mqtt")
-	err = m.mqttPublish(TOPIC, string(msg))
+	err = m.mqttPublish(topic, string(msg))
 	if err != nil {
 		log.Panic("could not publish MQTT message")
 	}
 	time.Sleep(1 * time.Second)
 	return nil
-}
-
-type config struct {
-	mqttHost       string
-	mqttPort       string
-	mqttUser       string
-	mqttPass       string
-	mqttHealthPort string
 }
 
 func (m *mqttTester) mqttSetOpts() *mqtt.ClientOptions {

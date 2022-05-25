@@ -216,6 +216,7 @@ func decodeNatsThingMsg(msg *nats.Msg) (*writer.ThingData, error) {
 	}
 	// log.Println("Decoded SenML message:", senmlMsg)
 	thingId, err := getThingIdFromNatsSubjet(msg.Subject)
+	log.Println("ThingID = ", thingId)
 	if err != nil {
 		return nil, errors.ErrValidation
 	}
@@ -228,6 +229,8 @@ func decodeNatsThingMsg(msg *nats.Msg) (*writer.ThingData, error) {
 
 // getThingIdFromNatsSubjet extract the
 func getThingIdFromNatsSubjet(subjet string) (string, error) {
+	log.Println("splits: ", subjet)
 	splits := strings.Split(subjet, ".")
+	log.Println("splits: ", splits)
 	return splits[len(splits)-1], nil
 }

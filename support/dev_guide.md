@@ -1,5 +1,6 @@
-## Where to start
+# UNDERSTANDING BARIOT'S CODE
 
+## Where to first look at
 ### Docker compose file
 ### {service}_main files
 ### Readme files

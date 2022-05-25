@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	paho "github.com/eclipse/paho.mqtt.golang"
@@ -112,7 +113,13 @@ func (sub *mqttSub) Subscriber(topic string, qos byte,
 			log.Println(err.Error())
 		}
 		msgSensors, _ := senml.Encode(sensorData, senml.JSON)
-		handler(string(msgSensors))
+
+		splits := strings.Split(msgTopic, "/")
+		log.Println("splits : ", splits)
+		thingId := splits[len(splits)-1]
+		log.Println("thingId : ", thingId)
+
+		handler(thingId, string(msgSensors))
 	}
 
 	token := sub.c.Subscribe(topic, qos, stringHandler)
