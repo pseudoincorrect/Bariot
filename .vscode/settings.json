@@ -1,3 +1,14 @@
 {
-  "cSpell.enabled": false
+  "cSpell.enabled": true,
+  "cSpell.words": [
+    "BARIOT",
+    "EMQX",
+    "GRAFANA",
+    "healthcheck",
+    "mqtt",
+    "NATS",
+    "Ngoc",
+    "ROADMAP",
+    "SENML"
+  ]
 }
