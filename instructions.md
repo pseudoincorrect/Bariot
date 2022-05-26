@@ -315,9 +315,13 @@ $ export THING_TOKEN=xxxxxx.xxxxxxx(...)xxxxxxx.xxxxxx
 
 ## Alternative to Curl
 
-Head to .../Bariot/support/http/
+Head to .../Bariot/tests/http/
 
 In there each .http file can be used with **[vscode-restclient](https://github.com/Huachao/vscode-restclient)** to accomplish the same functions as above in a more user-friendly fashion.
+
+or to .../Bariot/tests/end_to_end/
+
+You will find a python testing script that does all the above.
 
 ---
 
