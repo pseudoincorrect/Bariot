@@ -64,7 +64,7 @@ func createService() (service.Things, error) {
 	}
 	thingsRepo := db.New(database)
 
-	authClientConf := authClient.AuthClientConf{
+	authClientConf := authClient.Conf{
 		Host: conf.rpcAuthHost,
 		Port: conf.rpcAuthPort,
 	}

@@ -28,17 +28,17 @@ type Auth interface {
 
 var _ Auth = (*authClient)(nil)
 
-func New(conf AuthClientConf) Auth {
+func New(conf Conf) Auth {
 	return &authClient{Conf: conf, Conn: nil, Client: nil}
 }
 
-type AuthClientConf struct {
+type Conf struct {
 	Port string
 	Host string
 }
 
 type authClient struct {
-	Conf   AuthClientConf
+	Conf   Conf
 	Conn   *grpc.ClientConn
 	Client pb.AuthClient
 }

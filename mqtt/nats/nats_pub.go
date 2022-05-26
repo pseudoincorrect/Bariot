@@ -17,16 +17,16 @@ type NatsPub interface {
 
 var _ NatsPub = (*natsPub)(nil)
 
-func New(config NatsConf) NatsPub {
-	return &natsPub{c: nil, conf: config}
+func New(config Conf) NatsPub {
+	return &natsPub{client: nil, conf: config}
 }
 
 type natsPub struct {
-	c    *nats.Conn
-	conf NatsConf
+	client *nats.Conn
+	conf   Conf
 }
 
-type NatsConf struct {
+type Conf struct {
 	Host string
 	Port string
 }
@@ -56,16 +56,16 @@ func (pub *natsPub) Connect() error {
 	if err != nil {
 		return errors.ErrConnection
 	}
-	pub.c = nc
+	pub.client = nc
 	return nil
 }
 
 func (pub *natsPub) Disconnect() {
-	pub.c.Close()
+	pub.client.Close()
 }
 
 func (pub *natsPub) Publish(subject string, payload string) error {
-	if err := pub.c.Publish(subject, []byte(payload)); err != nil {
+	if err := pub.client.Publish(subject, []byte(payload)); err != nil {
 		log.Printf("Error publishing message: %s\n", err)
 		return err
 	}

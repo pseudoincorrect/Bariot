@@ -192,17 +192,17 @@ $ export BARIOT_HOST=ec2-xx-xx-xxx-xx.eu-west-1.compute.amazonaws.com
 
 **get your admin email and password from "Bariot/docker/.env" file and replace in the export bellow.**
 
-export ADMIN_MAIL=....
-export ADMIN_PASS=....
+export ADMIN_MAIL=admin@bariot.com
+export ADMIN_PASS=xOJNmAWTezOArlcvJ9vw6Vb5xK6wapcCw1lPIJCuAxweQYSkDTTHiMe2UXkxMCS
 
 ```console
 $ curl -L --request POST \
 --header "Content-Type: application/json" \
---data '{"Email" : $ADMIN_MAIL, "Password": $ADMIN_PASS}' \
+--data '{"Email" : "'$ADMIN_MAIL'", "Password": "'$ADMIN_PASS'"}' \
 $BARIOT_HOST/users/login/admin
 ```
 
-Since the APIs are behing a reverse proxy (nginx) we need to use the **-L** option of Curl.
+Since the APIs are behind a reverse proxy (nginx) we need to use the **-L** option of Curl.
 
 Example response:
 

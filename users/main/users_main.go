@@ -80,7 +80,7 @@ func createService() (service.Users, error) {
 		return nil, err
 	}
 	usersRepo := db.New(database)
-	authClientConf := authClient.AuthClientConf{
+	authClientConf := authClient.Conf{
 		Host: conf.rpcAuthHost,
 		Port: conf.rpcAuthPort,
 	}

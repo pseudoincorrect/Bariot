@@ -26,16 +26,16 @@ type MqttSub interface {
 
 var _ MqttSub = (*mqttSub)(nil)
 
-func New(config MqttSubConf) MqttSub {
-	return &mqttSub{c: nil, conf: config}
+func New(config Conf) MqttSub {
+	return &mqttSub{client: nil, conf: config}
 }
 
 type mqttSub struct {
-	c    paho.Client
-	conf MqttSubConf
+	client paho.Client
+	conf   Conf
 }
 
-type MqttSubConf struct {
+type Conf struct {
 	User       string
 	Pass       string
 	Host       string
@@ -91,7 +91,7 @@ func (sub *mqttSub) Connect() error {
 	if token.Wait() && token.Error() != nil {
 		return token.Error()
 	}
-	sub.c = c
+	sub.client = c
 	return nil
 }
 
@@ -119,7 +119,7 @@ func (sub *mqttSub) Subscriber(topic string, qos byte,
 		handler(thingId, string(msgSensors))
 	}
 
-	token := sub.c.Subscribe(topic, qos, stringHandler)
+	token := sub.client.Subscribe(topic, qos, stringHandler)
 
 	if token.Wait() && token.Error() != nil {
 		log.Panic(token.Error())
@@ -128,14 +128,14 @@ func (sub *mqttSub) Subscriber(topic string, qos byte,
 }
 
 func (sub *mqttSub) Unsubscribe(topic string) {
-	token := sub.c.Unsubscribe(topic)
+	token := sub.client.Unsubscribe(topic)
 	if token.Wait() && token.Error() != nil {
 		log.Fatalf("Error unsubscribing from topic: %s\n", token.Error())
 	}
 }
 
 func (sub *mqttSub) Disconnect() {
-	sub.c.Disconnect(250)
+	sub.client.Disconnect(250)
 }
 
 var defaultMessageHandler paho.MessageHandler = func(client paho.Client, msg paho.Message) {

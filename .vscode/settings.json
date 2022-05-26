@@ -5,9 +5,15 @@
     "EMQX",
     "GRAFANA",
     "healthcheck",
+    "mainflux",
     "mqtt",
     "NATS",
     "Ngoc",
+    "paho",
+    "passw",
+    "proto",
+    "PROTOBUFF",
+    "pseudoincorrect",
     "ROADMAP",
     "SENML"
   ]

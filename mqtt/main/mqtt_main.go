@@ -9,6 +9,7 @@ import (
 
 	"github.com/pseudoincorrect/bariot/mqtt/mqtt"
 	natsPub "github.com/pseudoincorrect/bariot/mqtt/nats"
+	cache "github.com/pseudoincorrect/bariot/mqtt/redis"
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	"github.com/pseudoincorrect/bariot/pkg/env"
 )
@@ -17,24 +18,34 @@ func main() {
 	log.SetOutput(os.Stdout)
 	conf := loadConfig()
 
-	natsPub := natsPub.New(natsPub.NatsConf{
+	natsPub := natsPub.New(natsPub.Conf{
 		Host: conf.natsHost,
 		Port: conf.natsPort,
 	})
 
-	mqttSub := mqtt.New(mqtt.MqttSubConf{
+	mqttSub := mqtt.New(mqtt.Conf{
 		User:       conf.mqttUser,
 		Pass:       conf.mqttPass,
 		Host:       conf.mqttHost,
 		Port:       conf.mqttPort,
 		HealthPort: conf.mqttHealthPort})
 
-	auth := authClient.New(authClient.AuthClientConf{
+	auth := authClient.New(authClient.Conf{
 		Host: conf.rpcAuthHost,
 		Port: conf.rpcAuthPort,
 	})
 
-	err := auth.StartAuthClient()
+	authCache := cache.New(cache.Conf{
+		RedisHost: conf.redisHost,
+		RedisPort: conf.redisPort,
+	})
+
+	err := authCache.Connect()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = auth.StartAuthClient()
 	if err != nil {
 		log.Panic(err)
 	}
@@ -81,6 +92,8 @@ type config struct {
 	natsPort       string
 	rpcAuthPort    string
 	rpcAuthHost    string
+	redisHost      string
+	redisPort      string
 }
 
 func loadConfig() config {
@@ -95,6 +108,8 @@ func loadConfig() config {
 		natsPort:       env.GetEnv("NATS_PORT"),
 		rpcAuthPort:    env.GetEnv("RPC_AUTH_PORT"),
 		rpcAuthHost:    env.GetEnv("RPC_AUTH_HOST"),
+		redisHost:      env.GetEnv("REDIS_HOST"),
+		redisPort:      env.GetEnv("REDIS_PORT"),
 	}
 	return conf
 }
