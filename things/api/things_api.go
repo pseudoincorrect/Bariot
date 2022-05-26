@@ -203,7 +203,7 @@ func thingPutEndpoint(s service.Things) http.HandlerFunc {
 }
 
 type thingGetTokenRes struct {
-	Jwt string
+	Token string
 }
 
 // thingGetTokenEndpoint create a handler to get a token associated to a thing
@@ -216,7 +216,7 @@ func thingGetTokenEndpoint(s service.Things) http.HandlerFunc {
 			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(res).Encode(thingGetTokenRes{Jwt: jwt})
+		json.NewEncoder(res).Encode(thingGetTokenRes{Token: jwt})
 	}
 }
 

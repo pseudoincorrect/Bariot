@@ -222,7 +222,7 @@ $ export ADMIN_TOKEN=xxxxxx.xxxx(...)xxxx.xxxx
 $ curl -L --request POST \
 --header "Content-Type: application/json" \
 --header "Authorization: $ADMIN_TOKEN" \
---data '{"FullName": "Jacques Cellaire", "Email": "jacques@cellaire.com", "Password": "OopsjacquesHasBeenHacked"}' \
+--data '{"FullName": "Jacques Cellaire", "Email": "jacques@cellaire.com", "Password": "OopsJacquesHasBeenHacked"}' \
 $BARIOT_HOST/users/
 ```
 
@@ -243,7 +243,7 @@ Example response:
 ```console
 $ curl -L --request POST \
 --header "Content-Type: application/json" \
---data '{"Email" : "jacques@cellaire.com","Password": "OopsjacquesHasBeenHacked"}' \
+--data '{"Email" : "jacques@cellaire.com","Password": "OopsJacquesHasBeenHacked"}' \
 $BARIOT_HOST/users/login
 ```
 
@@ -300,7 +300,7 @@ $BARIOT_HOST/things/$THING_ID/token
 Example response:
 
 ```json
-{ "jwt": "xxxxxx.xxxxxxx(...)xxxxxxx.xxxxxx" }
+{ "Token": "xxxxxx.xxxxxxx(...)xxxxxxx.xxxxxx" }
 ```
 
 Save this token.

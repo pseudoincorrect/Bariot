@@ -35,6 +35,7 @@ func createEndpoint(s service.Users, r *chi.Mux) {
 	adminGroup := r.Group(nil)
 	adminGroup.Use(AdminOnly(s))
 	adminGroup.Get("/{id}", userGetEndpoint(s))
+	adminGroup.Get("/email/{email}", userGetEmailEndpoint(s))
 	adminGroup.Post("/", userPostEndpoint(s))
 	adminGroup.Delete("/{id}", userDeleteEndpoint(s))
 	adminGroup.Put("/{id}", userPutEndpoint(s))
@@ -56,6 +57,28 @@ func userGetEndpoint(s service.Users) http.HandlerFunc {
 			return
 		}
 		user, err := s.GetUser(context.Background(), id)
+		if err != nil {
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if user == nil {
+			appErr.Http(res, appErr.ErrUserNotFound.Error(), http.StatusNotFound)
+			return
+		}
+		res.Header().Set("Content-Type", "application/json")
+		removeHashPass(user)
+		json.NewEncoder(res).Encode(user)
+	}
+}
+
+func userGetEmailEndpoint(s service.Users) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		email := chi.URLParam(req, "email")
+		if err := validation.ValidateEmail(email); err != nil {
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+		user, err := s.GetByEmail(context.Background(), email)
 		if err != nil {
 			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
