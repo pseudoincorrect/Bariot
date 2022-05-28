@@ -1,3 +1,27 @@
 {
-  "cSpell.enabled": false
+  "cSpell.enabled": true,
+  "cSpell.words": [
+    "BARIOT",
+    "EMQX",
+    "GRAFANA",
+    "healthcheck",
+    "mainflux",
+    "Mosquitto",
+    "mqtt",
+    "mqttc",
+    "MQTTX",
+    "NATS",
+    "Ngoc",
+    "paho",
+    "passw",
+    "proto",
+    "PROTOBUFF",
+    "proxying",
+    "pseudoincorrect",
+    "readline",
+    "restclient",
+    "ROADMAP",
+    "SENML",
+    "venv"
+  ]
 }

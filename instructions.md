@@ -166,7 +166,7 @@ Bariot is downloading every docker images, go packages and build all services.
 
 Re-running "docker-compose up -d" usually do the trick.
 
-Roadmap: deployment with precompiled images.
+Roadmap: deployment with pre-compiled images.
 
 <br/>
 
@@ -192,17 +192,17 @@ $ export BARIOT_HOST=ec2-xx-xx-xxx-xx.eu-west-1.compute.amazonaws.com
 
 **get your admin email and password from "Bariot/docker/.env" file and replace in the export bellow.**
 
-export ADMIN_MAIL=....
-export ADMIN_PASS=....
+export ADMIN_MAIL=admin@bariot.com
+export ADMIN_PASS=xOJNmAWTezOArlcvJ9vw6Vb5xK6wapcCw1lPIJCuAxweQYSkDTTHiMe2UXkxMCS
 
 ```console
 $ curl -L --request POST \
 --header "Content-Type: application/json" \
---data '{"Email" : $ADMIN_MAIL, "Password": $ADMIN_PASS}' \
+--data '{"Email" : "'$ADMIN_MAIL'", "Password": "'$ADMIN_PASS'"}' \
 $BARIOT_HOST/users/login/admin
 ```
 
-Since the APIs are behing a reverse proxy (nginx) we need to use the **-L** option of Curl.
+Since the APIs are behind a reverse proxy (nginx) we need to use the **-L** option of Curl.
 
 Example response:
 
@@ -222,7 +222,7 @@ $ export ADMIN_TOKEN=xxxxxx.xxxx(...)xxxx.xxxx
 $ curl -L --request POST \
 --header "Content-Type: application/json" \
 --header "Authorization: $ADMIN_TOKEN" \
---data '{"FullName": "Jacques Cellaire", "Email": "jacques@cellaire.com", "Password": "OopsjacquesHasBeenHacked"}' \
+--data '{"FullName": "Jacques Cellaire", "Email": "jacques@cellaire.com", "Password": "OopsJacquesHasBeenHacked"}' \
 $BARIOT_HOST/users/
 ```
 
@@ -243,7 +243,7 @@ Example response:
 ```console
 $ curl -L --request POST \
 --header "Content-Type: application/json" \
---data '{"Email" : "jacques@cellaire.com","Password": "OopsjacquesHasBeenHacked"}' \
+--data '{"Email" : "jacques@cellaire.com","Password": "OopsJacquesHasBeenHacked"}' \
 $BARIOT_HOST/users/login
 ```
 
@@ -300,7 +300,7 @@ $BARIOT_HOST/things/$THING_ID/token
 Example response:
 
 ```json
-{ "jwt": "xxxxxx.xxxxxxx(...)xxxxxxx.xxxxxx" }
+{ "Token": "xxxxxx.xxxxxxx(...)xxxxxxx.xxxxxx" }
 ```
 
 Save this token.
@@ -315,9 +315,13 @@ $ export THING_TOKEN=xxxxxx.xxxxxxx(...)xxxxxxx.xxxxxx
 
 ## Alternative to Curl
 
-Head to .../Bariot/support/http/
+Head to .../Bariot/tests/http/
 
 In there each .http file can be used with **[vscode-restclient](https://github.com/Huachao/vscode-restclient)** to accomplish the same functions as above in a more user-friendly fashion.
+
+or to .../Bariot/tests/end_to_end/
+
+You will find a python testing script that does all the above.
 
 ---
 
@@ -358,7 +362,7 @@ This with send a MQTT with sensor data formatted with SENML and authenticated wi
 
 ---
 
-## Vizualize your data with Grafana
+## Visualize your data with Grafana
 
 Head to $BARIOT_HOST/grafana
 

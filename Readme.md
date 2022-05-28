@@ -1,8 +1,8 @@
 # BARIOT
 
-[IoT][IoT] / [IIoT][IIoT] Platform
+[IoT][iot] / [IIoT][iiot] Platform
 
-Bariot is a simple solution to send, manage, secure and visualize data from connected devices/machines. 
+Bariot is a simple solution to send, manage, secure and visualize data from connected devices/machines.
 
 <br/>
 
@@ -11,9 +11,9 @@ Bariot is a simple solution to send, manage, secure and visualize data from conn
 
 <br/>
 
-Micro-services architecture build with [Go][Go] and [Docker][Docker] (compose).
+Micro-services architecture build with [Go][go] and [Docker][docker] (compose).
 
-Inspired by the beautiful architecture of [Mainflux][Mainflux].
+Inspired by the beautiful architecture of [Mainflux][mainflux].
 
 <br/>
 
@@ -25,58 +25,60 @@ Bariot uses the most recent (ref 2022) technologies to create a scalable and clo
 
 Bariot is opinionated, in the sense that storage and communications technologies are predefined (see COMPONENTS)
 
-Bariot is a chance to understand what technologies are used to create cloud applications with modern standards of security, scalability, performances and devops practices. Whether it is purely serverless or containerized, these components (see below) in one form or another are often involved. 
+Bariot is a chance to understand what technologies are used to create cloud applications with modern standards of security, scalability, performances and devops practices. Whether it is purely serverless or containerized, these components (see below) in one form or another are often involved.
 
 Bariot is also a fun project to work on !
 
-<br/> 
+<br/>
 
 ## INSTRUCTIONS
 
-Deployment on AWS EC2 [here][AWSdeploy].
+Deployment on AWS EC2 [here][awsdeploy].
 
-<br/> 
+<br/>
 
 ## COMPONENTS
 
 ### Implemented
-- Transport: [MQTT][MQTT]
-- Authentication/Authorization: [JWT][JWT]
-- USER, THINGS storage: [PostgreSQL][PostgreSQL]
-- THINGS DATA storage: [Influxdb][Influxdb]
-- Services intercommunication: [gRpc][gRpc]
-- Services messaging: [Nats][Nats]
+
+- Transport: [MQTT][mqtt]
+- Authentication/Authorization: [JWT][jwt]
+- USER, THINGS storage: [PostgreSQL][postgresql]
+- THINGS DATA storage: [Influxdb][influxdb]
+- Services intercommunication: [gRpc][grpc]
+- Services messaging: [Nats][nats]
+- Data presentation: [Grafana][grafana]
+- Reverse proxy: [Ngnix][ngnix]
 
 ### Further on the road
-- Transport: [OPC-UA][OPC-UA]
-- Data presentation: [Grafana][Grafana]
-- Reverse proxy: [Ngnix][Ngnix]
-- Secret storage/management: [Vault][Vault]
-- Caching: [Redis][Redis]
-- CI/CD: [Gitlab][Gitlab]
+
+- Transport: [OPC-UA][opc-ua]
+- Secret storage/management: [Vault][vault]
+- Caching: [Redis][redis]
+- CI/CD: [Gitlab][gitlab]
 - Permission system: to be decided
 
 <br/>
 
-## IT IS A WORK IN PROGRESS  ;)
+## IT IS A WORK IN PROGRESS ;)
 
 <br/>
 
-[IoT]: https://www.zdnet.com/article/what-is-the-internet-of-things-everything-you-need-to-know-about-the-iot-right-now/
-[IIoT]: https://www.trendmicro.com/vinfo/us/security/definition/industrial-internet-of-things-iiot
-[Go]: https://www.freecodecamp.org/news/what-is-go-programming-language/
-[Docker]: https://docs.docker.com/get-started/overview/
-[Mainflux]: https://mainflux.com/
-[MQTT]: https://mqtt.org/
-[JWT]: https://jwt.io/
-[PostgreSQL]: https://www.postgresql.org/
-[Influxdb]: https://www.influxdata.com/
-[gRpc]: https://grpc.io/docs/what-is-grpc/introduction/
-[Nats]: https://docs.nats.io/nats-concepts/what-is-nats
-[OPC-UA]: https://www.opc-router.com/what-is-opc-ua/
-[Grafana]: https://www.scaleyourapp.com/what-is-grafana-why-use-it-everything-you-should-know-about-it/
-[Ngnix]: https://medium.com/globant/understanding-nginx-as-a-reverse-proxy-564f76e856b2
-[Redis]: https://redis.io/topics/introduction
-[Vault]:https://www.vaultproject.io/docs/what-is-vault
-[Gitlab]: https://about.gitlab.com/what-is-gitlab/
-[AWSdeploy]: https://github.com/pseudoincorrect/Bariot/blob/main/instructions.md
+[iot]: https://www.zdnet.com/article/what-is-the-internet-of-things-everything-you-need-to-know-about-the-iot-right-now/
+[iiot]: https://www.trendmicro.com/vinfo/us/security/definition/industrial-internet-of-things-iiot
+[go]: https://www.freecodecamp.org/news/what-is-go-programming-language/
+[docker]: https://docs.docker.com/get-started/overview/
+[mainflux]: https://mainflux.com/
+[mqtt]: https://mqtt.org/
+[jwt]: https://jwt.io/
+[postgresql]: https://www.postgresql.org/
+[influxdb]: https://www.influxdata.com/
+[grpc]: https://grpc.io/docs/what-is-grpc/introduction/
+[nats]: https://docs.nats.io/nats-concepts/what-is-nats
+[opc-ua]: https://www.opc-router.com/what-is-opc-ua/
+[grafana]: https://www.scaleyourapp.com/what-is-grafana-why-use-it-everything-you-should-know-about-it/
+[ngnix]: https://medium.com/globant/understanding-nginx-as-a-reverse-proxy-564f76e856b2
+[redis]: https://redis.io/topics/introduction
+[vault]: https://www.vaultproject.io/docs/what-is-vault
+[gitlab]: https://about.gitlab.com/what-is-gitlab/
+[awsdeploy]: https://github.com/pseudoincorrect/Bariot/blob/main/instructions.md

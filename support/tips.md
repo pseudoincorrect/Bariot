@@ -1,4 +1,4 @@
-# USEFUL COMMANDS AND TIPS
+## USEFUL COMMANDS AND TIPS
 
 ## DOCKER: To build a docker image
 
@@ -84,12 +84,12 @@ first find you IP in a WSL (linux) terminal
 # hostname -I
 ```
 
-Copy the IP address outputed
+Copy the IP address outputted
 In "C:\Windows\System32\drivers\etc\hosts" add:
 
 ```txt
 # Personal conf
-<outputed IP address> balancer.com
+<outputted IP address> balancer.com
 ```
 
 ## CURL: Reach an insecure https endpoint (self-signed)
@@ -114,4 +114,53 @@ $ ./generate.sg
 ```console
 $ docker exec -it <container_ID> bash
 $ influx delete --bucket bariot_bucket --start 2021-01-01T00:00:00Z --stop 2023-01-01T00:00:00Z
+```
+
+## GIT: Create a feature branch with code not committed already
+
+You were coding a new feature and then "Oh flute" I forgot to create a new branch
+
+```console
+$ git stash
+$ git checkout main
+$ git checkout -b feature-something
+$ git stash apply
+$ git commit -m "your message about something"
+$ git push -u origin feature-something
+```
+
+## GIT: Integrate Main's changes into your feature branch
+
+```console
+$ git checkout main
+$ git pull
+$ git checkout feature-something
+$ git rebase main
+```
+
+## GIT: Squash your feature branch's commits and push to origin
+
+```console
+$ git checkout feature-something
+$ git rebase -i HEAD~20  # Squashing up to 20 commit (before pushing to origin)
+$ git log                # Check what your commit looks like
+$ git commit --amend
+$ git push -f
+```
+
+if you have already pushed the commits you want to squash
+https://stackoverflow.com/questions/5667884/how-to-squash-commits-in-git-after-they-have-been-pushed
+
+```console
+git rebase -i origin/feature-something~20 feature-something
+ git push --force origin feature-something
+```
+
+## PYTHON VENV: create and setup
+
+```console
+$ cd ./tests/end_to_end
+$ venv -m venv venv
+$ ./venv/Scripts/activate
+$ pip install -r requirements.txt
 ```

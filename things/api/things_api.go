@@ -63,16 +63,16 @@ func thingGetEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
 		if err := validation.ValidateUuid(id); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		thing, err := s.GetThing(context.Background(), id)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		if thing == nil {
-			http.Error(res, "thing not found", http.StatusNotFound)
+			appErr.Http(res, "thing not found", http.StatusNotFound)
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
@@ -106,11 +106,11 @@ func thingPostEndpoint(s service.Things) http.HandlerFunc {
 		thingReq := thingPostRequest{}
 		err := json.NewDecoder(req.Body).Decode(&thingReq)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		if err = thingReq.validate(); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		thing := models.Thing{
@@ -120,7 +120,7 @@ func thingPostEndpoint(s service.Things) http.HandlerFunc {
 		}
 		savedThing, err := s.SaveThing(context.Background(), &thing)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
@@ -137,12 +137,12 @@ func thingDeleteEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
 		if err := validation.ValidateUuid(id); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		thingId, err := s.DeleteThing(context.Background(), id)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		json.NewEncoder(res).Encode(thingDeleteResponse{Id: thingId})
@@ -173,17 +173,17 @@ func thingPutEndpoint(s service.Things) http.HandlerFunc {
 		userId := req.Context().Value(userIdKey).(string)
 		id := chi.URLParam(req, "id")
 		if err := validation.ValidateUuid(id); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		thingReq := thingPutRequest{}
 		err := json.NewDecoder(req.Body).Decode(&thingReq)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		if err = thingReq.validate(); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		thing := models.Thing{
@@ -195,7 +195,7 @@ func thingPutEndpoint(s service.Things) http.HandlerFunc {
 		log.Println("TODO: check thing belong to user")
 		updatedThing, err := s.UpdateThing(context.Background(), &thing)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		json.NewEncoder(res).Encode(updatedThing)
@@ -203,7 +203,7 @@ func thingPutEndpoint(s service.Things) http.HandlerFunc {
 }
 
 type thingGetTokenRes struct {
-	Jwt string
+	Token string
 }
 
 // thingGetTokenEndpoint create a handler to get a token associated to a thing
@@ -213,10 +213,10 @@ func thingGetTokenEndpoint(s service.Things) http.HandlerFunc {
 		thingId := chi.URLParam(req, "id")
 		jwt, err := s.GetThingToken(context.Background(), thingId, userId)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(res).Encode(thingGetTokenRes{Jwt: jwt})
+		json.NewEncoder(res).Encode(thingGetTokenRes{Token: jwt})
 	}
 }
 
@@ -230,13 +230,13 @@ func userOfThingOrAdmin(s service.Things) middlewareFunc {
 			token := req.Header.Get("Authorization")
 			thingId := chi.URLParam(req, "id")
 			if err := validation.ValidateUuid(thingId); err != nil {
-				http.Error(res, err.Error(), http.StatusBadRequest)
+				appErr.Http(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 			userId, err := s.UserOfThingOrAdmin(context.Background(), token, thingId)
 			if err != nil {
 				log.Println(err)
-				http.Error(res, err.Error(), http.StatusInternalServerError)
+				appErr.Http(res, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))
@@ -252,13 +252,13 @@ func userOfThingOnly(s service.Things) middlewareFunc {
 			token := req.Header.Get("Authorization")
 			thingId := chi.URLParam(req, "id")
 			if err := validation.ValidateUuid(thingId); err != nil {
-				http.Error(res, err.Error(), http.StatusBadRequest)
+				appErr.Http(res, err.Error(), http.StatusBadRequest)
 				return
 			}
 			userId, err := s.UserOfThingOnly(context.Background(), token, thingId)
 			if err != nil {
 				log.Println(err)
-				http.Error(res, err.Error(), http.StatusInternalServerError)
+				appErr.Http(res, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))
@@ -274,7 +274,7 @@ func userOnly(s service.Things) middlewareFunc {
 			userId, err := s.UserOnly(context.Background(), token)
 			if err != nil {
 				log.Println(err)
-				http.Error(res, err.Error(), http.StatusInternalServerError)
+				appErr.Http(res, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))

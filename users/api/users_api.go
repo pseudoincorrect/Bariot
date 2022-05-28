@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/pseudoincorrect/bariot/pkg/errors"
+	appErr "github.com/pseudoincorrect/bariot/pkg/errors"
 	"github.com/pseudoincorrect/bariot/pkg/validation"
 	"github.com/pseudoincorrect/bariot/users/models"
 	"github.com/pseudoincorrect/bariot/users/service"
@@ -35,6 +35,7 @@ func createEndpoint(s service.Users, r *chi.Mux) {
 	adminGroup := r.Group(nil)
 	adminGroup.Use(AdminOnly(s))
 	adminGroup.Get("/{id}", userGetEndpoint(s))
+	adminGroup.Get("/email/{email}", userGetEmailEndpoint(s))
 	adminGroup.Post("/", userPostEndpoint(s))
 	adminGroup.Delete("/{id}", userDeleteEndpoint(s))
 	adminGroup.Put("/{id}", userPutEndpoint(s))
@@ -52,16 +53,38 @@ func userGetEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
 		if err := validation.ValidateUuid(id); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		user, err := s.GetUser(context.Background(), id)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		if user == nil {
-			http.Error(res, errors.ErrUserNotFound.Error(), http.StatusNotFound)
+			appErr.Http(res, appErr.ErrUserNotFound.Error(), http.StatusNotFound)
+			return
+		}
+		res.Header().Set("Content-Type", "application/json")
+		removeHashPass(user)
+		json.NewEncoder(res).Encode(user)
+	}
+}
+
+func userGetEmailEndpoint(s service.Users) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		email := chi.URLParam(req, "email")
+		if err := validation.ValidateEmail(email); err != nil {
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+		user, err := s.GetByEmail(context.Background(), email)
+		if err != nil {
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if user == nil {
+			appErr.Http(res, appErr.ErrUserNotFound.Error(), http.StatusNotFound)
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
@@ -78,13 +101,13 @@ type userPostRequest struct {
 
 func (r *userPostRequest) validate() error {
 	if r.FullName == "" || len(r.FullName) > 100 || len(r.FullName) < 3 {
-		return errors.ErrValidation
+		return appErr.ErrValidation
 	}
 	if r.Email == "" || len(r.Email) > 100 || len(r.Email) < 3 {
-		return errors.ErrValidation
+		return appErr.ErrValidation
 	}
 	if r.Password == "" || len(r.Password) > 100 || len(r.Password) < 3 {
-		return errors.ErrValidation
+		return appErr.ErrValidation
 	}
 	return nil
 }
@@ -94,17 +117,17 @@ func userPostEndpoint(s service.Users) http.HandlerFunc {
 		userReq := userPostRequest{}
 		err := json.NewDecoder(req.Body).Decode(&userReq)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		if err = userReq.validate(); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		hashPass, err := hash.HashPassword(userReq.Password)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -115,7 +138,7 @@ func userPostEndpoint(s service.Users) http.HandlerFunc {
 		}
 		savedUser, err := s.SaveUser(context.Background(), &user)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
@@ -132,12 +155,12 @@ func userDeleteEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
 		if err := validation.ValidateUuid(id); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		userId, err := s.DeleteUser(context.Background(), id)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		json.NewEncoder(res).Encode(userDeleteResponse{Id: userId})
@@ -151,10 +174,10 @@ type userPutRequest struct {
 
 func (r *userPutRequest) validate() error {
 	if r.FullName == "" || len(r.FullName) > 100 || len(r.FullName) < 3 {
-		return errors.ErrValidation
+		return appErr.ErrValidation
 	}
 	if r.Email == "" || len(r.Email) > 100 || len(r.Email) < 3 {
-		return errors.ErrValidation
+		return appErr.ErrValidation
 	}
 	return nil
 }
@@ -163,17 +186,17 @@ func userPutEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
 		if err := validation.ValidateUuid(id); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		userReq := userPutRequest{}
 		err := json.NewDecoder(req.Body).Decode(&userReq)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		if err = userReq.validate(); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		user := models.User{
@@ -183,7 +206,7 @@ func userPutEndpoint(s service.Users) http.HandlerFunc {
 		}
 		updatedUser, err := s.UpdateUser(context.Background(), &user)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		removeHashPass(updatedUser)
@@ -202,10 +225,10 @@ type loginPostResponse struct {
 
 func (req *loginPostRequest) validate() error {
 	if req.Email == "" || len(req.Email) > 100 || len(req.Email) < 3 {
-		return errors.ErrValidation
+		return appErr.ErrValidation
 	}
 	if req.Password == "" || len(req.Password) > 100 || len(req.Password) < 3 {
-		return errors.ErrValidation
+		return appErr.ErrValidation
 	}
 	return nil
 }
@@ -215,16 +238,16 @@ func loginUserEndpoint(s service.Users) http.HandlerFunc {
 		loginReq := loginPostRequest{}
 		err := json.NewDecoder(req.Body).Decode(&loginReq)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		if err = loginReq.validate(); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		token, err := s.LoginUser(context.Background(), loginReq.Email, loginReq.Password)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		json.NewEncoder(res).Encode(loginPostResponse{Token: token})
@@ -236,16 +259,16 @@ func loginAdminEndpoint(s service.Users) http.HandlerFunc {
 		loginReq := loginPostRequest{}
 		err := json.NewDecoder(req.Body).Decode(&loginReq)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		if err = loginReq.validate(); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 		token, err := s.LoginAdmin(context.Background(), loginReq.Email, loginReq.Password)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		json.NewEncoder(res).Encode(loginPostResponse{Token: token})
@@ -265,11 +288,11 @@ func AdminOnly(s service.Users) middlewareFunc {
 			log.Println("AdminOnly route !", token)
 			isAuthorized, err := s.IsAdmin(req.Context(), token)
 			if err != nil {
-				http.Error(res, err.Error(), http.StatusInternalServerError)
+				appErr.Http(res, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			if !isAuthorized {
-				http.Error(res, "Unauthorized", http.StatusUnauthorized)
+				appErr.Http(res, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
 			next.ServeHTTP(res, req)

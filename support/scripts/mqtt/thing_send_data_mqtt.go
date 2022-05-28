@@ -44,12 +44,6 @@ func main() {
 	MqttConnectAndSend()
 }
 
-// const BARIOT_HOST = "ec2-46-51-148-15.eu-west-1.compute.amazonaws.com"
-// const THING_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI5ODdiYTg5MS03NTg4LTRlMTgtOGUxOS1iMzY1NWQ1ZGJlNzYiLCJleHAiOjE2NTM1NTc3OTEsImlhdCI6MTY1MzQ3MTM5MSwiaXNzIjoiZGV2X2xvY2FsIiwic3ViIjoiMmY5NDA3MmItMDBkMy00YzZiLTk4MGYtMmY1YmY4MzJhMWNjIn0.tc0UjF3AiS965-cNAfCyccWut1255bW1w_LR3n4ZznU"
-// const THING_ID = "2f94072b-00d3-4c6b-980f-2f5bf832a1cc"
-
-// const TOPIC = "things/" + THING_ID
-
 func MqttConnectAndSend() error {
 
 	var m mqttTester
@@ -77,7 +71,7 @@ func MqttConnectAndSend() error {
 	defer m.mqttDisconnect()
 	log.Println("Connected to mqtt")
 	sensorData := createSenmlPack()
-	msg, _ := marchalMsg(m.conf.thingToken, sensorData)
+	msg, _ := marshalMsg(m.conf.thingToken, sensorData)
 	log.Println("Publishing to mqtt")
 	err = m.mqttPublish(topic, string(msg))
 	if err != nil {
@@ -169,7 +163,7 @@ type sensorAuthMsg struct {
 	Sensors senml.Pack
 }
 
-func marchalMsg(token string, sensorData senml.Pack) ([]byte, error) {
+func marshalMsg(token string, sensorData senml.Pack) ([]byte, error) {
 	msg := sensorAuthMsg{
 		Token:   token,
 		Sensors: sensorData,
