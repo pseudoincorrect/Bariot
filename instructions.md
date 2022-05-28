@@ -166,7 +166,7 @@ Bariot is downloading every docker images, go packages and build all services.
 
 Re-running "docker-compose up -d" usually do the trick.
 
-Roadmap: deployment with precompiled images.
+Roadmap: deployment with pre-compiled images.
 
 <br/>
 
@@ -362,7 +362,7 @@ This with send a MQTT with sensor data formatted with SENML and authenticated wi
 
 ---
 
-## Vizualize your data with Grafana
+## Visualize your data with Grafana
 
 Head to $BARIOT_HOST/grafana
 

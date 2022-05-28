@@ -155,3 +155,12 @@ https://stackoverflow.com/questions/5667884/how-to-squash-commits-in-git-after-t
 git rebase -i origin/feature-something~20 feature-something
  git push --force origin feature-something
 ```
+
+## PYTHON VENV: create and setup
+
+```console
+$ cd ./tests/end_to_end
+$ venv -m venv venv
+$ ./venv/Scripts/activate
+$ pip install -r requirements.txt
+```

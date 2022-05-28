@@ -20,6 +20,7 @@
 |     | Tag   | Description                                   |
 | --- | ----- | --------------------------------------------- |
 |     | REDIS | Use Redis to cache auth data on MQTT endpoint |
+|     | TEST  | MQTT with python and paho                     |
 |     | TEST  | Automate end to end testing                   |
 |     |       |                                               |
 

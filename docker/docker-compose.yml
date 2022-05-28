@@ -239,6 +239,7 @@ services:
     image: grafana/grafana-oss:8.4.6
     environment:
       GF_SERVER_ROOT_URL: ${GRAFANA_GF_SERVER_ROOT_URL}
+      GF_LOG_MODE: 'file' # redirect log output to a file (docker log clutter)
     volumes:
       - grafana_lib:/var/lib/grafana
     networks:

@@ -8,6 +8,7 @@
     "mainflux",
     "Mosquitto",
     "mqtt",
+    "mqttc",
     "MQTTX",
     "NATS",
     "Ngoc",
@@ -18,7 +19,9 @@
     "proxying",
     "pseudoincorrect",
     "readline",
+    "restclient",
     "ROADMAP",
-    "SENML"
+    "SENML",
+    "venv"
   ]
 }
