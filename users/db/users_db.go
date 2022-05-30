@@ -20,6 +20,7 @@ type DbConfig struct {
 	Password string
 }
 
+// Init a new database connection
 func Init(conf DbConfig) (*Database, error) {
 	db, err := connect(conf)
 	if err != nil {
@@ -28,6 +29,7 @@ func Init(conf DbConfig) (*Database, error) {
 	return db, nil
 }
 
+// connect create a new database connection
 func connect(conf DbConfig) (*Database, error) {
 	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.User, conf.Password, conf.Host, conf.Port, conf.Dbname)
 	conn, err := pgx.Connect(context.Background(), dbUrl)

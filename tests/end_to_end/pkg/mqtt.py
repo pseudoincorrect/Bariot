@@ -6,7 +6,6 @@ BARIOT_HOST = "localhost"
 
 
 class MyMQTTClass(mqtt.Client):
-
     def on_connect(self, mqttc, obj, flags, rc):
         print("MQTT: " + "connection result (rc): "+str(rc))
 
@@ -29,8 +28,8 @@ class MyMQTTClass(mqtt.Client):
     def subscribe_all(self):
         self.subscribe(topic="#", qos=0)
 
-
-def format_message(thing_token, payload) -> str:
+def format_message(thing_token, payload):
+    ''' Format a message to be sent to the MQTT broker.'''
     msg = {}
     msg["token"] = thing_token
     msg["Records"] = json.loads(payload)
@@ -44,6 +43,7 @@ def make_thing_topic(thing_id):
 
 
 def send_message(thing_id, msg):
+    ''' Send a message to the MQTT broker.'''
     topic = make_thing_topic(thing_id)
     mqttc = MyMQTTClass()
     mqttc.connect(BARIOT_HOST, 1883, 60)

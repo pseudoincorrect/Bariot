@@ -10,6 +10,7 @@ import (
 	"github.com/mainflux/senml"
 )
 
+// PrettyJsonsString returns a string with pretty JSON representation
 func PrettyJsonString(str string) (string, error) {
 	var prettyJSON bytes.Buffer
 	if err := json.Indent(&prettyJSON, []byte(str), "", "  "); err != nil {
@@ -18,6 +19,7 @@ func PrettyJsonString(str string) (string, error) {
 	return prettyJSON.String(), nil
 }
 
+// PrettyJsons returns a string with pretty JSON representation
 func PrettySenmlRecord(r senml.Record) string {
 	xmlName, value, stringValue, dataValue, boolValue, sum := "", "", "", "", "", ""
 

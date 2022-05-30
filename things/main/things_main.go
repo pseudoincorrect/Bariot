@@ -36,6 +36,7 @@ type config struct {
 	redisPort   string
 }
 
+// Load config from environment variables
 func loadConfig() config {
 	var conf = config{
 		httpPort:    env.GetEnv("HTTP_PORT"),
@@ -52,6 +53,7 @@ func loadConfig() config {
 	return conf
 }
 
+// createService creates a new Thing service
 func createService() (service.Things, error) {
 	conf := loadConfig()
 
@@ -94,6 +96,7 @@ func createService() (service.Things, error) {
 	return service.New(thingsRepo, authClient, cache), nil
 }
 
+// startHttp starts the HTTP server
 func startHttp(s service.Things) error {
 	conf := loadConfig()
 	err := api.InitApi(conf.httpPort, s)

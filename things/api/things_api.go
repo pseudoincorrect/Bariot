@@ -18,6 +18,7 @@ type ctxKey int
 
 const userIdKey ctxKey = iota
 
+// InitApi initialize the thing REST api
 func InitApi(port string, s service.Things) error {
 	router := createRouter()
 	createEndpoint(s, router)
@@ -25,6 +26,7 @@ func InitApi(port string, s service.Things) error {
 	return err
 }
 
+// createRouter create a REST api router with middleware
 func createRouter() *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -33,7 +35,7 @@ func createRouter() *chi.Mux {
 	return r
 }
 
-// createEndpoint Create all things related endpoints
+// createEndpoint create the endpoints for the REST api with authorization
 func createEndpoint(s service.Things, r *chi.Mux) {
 	// only user can create a thing (associated with user id)
 	userOnlyGroup := r.Group(nil)
@@ -85,6 +87,7 @@ type thingPostRequest struct {
 	Key  string `json:"Key"`
 }
 
+// validate the thingPostRequest
 func (r *thingPostRequest) validate() error {
 	if r.Name == "" {
 		return appErr.ErrValidation
@@ -154,6 +157,7 @@ type thingPutRequest struct {
 	Key  string `json:"Key"`
 }
 
+// validate the thingPutRequest
 func (r *thingPutRequest) validate() error {
 	if r.Name == "" {
 		return appErr.ErrValidation

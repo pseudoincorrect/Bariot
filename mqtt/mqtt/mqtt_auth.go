@@ -12,6 +12,7 @@ import (
 
 type Authorizer func(topic string, jwt string) error
 
+// CreateAuthorizer creates an authorizer function that can be used to authorize a mqtt topic
 func CreateAuthorizer(auth authClient.Auth, cache cdb.ThingCache) (Authorizer, error) {
 	authorizer := func(topic string, token string) error {
 		thingId, err := authenticate(auth, cache, token)
@@ -28,11 +29,13 @@ func CreateAuthorizer(auth authClient.Auth, cache cdb.ThingCache) (Authorizer, e
 	return authorizer, nil
 }
 
+// extractThingIdFromTopic extracts the thing id from a topic
 func extractThingIdFromTopic(topic string) (string, error) {
 	thingId := strings.Split(topic, "/")[1]
 	return thingId, nil
 }
 
+// authenticate authenticates a token and returns the thing id
 func authenticate(auth authClient.Auth, cache cdb.ThingCache, token string) (string, error) {
 	log.Println("authenticate()")
 	res, thingId, err := cache.GetThingIdByToken(token)

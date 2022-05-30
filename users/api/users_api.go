@@ -15,6 +15,7 @@ import (
 	"github.com/pseudoincorrect/bariot/users/utilities/hash"
 )
 
+// InitApi initializes the REST api
 func InitApi(port string, s service.Users) error {
 	router := createRouter()
 	createEndpoint(s, router)
@@ -22,6 +23,7 @@ func InitApi(port string, s service.Users) error {
 	return err
 }
 
+// createRouter creates the router for the users api with middleware
 func createRouter() *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -30,6 +32,7 @@ func createRouter() *chi.Mux {
 	return r
 }
 
+// createEndpoint creates the endpoints for the users api with authorization
 func createEndpoint(s service.Users, r *chi.Mux) {
 	// only admins can manage users
 	adminGroup := r.Group(nil)
@@ -43,12 +46,14 @@ func createEndpoint(s service.Users, r *chi.Mux) {
 	r.Post("/login/admin", loginAdminEndpoint(s))
 }
 
+// startRouter starts the HTTP server
 func startRouter(port string, r *chi.Mux) error {
 	addr := ":" + port
 	err := http.ListenAndServe(addr, r)
 	return err
 }
 
+// userGetEndpoint returns a function to get the user with a given id
 func userGetEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
@@ -71,6 +76,7 @@ func userGetEndpoint(s service.Users) http.HandlerFunc {
 	}
 }
 
+// userGetEmailEndpoint returns a function to get the user with a given email
 func userGetEmailEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		email := chi.URLParam(req, "email")
@@ -99,6 +105,7 @@ type userPostRequest struct {
 	Password string `json:"Password"`
 }
 
+// validate the userPostRequest
 func (r *userPostRequest) validate() error {
 	if r.FullName == "" || len(r.FullName) > 100 || len(r.FullName) < 3 {
 		return appErr.ErrValidation
@@ -112,6 +119,7 @@ func (r *userPostRequest) validate() error {
 	return nil
 }
 
+// userPostEndpoint returns a function to create a new user
 func userPostEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		userReq := userPostRequest{}
@@ -151,6 +159,7 @@ type userDeleteResponse struct {
 	Id string `json:"Id"`
 }
 
+// userDeleteEndpoint returns a function to delete a user
 func userDeleteEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
@@ -172,6 +181,7 @@ type userPutRequest struct {
 	FullName string `json:"FullName"`
 }
 
+// validate the userPutRequest
 func (r *userPutRequest) validate() error {
 	if r.FullName == "" || len(r.FullName) > 100 || len(r.FullName) < 3 {
 		return appErr.ErrValidation
@@ -182,6 +192,7 @@ func (r *userPutRequest) validate() error {
 	return nil
 }
 
+// userPutEndpoint returns a function to update a user
 func userPutEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id := chi.URLParam(req, "id")
@@ -223,6 +234,7 @@ type loginPostResponse struct {
 	Token string `json:"Token"`
 }
 
+// validate the loginPostRequest
 func (req *loginPostRequest) validate() error {
 	if req.Email == "" || len(req.Email) > 100 || len(req.Email) < 3 {
 		return appErr.ErrValidation
@@ -233,6 +245,7 @@ func (req *loginPostRequest) validate() error {
 	return nil
 }
 
+// loginPostEndpoint returns a function to login a user
 func loginUserEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		loginReq := loginPostRequest{}
@@ -254,6 +267,7 @@ func loginUserEndpoint(s service.Users) http.HandlerFunc {
 	}
 }
 
+// loginAdminEndpoint returns a function to login an admin
 func loginAdminEndpoint(s service.Users) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		loginReq := loginPostRequest{}
@@ -281,6 +295,7 @@ func removeHashPass(user *models.User) {
 
 type middlewareFunc func(http.Handler) http.Handler
 
+// AdminOnly returns a function to check if the user is an admin
 func AdminOnly(s service.Users) middlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {

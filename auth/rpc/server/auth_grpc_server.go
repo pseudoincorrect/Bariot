@@ -16,6 +16,7 @@ type server struct {
 	AuthService service.Auth
 }
 
+// GetAdminToken returns a JWT token for the admin user
 func (s *server) GetAdminToken(ctx context.Context, in *auth.GetAdminTokenRequest) (*auth.GetAdminTokenResponse, error) {
 	token, err := s.AuthService.GetAdminToken()
 	if err != nil {
@@ -24,6 +25,7 @@ func (s *server) GetAdminToken(ctx context.Context, in *auth.GetAdminTokenReques
 	return &auth.GetAdminTokenResponse{Jwt: token}, nil
 }
 
+// GetUserToken returns a JWT token for the user
 func (s *server) GetUserToken(ctx context.Context, in *auth.GetUserTokenRequest) (*auth.GetUserTokenResponse, error) {
 	token, err := s.AuthService.GetUserToken(in.UserId)
 	if err != nil {
@@ -32,6 +34,7 @@ func (s *server) GetUserToken(ctx context.Context, in *auth.GetUserTokenRequest)
 	return &auth.GetUserTokenResponse{Jwt: token}, nil
 }
 
+// GetThingToken returns a JWT token for the thing
 func (s *server) GetThingToken(ctx context.Context, in *auth.GetThingTokenRequest) (*auth.GetThingTokenResponse, error) {
 	token, err := s.AuthService.GetThingToken(in.ThingId, in.UserId)
 	if err != nil {
@@ -48,6 +51,7 @@ func (s *server) GetThingToken(ctx context.Context, in *auth.GetThingTokenReques
 // 	return &auth.ValidateTokenResponse{Valid: valid}, nil
 // }
 
+// GetClaimsUserToken return the claims for the user token
 func (s *server) GetClaimsUserToken(ctx context.Context, in *auth.GetClaimsUserTokenRequest) (*auth.GetClaimsUserTokenResponse, error) {
 	claims, err := s.AuthService.GetClaimsUserToken(in.Jwt)
 	if err != nil {
@@ -62,6 +66,7 @@ func (s *server) GetClaimsUserToken(ctx context.Context, in *auth.GetClaimsUserT
 	}, nil
 }
 
+// GetClaimsThingToken return the claims for the thing token
 func (s *server) GetClaimsThingToken(ctx context.Context, in *auth.GetClaimsThingTokenRequest) (*auth.GetClaimsThingTokenResponse, error) {
 	claims, err := s.AuthService.GetClaimsThingToken(in.Jwt)
 	if err != nil {
@@ -81,6 +86,7 @@ type ServerConf struct {
 	Port        string
 }
 
+// Start starts the GRPC server
 func Start(c ServerConf) error {
 	addr := ":" + c.Port
 	log.Println("Starting Auth GRPC on", addr)

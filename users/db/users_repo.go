@@ -11,7 +11,9 @@ import (
 	"github.com/pseudoincorrect/bariot/users/models"
 )
 
-var _ models.UsersRepository = (*usersRepo)(nil) // static type check on userRepo
+// Static type checking
+var _ models.UsersRepository = (*usersRepo)(nil)
+
 type usersRepo struct {
 	db Database
 }
@@ -20,6 +22,7 @@ func New(db *Database) models.UsersRepository {
 	return &usersRepo{*db}
 }
 
+// Save saves a user to the database
 func (r *usersRepo) Save(ctx context.Context, t *models.User) (*models.User, error) {
 	fail := func(err error) error {
 		log.Println("failed to save user: %v", err)
@@ -46,6 +49,7 @@ func (r *usersRepo) Save(ctx context.Context, t *models.User) (*models.User, err
 	return t, nil
 }
 
+// Get a user by id
 func (r *usersRepo) Get(ctx context.Context, id string) (*models.User, error) {
 	user := &models.User{}
 	userUuid := uuid.UUID{}
@@ -70,6 +74,7 @@ func (r *usersRepo) Get(ctx context.Context, id string) (*models.User, error) {
 	return user, nil
 }
 
+// GetByEmail returns a user by email
 func (r *usersRepo) GetByEmail(ctx context.Context, email string) (*models.User, error) {
 	user := &models.User{}
 	userUuid := uuid.UUID{}
@@ -95,6 +100,7 @@ func (r *usersRepo) GetByEmail(ctx context.Context, email string) (*models.User,
 	return user, nil
 }
 
+// Delete a user by id
 func (r *usersRepo) Delete(ctx context.Context, id string) (string, error) {
 	fail := func(err error) error {
 		log.Println("failed to save user: %v", err)
@@ -119,6 +125,7 @@ func (r *usersRepo) Delete(ctx context.Context, id string) (string, error) {
 	return deletedId, nil
 }
 
+// Update a user with a user model
 func (r *usersRepo) Update(ctx context.Context, user *models.User) (*models.User, error) {
 	fail := func(err error) error {
 		log.Println("failed to save user: %v", err)

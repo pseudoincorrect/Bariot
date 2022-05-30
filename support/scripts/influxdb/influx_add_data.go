@@ -67,6 +67,7 @@ type Writer interface {
 	Write(state *ThingState)
 }
 
+// Static type checking
 var _ Writer = (*writer)(nil)
 
 func NewWriter() Writer {
@@ -134,6 +135,7 @@ type Mock interface {
 	Print()
 }
 
+// Static type checking
 var _ Mock = (*mock)(nil)
 
 func NewMock() Mock {

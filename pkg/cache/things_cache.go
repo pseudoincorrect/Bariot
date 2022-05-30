@@ -27,6 +27,7 @@ type ThingCache interface {
 	DeleteTokenAndTokenByThingId(thingId string) error
 }
 
+// Static type checking
 var _ ThingCache = (*cache)(nil)
 
 type cache struct {
@@ -43,6 +44,7 @@ type Conf struct {
 	RedisPort string
 }
 
+// Connect to redis
 func (c *cache) Connect() error {
 	var ctx = context.Background()
 	addr := c.conf.RedisHost + ":" + c.conf.RedisPort
@@ -61,6 +63,7 @@ func (c *cache) Connect() error {
 	return nil
 }
 
+// Delete token key from cache
 func (c *cache) deleteToken(token string) error {
 	var ctx = context.Background()
 	key, err := c.client.Del(ctx, token).Result()
@@ -72,6 +75,7 @@ func (c *cache) deleteToken(token string) error {
 	return nil
 }
 
+// Delete thingId key from cache
 func (c *cache) deleteThingId(thingId string) error {
 	var ctx = context.Background()
 	key, err := c.client.Del(ctx, thingId).Result()
@@ -83,6 +87,7 @@ func (c *cache) deleteThingId(thingId string) error {
 	return nil
 }
 
+// Get thingId by token
 func (c *cache) GetThingIdByToken(token string) (
 	_ CacheRes, thingId string, err error) {
 	var ctx = context.Background()
@@ -100,6 +105,7 @@ func (c *cache) GetThingIdByToken(token string) (
 	return CacheHit, thingId, nil
 }
 
+// Get token by thingId
 func (c *cache) GetTokenByThingId(thingId string) (
 	_ CacheRes, token string, err error) {
 	var ctx = context.Background()
@@ -117,6 +123,7 @@ func (c *cache) GetTokenByThingId(thingId string) (
 	return CacheHit, token, nil
 }
 
+// Set token key with thingId value
 func (c *cache) SetTokenWithThingId(token string, thingId string) error {
 	var ctx = context.Background()
 
@@ -135,6 +142,7 @@ func (c *cache) SetTokenWithThingId(token string, thingId string) error {
 	return nil
 }
 
+// DeleteTokenAndTokenByThingId delete token and tokenByThingId keys
 func (c *cache) DeleteTokenAndTokenByThingId(thingId string) error {
 	res, token, err := c.GetTokenByThingId(thingId)
 	if err != nil {

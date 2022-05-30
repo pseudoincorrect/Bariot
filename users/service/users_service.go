@@ -23,7 +23,7 @@ type Users interface {
 	IsAdmin(ctxt, string) (bool, error)
 }
 
-// type check on userService
+// Static type checking
 var _ Users = (*usersService)(nil)
 
 type usersService struct {
@@ -31,12 +31,12 @@ type usersService struct {
 	auth       authClient.Auth
 }
 
-/// New creates a new user service
+// New creates a new user service
 func New(repository models.UsersRepository, auth authClient.Auth) Users {
 	return &usersService{repository, auth}
 }
 
-/// SaveUser saves a user to repository with user model
+// SaveUser saves a user to repository with user model
 func (s *usersService) SaveUser(ctx ctxt, user *models.User) (*models.User, error) {
 	savedUser, err := s.repository.Save(ctx, user)
 	if err != nil {
@@ -46,7 +46,7 @@ func (s *usersService) SaveUser(ctx ctxt, user *models.User) (*models.User, erro
 	return savedUser, nil
 }
 
-/// GetUser returns a user from repository by id
+// GetUser returns a user from repository by id
 func (s *usersService) GetUser(ctx ctxt, id string) (*models.User, error) {
 	user, err := s.repository.Get(ctx, id)
 	if err != nil {
@@ -56,6 +56,7 @@ func (s *usersService) GetUser(ctx ctxt, id string) (*models.User, error) {
 	return user, nil
 }
 
+// GetByEmail returns a user from repository by email
 func (s *usersService) GetByEmail(ctx ctxt, email string) (*models.User, error) {
 	user, err := s.repository.GetByEmail(ctx, email)
 	if err != nil {
@@ -65,7 +66,7 @@ func (s *usersService) GetByEmail(ctx ctxt, email string) (*models.User, error) 
 	return user, nil
 }
 
-/// DeleteUser deletes a user from repository by id
+// DeleteUser deletes a user from repository by id
 func (s *usersService) DeleteUser(ctx ctxt, id string) (string, error) {
 	resId, err := s.repository.Delete(ctx, id)
 	if err != nil {
@@ -75,7 +76,7 @@ func (s *usersService) DeleteUser(ctx ctxt, id string) (string, error) {
 	return resId, nil
 }
 
-/// UpdateUser updates a user in repository by user model
+// UpdateUser updates a user in repository by user model
 func (s *usersService) UpdateUser(ctx ctxt, user *models.User) (*models.User, error) {
 	updatedUser, err := s.repository.Update(ctx, user)
 	if err != nil {

@@ -37,12 +37,12 @@ type thingsService struct {
 	cache      rdb.ThingCache
 }
 
-/// New creates a new thing service
+// New creates a new thing service
 func New(repository models.ThingsRepository, auth auth.Auth, cache rdb.ThingCache) Things {
 	return &thingsService{repository, auth, cache}
 }
 
-/// SaveThing saves a thing to repository with thing model
+// SaveThing saves a thing to repository with thing model
 func (s *thingsService) SaveThing(ctx ctxt, thing *models.Thing) (*models.Thing, error) {
 	savedThing, err := s.repository.Save(ctx, thing)
 	if err != nil {
@@ -52,7 +52,7 @@ func (s *thingsService) SaveThing(ctx ctxt, thing *models.Thing) (*models.Thing,
 	return savedThing, nil
 }
 
-/// GetThing returns a thing from repository by id
+// GetThing returns a thing from repository by id
 func (s *thingsService) GetThing(ctx ctxt, id string) (*models.Thing, error) {
 	thing, err := s.repository.Get(ctx, id)
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *thingsService) GetThing(ctx ctxt, id string) (*models.Thing, error) {
 	return thing, nil
 }
 
-/// DeleteThing deletes a thing from repository by id
+// DeleteThing deletes a thing from repository by id
 func (s *thingsService) DeleteThing(ctx ctxt, id string) (string, error) {
 	err := s.cache.DeleteTokenAndTokenByThingId(id)
 	if err != nil {
@@ -76,7 +76,7 @@ func (s *thingsService) DeleteThing(ctx ctxt, id string) (string, error) {
 	return resId, nil
 }
 
-/// UpdateThing updates a thing in repository by thing model
+// UpdateThing updates a thing in repository by thing model
 func (s *thingsService) UpdateThing(ctx ctxt, thing *models.Thing) (*models.Thing, error) {
 	updatedThing, err := s.repository.Update(ctx, thing)
 	if err != nil {
@@ -86,7 +86,7 @@ func (s *thingsService) UpdateThing(ctx ctxt, thing *models.Thing) (*models.Thin
 	return updatedThing, nil
 }
 
-/// GetThingToken return a JWT Token containing thing ID and user ID
+// GetThingToken return a JWT Token containing thing ID and user ID
 func (s *thingsService) GetThingToken(ctx ctxt, thingId string, userId string) (string, error) {
 	jwt, err := s.auth.GetThingToken(ctx, thingId, userId)
 	if err != nil {
@@ -100,8 +100,8 @@ func (s *thingsService) GetThingToken(ctx ctxt, thingId string, userId string) (
 	return jwt, nil
 }
 
-/// Check if the user is authorized to access the thing
-/// return user ID , error if not a user or not the thing's user
+// Check if the user is authorized to access the thing
+// return user ID , error if not a user or not the thing's user
 func (s *thingsService) UserOfThingOnly(ctx ctxt, token string, thingId string) (string, error) {
 	role, userId, err := s.auth.IsWhichUser(ctx, token)
 	if err != nil {
@@ -123,8 +123,8 @@ func (s *thingsService) UserOfThingOnly(ctx ctxt, token string, thingId string) 
 	return userId, nil
 }
 
-/// Check if the user is authorized to access the thing
-/// return user/admin ID, error if not a user or admin
+// Check if the user is authorized to access the thing
+// return user/admin ID, error if not a user or admin
 func (s *thingsService) UserOfThingOrAdmin(ctx ctxt, token string, thingId string) (string, error) {
 	role, userId, err := s.auth.IsWhichUser(ctx, token)
 	if err != nil {
@@ -149,8 +149,8 @@ func (s *thingsService) UserOfThingOrAdmin(ctx ctxt, token string, thingId strin
 	return userId, nil
 }
 
-/// Check if the token belong to a "user" user
-/// return user id, error if not a user
+// Check if the token belong to a "user" user
+// return user id, error if not a user
 func (s *thingsService) UserOnly(ctx ctxt, token string) (string, error) {
 	role, userId, err := s.auth.IsWhichUser(ctx, token)
 	if err != nil {

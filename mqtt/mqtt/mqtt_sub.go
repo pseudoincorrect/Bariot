@@ -24,6 +24,7 @@ type MqttSub interface {
 	Disconnect()
 }
 
+// Static type checking
 var _ MqttSub = (*mqttSub)(nil)
 
 func New(config Conf) MqttSub {
@@ -43,6 +44,7 @@ type Conf struct {
 	HealthPort string
 }
 
+// healthCheckBlocking blocks until the health check returns a 200 OK response.
 func (sub *mqttSub) healthCheckBlocking() error {
 	for {
 		err := sub.healthCheck()
@@ -54,6 +56,7 @@ func (sub *mqttSub) healthCheckBlocking() error {
 	}
 }
 
+// healthCheck sends a health check request to the MQTT broker.
 func (sub *mqttSub) healthCheck() error {
 	url := "http://" + sub.conf.User + ":" + sub.conf.Pass + "@" +
 		sub.conf.Host + ":" + sub.conf.HealthPort + "/api/v4/brokers"
@@ -68,6 +71,7 @@ func (sub *mqttSub) healthCheck() error {
 	return nil
 }
 
+// Connect connects to the MQTT broker.
 func (sub *mqttSub) Connect() error {
 	err := sub.healthCheckBlocking()
 	if err != nil {
@@ -95,6 +99,8 @@ func (sub *mqttSub) Connect() error {
 	return nil
 }
 
+// Subscriber subscribes to the specified topic with a function for authorizing the topic
+// and a function to handle the messages.
 func (sub *mqttSub) Subscriber(topic string, qos byte,
 	authorizer Authorizer, handler natsPub.NatsPubType) error {
 
@@ -127,6 +133,7 @@ func (sub *mqttSub) Subscriber(topic string, qos byte,
 	return nil
 }
 
+// Unsubscribe unsubscribes from the specified topic.
 func (sub *mqttSub) Unsubscribe(topic string) {
 	token := sub.client.Unsubscribe(topic)
 	if token.Wait() && token.Error() != nil {
@@ -134,10 +141,12 @@ func (sub *mqttSub) Unsubscribe(topic string) {
 	}
 }
 
+// Disconnect disconnects from the MQTT broker.
 func (sub *mqttSub) Disconnect() {
 	sub.client.Disconnect(250)
 }
 
+// defaultMessageHandler handles the messages received from the MQTT broker.
 var defaultMessageHandler paho.MessageHandler = func(client paho.Client, msg paho.Message) {
 	log.Printf("INCORRECT PUBLISH HERE: %s\n", msg.Topic())
 	log.Printf("MSG: %s\n", msg.Payload())
@@ -148,6 +157,7 @@ type AuthenticatedMsg struct {
 	Records []senml.Record
 }
 
+// ExtractData extracts/parse the data from the MQTT message.
 func ExtractData(payload []byte) (string, senml.Pack, error) {
 	msg := AuthenticatedMsg{}
 

@@ -26,6 +26,7 @@ type Auth interface {
 	GetUserToken(ctxt, string) (string, error)
 }
 
+// Static type checking
 var _ Auth = (*authClient)(nil)
 
 func New(conf Conf) Auth {
@@ -43,6 +44,7 @@ type authClient struct {
 	Client pb.AuthClient
 }
 
+// StartAuthClient starts the auth client GRPC server
 func (c *authClient) StartAuthClient() error {
 	addr := c.Conf.Host + ":" + c.Conf.Port
 	log.Println("init user service GRPC client to ", addr)
@@ -57,6 +59,7 @@ func (c *authClient) StartAuthClient() error {
 	return nil
 }
 
+// IsAdmin checks if the user is an admin given a token
 func (c *authClient) IsAdmin(ctx ctxt, jwt string) (bool, error) {
 	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: jwt})
 	if err != nil {
@@ -66,6 +69,7 @@ func (c *authClient) IsAdmin(ctx ctxt, jwt string) (bool, error) {
 	return claims.GetRole() == Admin, nil
 }
 
+// IsWhichUser checks if the user is a user given a token
 func (c *authClient) IsWhichUser(ctx ctxt, jwt string) (string, string, error) {
 	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: jwt})
 	if err != nil {
@@ -75,6 +79,7 @@ func (c *authClient) IsWhichUser(ctx ctxt, jwt string) (string, string, error) {
 	return claims.GetRole(), claims.GetSubject(), nil
 }
 
+// IsWhichThing whom a thing belong to, given a token
 func (c *authClient) IsWhichThing(ctx ctxt, jwt string) (string, error) {
 	claims, err := c.Client.GetClaimsThingToken(ctx, &pb.GetClaimsThingTokenRequest{Jwt: jwt})
 	if err != nil {
@@ -84,6 +89,7 @@ func (c *authClient) IsWhichThing(ctx ctxt, jwt string) (string, error) {
 	return claims.GetSubject(), nil
 }
 
+// GetThingToken returns a token for a thing given a user id and a thing id
 func (c *authClient) GetThingToken(ctx ctxt, thingId string, userId string) (string, error) {
 	res, err := c.Client.GetThingToken(ctx, &pb.GetThingTokenRequest{ThingId: thingId, UserId: userId})
 	if err != nil {
@@ -93,6 +99,7 @@ func (c *authClient) GetThingToken(ctx ctxt, thingId string, userId string) (str
 	return res.Jwt, nil
 }
 
+// GetAdminToken returns a token for an admin
 func (c *authClient) GetAdminToken(ctx ctxt) (string, error) {
 	resToken, err := c.Client.GetAdminToken(ctx, &pb.GetAdminTokenRequest{})
 	if err != nil {
@@ -102,6 +109,7 @@ func (c *authClient) GetAdminToken(ctx ctxt) (string, error) {
 	return resToken.GetJwt(), nil
 }
 
+// GetUserToken returns a token for a user
 func (c *authClient) GetUserToken(ctx ctxt, userId string) (string, error) {
 	resToken, err := c.Client.GetUserToken(ctx, &pb.GetUserTokenRequest{UserId: userId})
 	if err != nil {

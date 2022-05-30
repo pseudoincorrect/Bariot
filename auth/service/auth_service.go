@@ -22,6 +22,7 @@ type Auth interface {
 	GetClaimsThingToken(string) (*ThingAuthClaim, error)
 }
 
+// Static type checking
 var _ Auth = (*authService)(nil)
 
 type authService struct {
@@ -51,6 +52,7 @@ type ThingAuthClaim struct {
 	jwt.StandardClaims
 }
 
+// GetAdminToken returns a token for the admin user
 func (s *authService) GetAdminToken() (string, error) {
 	token, err := s.makeUserToken("0", adminRole, 1)
 	if err != nil {
@@ -59,6 +61,7 @@ func (s *authService) GetAdminToken() (string, error) {
 	return token, nil
 }
 
+// GetUserToken returns a token for the regular user
 func (s *authService) GetUserToken(userId string) (string, error) {
 	token, err := s.makeUserToken(userId, userRole, 24)
 	if err != nil {
@@ -67,6 +70,7 @@ func (s *authService) GetUserToken(userId string) (string, error) {
 	return token, nil
 }
 
+//GetThingsToken returns a token for the thing
 func (s *authService) GetThingToken(thingId string, userId string) (string, error) {
 	token, err := s.makeThingToken(thingId, userId, 24)
 	if err != nil {
@@ -75,6 +79,7 @@ func (s *authService) GetThingToken(thingId string, userId string) (string, erro
 	return token, nil
 }
 
+// makeUserToken create and return a token for the regular user
 func (s *authService) makeUserToken(userId string, role string, hours time.Duration) (string, error) {
 	claims := UserAuthClaim{
 		Role: role,
@@ -94,6 +99,7 @@ func (s *authService) makeUserToken(userId string, role string, hours time.Durat
 	return tokenString, nil
 }
 
+// makeThingToken create and return a token for a thing
 func (s *authService) makeThingToken(thingId string, userId string, hours time.Duration) (string, error) {
 	claims := ThingAuthClaim{
 		UserId: userId,
@@ -113,6 +119,7 @@ func (s *authService) makeThingToken(thingId string, userId string, hours time.D
 	return tokenString, nil
 }
 
+// ValidateUserToken returns true if the token is valid
 func (s *authService) ValidateUserToken(tokenString string) (bool, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &UserAuthClaim{}, func(token *jwt.Token) (interface{}, error) {
 		return s.secret, nil
@@ -126,6 +133,7 @@ func (s *authService) ValidateUserToken(tokenString string) (bool, error) {
 	return false, jwt.ErrInvalidKey
 }
 
+//ValidateThingToken returns true if the token is valid
 func (s *authService) ValidateThingToken(tokenString string) (bool, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &ThingAuthClaim{}, func(token *jwt.Token) (interface{}, error) {
 		return s.secret, nil
@@ -139,6 +147,7 @@ func (s *authService) ValidateThingToken(tokenString string) (bool, error) {
 	return false, jwt.ErrInvalidKey
 }
 
+// GetClaimsUserToken returns the claims of the user token
 func (s *authService) GetClaimsUserToken(tokenString string) (*UserAuthClaim, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &UserAuthClaim{}, func(token *jwt.Token) (interface{}, error) {
 		return s.secret, nil
@@ -153,6 +162,7 @@ func (s *authService) GetClaimsUserToken(tokenString string) (*UserAuthClaim, er
 	return nil, jwt.ErrInvalidKey
 }
 
+// GetClaimsThingToken returns the claims of the thing token
 func (s *authService) GetClaimsThingToken(tokenString string) (*ThingAuthClaim, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &ThingAuthClaim{}, func(token *jwt.Token) (interface{}, error) {
 		return s.secret, nil

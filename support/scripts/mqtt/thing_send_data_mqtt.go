@@ -171,6 +171,7 @@ func marshalMsg(token string, sensorData senml.Pack) ([]byte, error) {
 	return json.Marshal(msg)
 }
 
+// createSenmlPack creates a SenML pack with arbitrary data
 func createSenmlPack() senml.Pack {
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
@@ -202,6 +203,7 @@ func createSenmlPack() senml.Pack {
 	}
 }
 
+// createSenmlMsg creates a SenML message with arbitrary data
 func createSenmlMsg() ([]byte, error) {
 	temperature := float64(38)
 	humidity := float64(75)
@@ -236,6 +238,7 @@ func createSenmlMsg() ([]byte, error) {
 	return enc, nil
 }
 
+// StringEncodedSenmlMsg return a SenMl encoded string
 func StringEncodedSenml(msg []byte) string {
 	return fmt.Sprint(string(msg))
 }
