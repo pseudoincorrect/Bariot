@@ -14,7 +14,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/pseudoincorrect/bariot/pkg/env"
 	"github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/utils"
 	"github.com/pseudoincorrect/bariot/pkg/writer"
 )
 
@@ -190,13 +189,13 @@ func (w *influxdbWriter) getNatsMsgHandler() nats.MsgHandler {
 
 // printNatsMsg print a nats message
 func printNatsMsg(m *nats.Msg) {
-	msg, err := utils.PrettyJsonString(string(m.Data))
-	if err != nil {
-		log.Println("Error printing Nats message")
-		return
-	}
+	// msg, err := utils.PrettyJsonString(string(m.Data))
+	// if err != nil {
+	// 	log.Println("Error printing Nats message")
+	// 	return
+	// }
 	log.Printf("NATS Message Received on [%s] Queue[%s] Pid[%d]", m.Subject, m.Sub.Queue, os.Getpid())
-	log.Printf("NATS Message Payload %s", msg)
+	log.Printf("NATS Message Payload %s", m.Data)
 }
 
 // decodeSenmlMsg decodes a JSON message into a SenML message
@@ -211,11 +210,11 @@ func decodeNatsThingMsg(msg *nats.Msg) (*writer.ThingData, error) {
 		log.Println("Error normalizing SenML message:", err)
 		return nil, errors.ErrValidation
 	}
-	for _, senmlRecord := range senmlMsg.Records {
-		log.Println(utils.PrettySenmlRecord(senmlRecord))
-	}
+	// for _, senmlRecord := range senmlMsg.Records {
+	// 	log.Println(utils.PrettySenmlRecord(senmlRecord))
+	// }
 	// log.Println("Decoded SenML message:", senmlMsg)
-	thingId, err := getThingIdFromNatsSubjet(msg.Subject)
+	thingId, err := getThingIdFromNatsSubject(msg.Subject)
 	log.Println("ThingID = ", thingId)
 	if err != nil {
 		return nil, errors.ErrValidation
@@ -227,8 +226,8 @@ func decodeNatsThingMsg(msg *nats.Msg) (*writer.ThingData, error) {
 	return &thingData, nil
 }
 
-// getThingIdFromNatsSubjet extract the
-func getThingIdFromNatsSubjet(subjet string) (string, error) {
-	splits := strings.Split(subjet, ".")
+// getThingIdFromNatsSubject extract the
+func getThingIdFromNatsSubject(subject string) (string, error) {
+	splits := strings.Split(subject, ".")
 	return splits[len(splits)-1], nil
 }

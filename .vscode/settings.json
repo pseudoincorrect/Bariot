@@ -2,6 +2,8 @@
   "cSpell.enabled": true,
   "cSpell.words": [
     "BARIOT",
+    "ctxt",
+    "Dbname",
     "EMQX",
     "GRAFANA",
     "healthcheck",

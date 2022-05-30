@@ -19,3 +19,5 @@ var ErrPassword = errors.New("password error")
 var ErrAuthentication = errors.New("authentication error")
 
 var ErrAuthorization = errors.New("authorization error")
+
+var ErrCache = errors.New("cache error")

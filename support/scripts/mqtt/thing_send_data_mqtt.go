@@ -160,13 +160,13 @@ func (m *mqttTester) mqttPublish(topic string, msg string) error {
 
 type sensorAuthMsg struct {
 	Token   string `json:"token"`
-	Sensors senml.Pack
+	Records []senml.Record
 }
 
 func marshalMsg(token string, sensorData senml.Pack) ([]byte, error) {
 	msg := sensorAuthMsg{
 		Token:   token,
-		Sensors: sensorData,
+		Records: sensorData.Records,
 	}
 	return json.Marshal(msg)
 }

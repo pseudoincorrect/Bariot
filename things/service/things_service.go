@@ -10,6 +10,7 @@ import (
 	"log"
 
 	auth "github.com/pseudoincorrect/bariot/pkg/auth/client"
+	rdb "github.com/pseudoincorrect/bariot/pkg/cache"
 	appErr "github.com/pseudoincorrect/bariot/pkg/errors"
 	"github.com/pseudoincorrect/bariot/things/models"
 )
@@ -33,11 +34,12 @@ var _ Things = (*thingsService)(nil)
 type thingsService struct {
 	repository models.ThingsRepository
 	auth       auth.Auth
+	cache      rdb.ThingCache
 }
 
 /// New creates a new thing service
-func New(repository models.ThingsRepository, auth auth.Auth) Things {
-	return &thingsService{repository, auth}
+func New(repository models.ThingsRepository, auth auth.Auth, cache rdb.ThingCache) Things {
+	return &thingsService{repository, auth, cache}
 }
 
 /// SaveThing saves a thing to repository with thing model
@@ -62,6 +64,10 @@ func (s *thingsService) GetThing(ctx ctxt, id string) (*models.Thing, error) {
 
 /// DeleteThing deletes a thing from repository by id
 func (s *thingsService) DeleteThing(ctx ctxt, id string) (string, error) {
+	err := s.cache.DeleteTokenAndTokenByThingId(id)
+	if err != nil {
+		log.Println("Could Delete and ThingId token in cache. err: ", err)
+	}
 	resId, err := s.repository.Delete(ctx, id)
 	if err != nil {
 		log.Println("Delete Thing error:", err)
@@ -86,6 +92,10 @@ func (s *thingsService) GetThingToken(ctx ctxt, thingId string, userId string) (
 	if err != nil {
 		log.Println("Get thing token error: ", err)
 		return "", err
+	}
+	err = s.cache.SetTokenWithThingId(jwt, thingId)
+	if err != nil {
+		log.Println("Could not set token in cache. err: ", err)
 	}
 	return jwt, nil
 }

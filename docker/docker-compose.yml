@@ -54,6 +54,7 @@ services:
     image: bariot_things_service:latest
     depends_on:
       - things_db
+      - redis
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
       HTTP_PORT: 8080
@@ -65,6 +66,8 @@ services:
       PG_USER: ${THINGS_DB_USERNAME}
       PG_PASSWORD: ${THINGS_DB_PASSWORD}
       PG_CONNECT_TIMEOUT: 5
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
     networks:
       - bariot-net
 
@@ -95,6 +98,7 @@ services:
     image: bariot_mqtt_service:latest
     depends_on:
       - emqx
+      - redis
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
       MQTT_HOST: ${MQTT_HOST}

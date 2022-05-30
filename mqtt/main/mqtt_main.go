@@ -9,8 +9,8 @@ import (
 
 	"github.com/pseudoincorrect/bariot/mqtt/mqtt"
 	natsPub "github.com/pseudoincorrect/bariot/mqtt/nats"
-	cache "github.com/pseudoincorrect/bariot/mqtt/redis"
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
+	cdb "github.com/pseudoincorrect/bariot/pkg/cache"
 	"github.com/pseudoincorrect/bariot/pkg/env"
 )
 
@@ -35,7 +35,7 @@ func main() {
 		Port: conf.rpcAuthPort,
 	})
 
-	authCache := cache.New(cache.Conf{
+	authCache := cdb.New(cdb.Conf{
 		RedisHost: conf.redisHost,
 		RedisPort: conf.redisPort,
 	})
@@ -66,7 +66,7 @@ func main() {
 	const mqttThingsTopic = "things/#"
 	const natsThingsSubject = "thingsMsg.>"
 	natsPubHandler := natsPub.CreatePublisher(natsThingsSubject)
-	mqttAuthorizer, err := mqtt.CreateAuthorizer(auth)
+	mqttAuthorizer, err := mqtt.CreateAuthorizer(auth, authCache)
 	if err != nil {
 		log.Panic(err)
 	}

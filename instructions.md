@@ -176,7 +176,7 @@ Roadmap: deployment with pre-compiled images.
 
 <br/>
 
-# USAGE / TEST OF BARIOT
+# USAGE OF BARIOT
 
 <br>
 
@@ -315,7 +315,7 @@ $ export THING_TOKEN=xxxxxx.xxxxxxx(...)xxxxxxx.xxxxxx
 
 ## Alternative to Curl
 
-Head to .../Bariot/tests/http/
+Head to .../Bariot/tests/vscode_rest_client/
 
 In there each .http file can be used with **[vscode-restclient](https://github.com/Huachao/vscode-restclient)** to accomplish the same functions as above in a more user-friendly fashion.
 
@@ -333,17 +333,12 @@ Head to .../Bariot/support/scripts/mqtt.
 
 ATTENTION:
 For the MQTT data sending script to work, the following environment variables need to be set:
-BARIOT_HOST, THING_TOKEN, THING_ID
+
+- BARIOT_HOST
+- THING_TOKEN
+- THING_ID
+
 (If you followed this tutorial, they should be already set, otherwise, see above)
-
-# OPTIONAL: If you are using PowerShell terminal
-
-```console
-Setting environment variables  with PowerShell:
-$env:BARIOT_HOST = "xxxxxx";
-# calling them
-# $env:BARIOT_HOST
-```
 
 Open "thing_send_data_mqtt.go" with a text editor.
 At the top, replace "JWT" and "THING_ID" with the Thing token and Thing ID obtained previously with curl.
@@ -396,9 +391,36 @@ from(bucket: "bariot_bucket")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
 ```
 
-You can then vizualize the data you sent through MQTT.
+You can then visualize the data you sent through MQTT.
+
+<br/>
+
+---
+
+---
+
+<br/>
+
+# AUTOMATED TESTING OF BARIOT
+
+Python scripts are used to automated the test of bariot.
+
+Head to .../Bariot/tests/end_to_end/
+
+The following command will create a user, a thing and send a mqtt message.
+
+Then it will clean the resources created (user and things).
+
+```console
+$ ./venv/Scripts/activate
+(venv) $ pip install -r requirements.txt
+(venv) $ python ./complete_test.py
+```
 
 <br>
+<br>
+
+---
 
 **Limit of the current system :**
 
@@ -407,8 +429,6 @@ Please note that the above query is for **ALL things data**, at the moment we ca
 This is the next step, since Grafana is not made for user authorization and data restriction (it has access to the whole influxdb DB).
 
 In order to enable/restrict each user to access/visualize only his data, a custom HTTP endpoint and visualization tool (frontend) has to be made.
-
-<br>
 
 ---
 

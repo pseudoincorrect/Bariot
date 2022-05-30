@@ -164,3 +164,12 @@ $ venv -m venv venv
 $ ./venv/Scripts/activate
 $ pip install -r requirements.txt
 ```
+
+## POWERSHELL: Setting/getting environment variables
+
+```console
+Setting environment variables BARIOT_HOST, THING_TOKEN, THING_ID with PowerShell:
+$env:BARIOT_HOST = "xxxxxx";
+# calling them
+$env:BARIOT_HOST
+```

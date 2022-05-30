@@ -4,6 +4,7 @@ import (
 	"log"
 
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
+	cdb "github.com/pseudoincorrect/bariot/pkg/cache"
 	"github.com/pseudoincorrect/bariot/pkg/env"
 	"github.com/pseudoincorrect/bariot/things/api"
 	"github.com/pseudoincorrect/bariot/things/db"
@@ -31,6 +32,8 @@ type config struct {
 	dbUser      string
 	dbPassword  string
 	dbName      string
+	redisHost   string
+	redisPort   string
 }
 
 func loadConfig() config {
@@ -43,6 +46,8 @@ func loadConfig() config {
 		dbName:      env.GetEnv("PG_DATABASE"),
 		dbUser:      env.GetEnv("PG_USER"),
 		dbPassword:  env.GetEnv("PG_PASSWORD"),
+		redisHost:   env.GetEnv("REDIS_HOST"),
+		redisPort:   env.GetEnv("REDIS_PORT"),
 	}
 	return conf
 }
@@ -75,7 +80,18 @@ func createService() (service.Things, error) {
 		log.Println("Auth client error:", err)
 		return nil, err
 	}
-	return service.New(thingsRepo, authClient), nil
+
+	cache := cdb.New(cdb.Conf{
+		RedisHost: conf.redisHost,
+		RedisPort: conf.redisPort,
+	})
+
+	err = cache.Connect()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return service.New(thingsRepo, authClient, cache), nil
 }
 
 func startHttp(s service.Things) error {

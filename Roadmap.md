@@ -11,18 +11,18 @@
 |     | TEST   | Add End-to-end testing with gitlab                |
 |     | VAULT  | Use Vault to store secrets                        |
 |     | DOCKER | Pre-compile docker images to speed up deployments |
+|     | MQTT   | Authorize subscription                            |
 |     |        |                                                   |
 
 <br>
  
 ## **IN PROCESS**
 
-|     | Tag   | Description                                   |
-| --- | ----- | --------------------------------------------- |
-|     | REDIS | Use Redis to cache auth data on MQTT endpoint |
-|     | TEST  | MQTT with python and paho                     |
-|     | TEST  | Automate end to end testing                   |
-|     |       |                                               |
+|     | Tag   | Description                                    |
+| --- | ----- | ---------------------------------------------- |
+|     | REDIS | Delete thing token from cache + new token case |
+|     | TEST  | Automate end to end testing                    |
+|     |       |                                                |
 
 <br>
 
@@ -30,6 +30,8 @@
 
 | Date       | Tag      | Description                                     |
 | ---------- | -------- | ----------------------------------------------- |
+| 29/05/2022 | REDIS    | Use Redis to cache auth data on MQTT endpoint   |
+| 28/05/2022 | TEST     | MQTT with python and paho                       |
 | 25/05/2022 | RELEASE  | 0.1.0                                           |
 | 12/05/2022 | DEPLOY   | Make a working demo with instructions           |
 | 11/05/2022 | NGINX    | Add Ngnx reverse proxy with TLS                 |

@@ -145,7 +145,7 @@ var defaultMessageHandler paho.MessageHandler = func(client paho.Client, msg pah
 
 type AuthenticatedMsg struct {
 	Token   string `json:"token"`
-	Sensors senml.Pack
+	Records []senml.Record
 }
 
 func ExtractData(payload []byte) (string, senml.Pack, error) {
@@ -158,5 +158,6 @@ func ExtractData(payload []byte) (string, senml.Pack, error) {
 	}
 	// log.Println("JSON decoded jwt = ", msg.Token)
 	// log.Println("JSON decoded data = ", msg.Sensors)
-	return msg.Token, msg.Sensors, nil
+	pack := senml.Pack{Records: msg.Records}
+	return msg.Token, pack, nil
 }

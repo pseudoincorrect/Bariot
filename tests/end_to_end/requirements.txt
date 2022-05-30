@@ -1,2 +1,3 @@
 paho-mqtt
 kpn-senml
+requests
