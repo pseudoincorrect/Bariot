@@ -18,11 +18,10 @@
  
 ## **IN PROCESS**
 
-|     | Tag   | Description                                    |
-| --- | ----- | ---------------------------------------------- |
-|     | REDIS | Delete thing token from cache + new token case |
-|     | TEST  | Automate end to end testing                    |
-|     |       |                                                |
+|     | Tag  | Description                 |
+| --- | ---- | --------------------------- |
+|     | TEST | Automate end to end testing |
+|     |      |                             |
 
 <br>
 
@@ -30,6 +29,7 @@
 
 | Date       | Tag      | Description                                     |
 | ---------- | -------- | ----------------------------------------------- |
+| 30/05/2022 | REDIS    | Delete thing token from cache + new token case  |
 | 29/05/2022 | REDIS    | Use Redis to cache auth data on MQTT endpoint   |
 | 28/05/2022 | TEST     | MQTT with python and paho                       |
 | 25/05/2022 | RELEASE  | 0.1.0                                           |

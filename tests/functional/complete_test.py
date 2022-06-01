@@ -22,8 +22,6 @@ def create_send_delete():
     try:
         msg = create_mqtt_msg(thing_token)
         send_mqtt_msg(thing_id, msg)
-        # send_mqtt_msg(thing_id, msg)
-        # send_mqtt_msg(thing_id, msg)
     except Exception as e:
         print(e)
     u_and_t.delete_user_and_thing(user_id, thing_id)

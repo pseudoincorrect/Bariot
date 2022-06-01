@@ -1,7 +1,9 @@
 package models
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 )
 
@@ -19,6 +21,13 @@ type Thing struct {
 // String returns a string representation of the thing
 func (t Thing) String() string {
 	return fmt.Sprintf("Thing{\n  Id: %s,\n  CreatedAt: %s,\n  Key: %s,\n  Name: %s,\n  UserId: %s,\n  Metadata: %v\n}", t.Id, t.CreatedAt, t.Key, t.Name, t.UserId, t.Metadata)
+}
+
+func (t Thing) JsonString() string {
+	// json.NewEncoder(res).Encode(thing)
+	buffer := &bytes.Buffer{}
+	json.NewEncoder(buffer).Encode(t)
+	return buffer.String()
 }
 
 // POSTGRE table things (
