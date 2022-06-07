@@ -11,7 +11,8 @@
 |     | TEST   | Add End-to-end testing with gitlab                |
 |     | VAULT  | Use Vault to store secrets                        |
 |     | DOCKER | Pre-compile docker images to speed up deployments |
-|     | MQTT   | Authorize subscription                            |
+|     | MQTT   | Securing and Authorizing MQTT pub/sub with JSON   |
+|     | MQTT   | Securing and Authorizing MQTT pub/sub with HTTP   |
 |     |        |                                                   |
 
 <br>

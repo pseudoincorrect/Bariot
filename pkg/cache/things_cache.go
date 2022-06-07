@@ -18,13 +18,13 @@ const (
 )
 
 type ThingCache interface {
-	deleteToken(token string) error
-	deleteThingId(thingId string) error
 	Connect() error
+	DeleteToken(token string) error
+	DeleteThingId(thingId string) error
 	GetThingIdByToken(token string) (_ CacheRes, thingId string, err error)
 	GetTokenByThingId(thingId string) (_ CacheRes, token string, err error)
 	SetTokenWithThingId(token string, thingId string) error
-	DeleteTokenAndTokenByThingId(thingId string) error
+	DeleteTokenAndThingByThingId(thingId string) error
 }
 
 // Static type checking
@@ -64,11 +64,11 @@ func (c *cache) Connect() error {
 }
 
 // Delete token key from cache
-func (c *cache) deleteToken(token string) error {
+func (c *cache) DeleteToken(token string) error {
 	var ctx = context.Background()
 	key, err := c.client.Del(ctx, token).Result()
 	if err != nil {
-		log.Println("Error deleteToken")
+		log.Println("Error DeleteToken")
 		return appErr.ErrCache
 	}
 	log.Println("Deleted token key", key)
@@ -76,11 +76,11 @@ func (c *cache) deleteToken(token string) error {
 }
 
 // Delete thingId key from cache
-func (c *cache) deleteThingId(thingId string) error {
+func (c *cache) DeleteThingId(thingId string) error {
 	var ctx = context.Background()
 	key, err := c.client.Del(ctx, thingId).Result()
 	if err != nil {
-		log.Println("Error deleteToken")
+		log.Println("Error DeleteToken")
 		return appErr.ErrCache
 	}
 	log.Println("Deleted thingId key", key)
@@ -142,8 +142,8 @@ func (c *cache) SetTokenWithThingId(token string, thingId string) error {
 	return nil
 }
 
-// DeleteTokenAndTokenByThingId delete token and tokenByThingId keys
-func (c *cache) DeleteTokenAndTokenByThingId(thingId string) error {
+// DeleteTokenAndThingByThingId delete token and tokenByThingId keys
+func (c *cache) DeleteTokenAndThingByThingId(thingId string) error {
 	res, token, err := c.GetTokenByThingId(thingId)
 	if err != nil {
 		return appErr.ErrCache
@@ -152,11 +152,11 @@ func (c *cache) DeleteTokenAndTokenByThingId(thingId string) error {
 		return nil
 	}
 	if res == CacheHit {
-		err = c.deleteToken(token)
+		err = c.DeleteToken(token)
 		if err != nil {
 			return appErr.ErrCache
 		}
-		err = c.deleteThingId(thingId)
+		err = c.DeleteThingId(thingId)
 		if err != nil {
 			return appErr.ErrCache
 		}

@@ -40,8 +40,8 @@ func (t Thing) JsonString() string {
 // );
 
 type ThingsRepository interface {
-	Save(context.Context, *Thing) (*Thing, error)
+	Save(context.Context, *Thing) error
 	Get(context.Context, string) (*Thing, error)
 	Delete(context.Context, string) (string, error)
-	Update(context.Context, *Thing) (*Thing, error)
+	Update(context.Context, *Thing) error
 }

@@ -4,15 +4,18 @@
     "BARIOT",
     "ctxt",
     "Dbname",
+    "dockertest",
     "EMQX",
     "GRAFANA",
     "healthcheck",
+    "ioutil",
     "mainflux",
     "Mosquitto",
     "mqtt",
     "mqttc",
     "MQTTX",
     "NATS",
+    "Ngnix",
     "Ngoc",
     "paho",
     "passw",
@@ -25,6 +28,8 @@
     "restclient",
     "ROADMAP",
     "SENML",
+    "srvc",
+    "stretchr",
     "venv"
   ]
 }

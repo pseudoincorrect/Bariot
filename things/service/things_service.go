@@ -1,6 +1,6 @@
 // Higher level function to manage things
 // note that authorization is not checked here, it is checked in
-// http handler. For instance we do not check that a user is authorized
+// http hander. For instance we do not check that a user is authorized
 // to update a thing here
 
 package service
@@ -16,10 +16,10 @@ import (
 )
 
 type Things interface {
-	SaveThing(ctx context.Context, thingModel *models.Thing) (*models.Thing, error)
+	SaveThing(ctx context.Context, thingModel *models.Thing) error
 	GetThing(ctx context.Context, thingId string) (*models.Thing, error)
 	DeleteThing(ctx context.Context, thingId string) (string, error)
-	UpdateThing(ctx context.Context, thingModel *models.Thing) (*models.Thing, error)
+	UpdateThing(ctx context.Context, thingModel *models.Thing) error
 	GetThingToken(ctx context.Context, thingId string, userId string) (string, error)
 	UserOfThingOrAdmin(ctx context.Context, token string, thingId string) (string, error)
 	UserOfThingOnly(ctx context.Context, token string, thingId string) (string, error)
@@ -41,13 +41,14 @@ func New(repository models.ThingsRepository, auth auth.Auth, cache rdb.ThingCach
 }
 
 // SaveThing saves a thing to repository with thing model
-func (s *thingsService) SaveThing(ctx context.Context, thing *models.Thing) (*models.Thing, error) {
-	savedThing, err := s.repository.Save(ctx, thing)
+func (s *thingsService) SaveThing(
+	ctx context.Context, thing *models.Thing) error {
+	err := s.repository.Save(ctx, thing)
 	if err != nil {
 		log.Println("Save Thing error:", err)
-		return nil, err
+		return err
 	}
-	return savedThing, nil
+	return nil
 }
 
 // GetThing returns a thing from repository by id
@@ -62,7 +63,7 @@ func (s *thingsService) GetThing(ctx context.Context, id string) (*models.Thing,
 
 // DeleteThing deletes a thing from repository by id
 func (s *thingsService) DeleteThing(ctx context.Context, id string) (string, error) {
-	err := s.cache.DeleteTokenAndTokenByThingId(id)
+	err := s.cache.DeleteTokenAndThingByThingId(id)
 	if err != nil {
 		log.Println("Could Delete and ThingId token in cache. err: ", err)
 	}
@@ -75,17 +76,19 @@ func (s *thingsService) DeleteThing(ctx context.Context, id string) (string, err
 }
 
 // UpdateThing updates a thing in repository by thing model
-func (s *thingsService) UpdateThing(ctx context.Context, thing *models.Thing) (*models.Thing, error) {
-	updatedThing, err := s.repository.Update(ctx, thing)
+func (s *thingsService) UpdateThing(
+	ctx context.Context, thing *models.Thing) error {
+	err := s.repository.Update(ctx, thing)
 	if err != nil {
 		log.Println("Update Thing error:", err)
-		return nil, err
+		return err
 	}
-	return updatedThing, nil
+	return nil
 }
 
 // GetThingToken return a JWT Token containing thing ID and user ID
-func (s *thingsService) GetThingToken(ctx context.Context, thingId string, userId string) (string, error) {
+func (s *thingsService) GetThingToken(
+	ctx context.Context, thingId string, userId string) (string, error) {
 	jwt, err := s.auth.GetThingToken(ctx, thingId, userId)
 	if err != nil {
 		log.Println("Get thing token error: ", err)
@@ -100,7 +103,8 @@ func (s *thingsService) GetThingToken(ctx context.Context, thingId string, userI
 
 // Check if the user is authorized to access the thing
 // return user ID , error if not a user or not the thing's user
-func (s *thingsService) UserOfThingOnly(ctx context.Context, token string, thingId string) (string, error) {
+func (s *thingsService) UserOfThingOnly(
+	ctx context.Context, token string, thingId string) (string, error) {
 	role, userId, err := s.auth.IsWhichUser(ctx, token)
 	if err != nil {
 		return "", appErr.ErrAuthentication
@@ -123,7 +127,8 @@ func (s *thingsService) UserOfThingOnly(ctx context.Context, token string, thing
 
 // Check if the user is authorized to access the thing
 // return user/admin ID, error if not a user or admin
-func (s *thingsService) UserOfThingOrAdmin(ctx context.Context, token string, thingId string) (string, error) {
+func (s *thingsService) UserOfThingOrAdmin(
+	ctx context.Context, token string, thingId string) (string, error) {
 	role, userId, err := s.auth.IsWhichUser(ctx, token)
 	if err != nil {
 		return "", appErr.ErrAuthentication

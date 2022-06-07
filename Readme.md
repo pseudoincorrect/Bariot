@@ -48,13 +48,14 @@ Deployment on AWS EC2 [here][awsdeploy].
 - Services intercommunication: [gRpc][grpc]
 - Services messaging: [Nats][nats]
 - Data presentation: [Grafana][grafana]
-- Reverse proxy: [Ngnix][ngnix]
+- Reverse proxy: [Nginx][nginx]
+- Caching: [Redis][redis]
+- Testing Unit, Integration, Functional: [GoTest][gotest]
 
 ### Further on the road
 
 - Transport: [OPC-UA][opc-ua]
 - Secret storage/management: [Vault][vault]
-- Caching: [Redis][redis]
 - CI/CD: [Gitlab][gitlab]
 - Permission system: to be decided
 
@@ -79,6 +80,7 @@ Deployment on AWS EC2 [here][awsdeploy].
 [grafana]: https://www.scaleyourapp.com/what-is-grafana-why-use-it-everything-you-should-know-about-it/
 [ngnix]: https://medium.com/globant/understanding-nginx-as-a-reverse-proxy-564f76e856b2
 [redis]: https://redis.io/topics/introduction
+[gotest]: https://pkg.go.dev/testing
 [vault]: https://www.vaultproject.io/docs/what-is-vault
 [gitlab]: https://about.gitlab.com/what-is-gitlab/
 [awsdeploy]: https://github.com/pseudoincorrect/Bariot/blob/main/instructions.md

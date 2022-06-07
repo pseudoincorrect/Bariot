@@ -14,8 +14,8 @@ type Database struct {
 
 type DbConfig struct {
 	Host     string
-	Dbname   string
 	Port     string
+	Dbname   string
 	User     string
 	Password string
 }
@@ -39,4 +39,25 @@ func connect(conf DbConfig) (*Database, error) {
 		return nil, err
 	}
 	return &Database{conn}, nil
+}
+
+func createThingTable(db *Database) error {
+	createTable := `create table things (
+		id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+		created_at timestamp with time zone DEFAULT now(),
+		key character varying(4096) NOT NULL,
+		CHECK (key <> ''),
+		name character varying(255) NOT NULL,
+		CHECK (name <> ''),
+		user_id uuid NOT NULL,
+		metadata json
+	);`
+
+	_, err := db.conn.Exec(context.Background(), createTable)
+	// log.Printf("value of db %v", cmd)
+	if err != nil {
+		log.Println("Unable to begin :", err)
+		return err
+	}
+	return nil
 }
