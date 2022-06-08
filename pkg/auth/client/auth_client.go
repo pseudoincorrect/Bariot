@@ -6,6 +6,7 @@ import (
 
 	pb "github.com/pseudoincorrect/bariot/pkg/auth/grpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -46,7 +47,10 @@ type authClient struct {
 func (c *authClient) StartAuthClient() error {
 	addr := c.Conf.Host + ":" + c.Conf.Port
 	log.Println("init user service GRPC client to ", addr)
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Println("did not connect:", err)
 		return err

@@ -43,7 +43,7 @@ func main() {
 		Port:        conf.rpcPort,
 	}
 
-	err := server.Start(serverConf)
+	_, err := server.Start(serverConf)
 	if err != nil {
 		log.Panic("Error starting GRPC server:", err)
 	}

@@ -22,8 +22,6 @@ const thingDbUser string = "thing_db_user"
 const thingDbPassword string = "thing_db_password"
 
 func TestMain(m *testing.M) {
-	log.Println("Starting tests")
-	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
