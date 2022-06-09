@@ -30,9 +30,9 @@ func (t User) String() string {
 }
 
 type UsersRepository interface {
-	Save(context.Context, *User) (*User, error)
+	Save(context.Context, *User) error
 	Get(context.Context, string) (*User, error)
 	Delete(context.Context, string) (string, error)
-	Update(context.Context, *User) (*User, error)
+	Update(context.Context, *User) error
 	GetByEmail(context.Context, string) (*User, error)
 }

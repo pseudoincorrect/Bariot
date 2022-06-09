@@ -10,17 +10,15 @@ import (
 	"github.com/pseudoincorrect/bariot/users/utilities/hash"
 )
 
-type ctxt context.Context
-
 type Users interface {
-	SaveUser(ctxt, *models.User) (*models.User, error)
-	GetUser(ctxt, string) (*models.User, error)
-	GetByEmail(ctxt, string) (*models.User, error)
-	DeleteUser(ctxt, string) (string, error)
-	UpdateUser(ctxt, *models.User) (*models.User, error)
-	LoginUser(ctxt, string, string) (string, error)
-	LoginAdmin(ctxt, string, string) (string, error)
-	IsAdmin(ctxt, string) (bool, error)
+	SaveUser(context.Context, *models.User) (*models.User, error)
+	GetUser(context.Context, string) (*models.User, error)
+	GetByEmail(context.Context, string) (*models.User, error)
+	DeleteUser(context.Context, string) (string, error)
+	UpdateUser(context.Context, *models.User) (*models.User, error)
+	LoginUser(context.Context, string, string) (string, error)
+	LoginAdmin(context.Context, string, string) (string, error)
+	IsAdmin(context.Context, string) (bool, error)
 }
 
 // Static type checking
@@ -37,17 +35,17 @@ func New(repository models.UsersRepository, auth authClient.Auth) Users {
 }
 
 // SaveUser saves a user to repository with user model
-func (s *usersService) SaveUser(ctx ctxt, user *models.User) (*models.User, error) {
-	savedUser, err := s.repository.Save(ctx, user)
+func (s *usersService) SaveUser(ctx context.Context, user *models.User) (*models.User, error) {
+	err := s.repository.Save(ctx, user)
 	if err != nil {
 		log.Println("Save User error:", err)
 		return nil, err
 	}
-	return savedUser, nil
+	return user, nil
 }
 
 // GetUser returns a user from repository by id
-func (s *usersService) GetUser(ctx ctxt, id string) (*models.User, error) {
+func (s *usersService) GetUser(ctx context.Context, id string) (*models.User, error) {
 	user, err := s.repository.Get(ctx, id)
 	if err != nil {
 		log.Println("Get User error:", err)
@@ -57,7 +55,7 @@ func (s *usersService) GetUser(ctx ctxt, id string) (*models.User, error) {
 }
 
 // GetByEmail returns a user from repository by email
-func (s *usersService) GetByEmail(ctx ctxt, email string) (*models.User, error) {
+func (s *usersService) GetByEmail(ctx context.Context, email string) (*models.User, error) {
 	user, err := s.repository.GetByEmail(ctx, email)
 	if err != nil {
 		log.Println("Get User by email error:", err)
@@ -67,7 +65,7 @@ func (s *usersService) GetByEmail(ctx ctxt, email string) (*models.User, error) 
 }
 
 // DeleteUser deletes a user from repository by id
-func (s *usersService) DeleteUser(ctx ctxt, id string) (string, error) {
+func (s *usersService) DeleteUser(ctx context.Context, id string) (string, error) {
 	resId, err := s.repository.Delete(ctx, id)
 	if err != nil {
 		log.Println("Delete User error:", err)
@@ -77,16 +75,16 @@ func (s *usersService) DeleteUser(ctx ctxt, id string) (string, error) {
 }
 
 // UpdateUser updates a user in repository by user model
-func (s *usersService) UpdateUser(ctx ctxt, user *models.User) (*models.User, error) {
-	updatedUser, err := s.repository.Update(ctx, user)
+func (s *usersService) UpdateUser(ctx context.Context, user *models.User) (*models.User, error) {
+	err := s.repository.Update(ctx, user)
 	if err != nil {
 		log.Println("Update User error:", err)
 		return nil, err
 	}
-	return updatedUser, nil
+	return user, nil
 }
 
-func (s *usersService) LoginUser(ctx ctxt, email string, password string) (string, error) {
+func (s *usersService) LoginUser(ctx context.Context, email string, password string) (string, error) {
 	user, err := s.GetByEmail(context.Background(), email)
 	if err != nil {
 		return "", errors.ErrDb
@@ -104,7 +102,7 @@ func (s *usersService) LoginUser(ctx ctxt, email string, password string) (strin
 	return token, nil
 }
 
-func (s *usersService) LoginAdmin(ctx ctxt, email string, password string) (string, error) {
+func (s *usersService) LoginAdmin(ctx context.Context, email string, password string) (string, error) {
 	user, err := s.GetByEmail(context.Background(), email)
 	if err != nil {
 		return "", errors.ErrDb
@@ -122,6 +120,6 @@ func (s *usersService) LoginAdmin(ctx ctxt, email string, password string) (stri
 	return token, nil
 }
 
-func (s *usersService) IsAdmin(ctx ctxt, token string) (bool, error) {
+func (s *usersService) IsAdmin(ctx context.Context, token string) (bool, error) {
 	return s.auth.IsAdmin(ctx, token)
 }

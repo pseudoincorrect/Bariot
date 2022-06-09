@@ -94,7 +94,6 @@ func (s *authService) makeUserToken(userId string, role string, hours time.Durat
 	if err != nil {
 		return "", err
 	}
-	// log.Println(tokenString, err)
 	return tokenString, nil
 }
 
@@ -114,7 +113,6 @@ func (s *authService) makeThingToken(thingId string, userId string, hours time.D
 	if err != nil {
 		return "", err
 	}
-	// log.Println(tokenString, err)
 	return tokenString, nil
 }
 
@@ -149,7 +147,6 @@ func (s *authService) GetClaimsUserToken(tokenString string) (*UserAuthClaim, er
 		return nil, err
 	}
 	if claims, ok := token.Claims.(*UserAuthClaim); ok && token.Valid {
-		// log.Println(claims)
 		return claims, nil
 	}
 	return nil, jwt.ErrInvalidKey
@@ -162,7 +159,6 @@ func (s *authService) GetClaimsThingToken(tokenString string) (*ThingAuthClaim, 
 		return nil, err
 	}
 	if claims, ok := token.Claims.(*ThingAuthClaim); ok && token.Valid {
-		// log.Println(claims)
 		return claims, nil
 	}
 	return nil, jwt.ErrInvalidKey

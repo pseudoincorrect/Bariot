@@ -4,12 +4,17 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
+	appErr "github.com/pseudoincorrect/bariot/pkg/errors"
 	"github.com/pseudoincorrect/bariot/users/models"
 )
+
+const uuidErr string = "invalid input syntax for type uuid"
+const notFoundErr string = "no rows in result set"
 
 // Static type checking
 var _ models.UsersRepository = (*usersRepo)(nil)
@@ -23,14 +28,10 @@ func New(db *Database) models.UsersRepository {
 }
 
 // Save saves a user to the database
-func (r *usersRepo) Save(ctx context.Context, t *models.User) (*models.User, error) {
-	fail := func(err error) error {
-		log.Println("failed to save user: %v", err)
-		return err
-	}
+func (r *usersRepo) Save(ctx context.Context, t *models.User) error {
 	tx, err := r.db.conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return nil, fail(err)
+		return fail("Save", err)
 	}
 	defer tx.Rollback(ctx)
 	var id string
@@ -41,12 +42,12 @@ func (r *usersRepo) Save(ctx context.Context, t *models.User) (*models.User, err
 	t.Id = id
 	t.CreatedAt = createdAt.Format(time.RFC3339)
 	if err != nil {
-		return nil, fail(err)
+		return fail("Save", err)
 	}
 	if err = tx.Commit(ctx); err != nil {
-		return nil, fail(err)
+		return fail("Save", err)
 	}
-	return t, nil
+	return nil
 }
 
 // Get a user by id
@@ -102,13 +103,9 @@ func (r *usersRepo) GetByEmail(ctx context.Context, email string) (*models.User,
 
 // Delete a user by id
 func (r *usersRepo) Delete(ctx context.Context, id string) (string, error) {
-	fail := func(err error) error {
-		log.Println("failed to save user: %v", err)
-		return err
-	}
 	tx, err := r.db.conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return "", fail(err)
+		return "", fail("Delete", err)
 	}
 	defer tx.Rollback(ctx)
 	deletedId := ""
@@ -120,20 +117,16 @@ func (r *usersRepo) Delete(ctx context.Context, id string) (string, error) {
 		return "", err
 	}
 	if err = tx.Commit(ctx); err != nil {
-		return "", fail(err)
+		return "", fail("Delete", err)
 	}
 	return deletedId, nil
 }
 
 // Update a user with a user model
-func (r *usersRepo) Update(ctx context.Context, user *models.User) (*models.User, error) {
-	fail := func(err error) error {
-		log.Println("failed to save user: %v", err)
-		return err
-	}
+func (r *usersRepo) Update(ctx context.Context, user *models.User) error {
 	tx, err := r.db.conn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return nil, fail(err)
+		return fail("Update", err)
 	}
 	defer tx.Rollback(ctx)
 	var createdAt time.Time
@@ -142,11 +135,23 @@ func (r *usersRepo) Update(ctx context.Context, user *models.User) (*models.User
 		user.Email, user.FullName, user.Id).Scan(&user.Email, &user.FullName, &createdAt)
 	if err != nil {
 		log.Println("Error:", err)
-		return nil, err
+		return err
 	}
 	if err = tx.Commit(ctx); err != nil {
-		return nil, fail(err)
+		return fail("Update", err)
 	}
 	user.CreatedAt = createdAt.Format(time.RFC3339)
-	return user, nil
+	return nil
+}
+
+// Print and parse the DB error, return an app error
+func fail(msg string, err error) error {
+	// log.Println("DB failed", msg, err)
+	if strings.Contains(err.Error(), notFoundErr) {
+		return appErr.ErrDbThingNotFound
+	}
+	if strings.Contains(err.Error(), uuidErr) {
+		return appErr.ErrDbUuid
+	}
+	return appErr.ErrDb
 }

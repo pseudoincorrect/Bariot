@@ -41,7 +41,7 @@ func connect(conf DbConfig) (*Database, error) {
 	return &Database{conn}, nil
 }
 
-func createThingTable(db *Database) error {
+func createThingsTable(db *Database) error {
 	createTable := `create table things (
 		id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
 		created_at timestamp with time zone DEFAULT now(),

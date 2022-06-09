@@ -64,7 +64,7 @@ func TestMain(m *testing.M) {
 	}); err != nil {
 		log.Fatalf("Could not connect to database: %s", err)
 	}
-	err = createThingTable(db)
+	err = createThingsTable(db)
 	if err != nil {
 		log.Fatalf("Could not create thing table")
 	}
