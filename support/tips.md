@@ -156,6 +156,19 @@ git rebase -i origin/feature-something~20 feature-something
  git push --force origin feature-something
 ```
 
+## GIT: Merge feature branch into main and remove the branch (local/remote)
+
+```console
+# Merging
+$ git checkout main
+$ git pull origin main
+$ git merge feature-something
+$ git push origin main
+# Removal
+$ git push -d origin feature-something
+$ git branch -d feature-something
+```
+
 ## PYTHON VENV: create and setup
 
 ```console

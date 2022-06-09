@@ -11,12 +11,14 @@ import (
 	"github.com/pseudoincorrect/bariot/auth/service"
 )
 
-type server struct {
-	auth.UnimplementedAuthServer
+type routesService struct {
 	AuthService service.Auth
+	auth.UnimplementedAuthServer
 }
 
-func (s *server) GetAdminToken(ctx context.Context, in *auth.GetAdminTokenRequest) (*auth.GetAdminTokenResponse, error) {
+// GetAdminToken returns a JWT token for the admin user
+func (s *routesService) GetAdminToken(ctx context.Context,
+	in *auth.GetAdminTokenRequest) (*auth.GetAdminTokenResponse, error) {
 	token, err := s.AuthService.GetAdminToken()
 	if err != nil {
 		return nil, err
@@ -24,7 +26,9 @@ func (s *server) GetAdminToken(ctx context.Context, in *auth.GetAdminTokenReques
 	return &auth.GetAdminTokenResponse{Jwt: token}, nil
 }
 
-func (s *server) GetUserToken(ctx context.Context, in *auth.GetUserTokenRequest) (*auth.GetUserTokenResponse, error) {
+// GetUserToken returns a JWT token for the user
+func (s *routesService) GetUserToken(ctx context.Context,
+	in *auth.GetUserTokenRequest) (*auth.GetUserTokenResponse, error) {
 	token, err := s.AuthService.GetUserToken(in.UserId)
 	if err != nil {
 		return nil, err
@@ -32,7 +36,9 @@ func (s *server) GetUserToken(ctx context.Context, in *auth.GetUserTokenRequest)
 	return &auth.GetUserTokenResponse{Jwt: token}, nil
 }
 
-func (s *server) GetThingToken(ctx context.Context, in *auth.GetThingTokenRequest) (*auth.GetThingTokenResponse, error) {
+// GetThingToken returns a JWT token for the thing
+func (s *routesService) GetThingToken(ctx context.Context,
+	in *auth.GetThingTokenRequest) (*auth.GetThingTokenResponse, error) {
 	token, err := s.AuthService.GetThingToken(in.ThingId, in.UserId)
 	if err != nil {
 		return nil, err
@@ -40,7 +46,8 @@ func (s *server) GetThingToken(ctx context.Context, in *auth.GetThingTokenReques
 	return &auth.GetThingTokenResponse{Jwt: token}, nil
 }
 
-// func (s *server) ValidateToken(ctx context.Context, in *auth.ValidateTokenRequest) (*auth.ValidateTokenResponse, error) {
+// func (s *routesService) ValidateToken(ctx context.Context,
+// in *auth.ValidateTokenRequest) 	 (*auth.ValidateTokenResponse, error) {
 // 	valid, err := s.AuthService.ValidateToken(in.Jwt)
 // 	if err != nil {
 // 		return nil, err
@@ -48,7 +55,9 @@ func (s *server) GetThingToken(ctx context.Context, in *auth.GetThingTokenReques
 // 	return &auth.ValidateTokenResponse{Valid: valid}, nil
 // }
 
-func (s *server) GetClaimsUserToken(ctx context.Context, in *auth.GetClaimsUserTokenRequest) (*auth.GetClaimsUserTokenResponse, error) {
+// GetClaimsUserToken return the claims for the user token
+func (s *routesService) GetClaimsUserToken(ctx context.Context,
+	in *auth.GetClaimsUserTokenRequest) (*auth.GetClaimsUserTokenResponse, error) {
 	claims, err := s.AuthService.GetClaimsUserToken(in.Jwt)
 	if err != nil {
 		return nil, err
@@ -62,7 +71,9 @@ func (s *server) GetClaimsUserToken(ctx context.Context, in *auth.GetClaimsUserT
 	}, nil
 }
 
-func (s *server) GetClaimsThingToken(ctx context.Context, in *auth.GetClaimsThingTokenRequest) (*auth.GetClaimsThingTokenResponse, error) {
+// GetClaimsThingToken return the claims for the thing token
+func (s *routesService) GetClaimsThingToken(ctx context.Context,
+	in *auth.GetClaimsThingTokenRequest) (*auth.GetClaimsThingTokenResponse, error) {
 	claims, err := s.AuthService.GetClaimsThingToken(in.Jwt)
 	if err != nil {
 		return nil, err
@@ -81,19 +92,21 @@ type ServerConf struct {
 	Port        string
 }
 
-func Start(c ServerConf) error {
-	addr := ":" + c.Port
+// Start starts the GRPC routesService
+func Start(conf ServerConf) (*grpc.Server, error) {
+	addr := ":" + conf.Port
 	log.Println("Starting Auth GRPC on", addr)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
-		return err
+		return nil, err
 	}
 	s := grpc.NewServer()
-	auth.RegisterAuthServer(s, &server{auth.UnimplementedAuthServer{}, c.AuthService})
+	routes := routesService{conf.AuthService, auth.UnimplementedAuthServer{}}
+	auth.RegisterAuthServer(s, &routes)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
-		return err
+		return nil, err
 	}
-	return nil
+	return s, nil
 }

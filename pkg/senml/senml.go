@@ -1,4 +1,0 @@
-package senml
-
-func Nothing() {
-}

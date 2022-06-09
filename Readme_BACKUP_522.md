@@ -50,7 +50,11 @@ Deployment on AWS EC2 [here][awsdeploy].
 - Data presentation: [Grafana][grafana]
 - Reverse proxy: [Nginx][nginx]
 - Caching: [Redis][redis]
+<<<<<<< HEAD
+- Testing: Unit, Integration, Functional [GoTest][gotest]
+=======
 - Testing Unit, Integration, Functional: [GoTest][gotest]
+>>>>>>> feature-doc-n-tests
 
 ### Further on the road
 
@@ -78,7 +82,7 @@ Deployment on AWS EC2 [here][awsdeploy].
 [nats]: https://docs.nats.io/nats-concepts/what-is-nats
 [opc-ua]: https://www.opc-router.com/what-is-opc-ua/
 [grafana]: https://www.scaleyourapp.com/what-is-grafana-why-use-it-everything-you-should-know-about-it/
-[ngnix]: https://medium.com/globant/understanding-nginx-as-a-reverse-proxy-564f76e856b2
+[nginx]: https://medium.com/globant/understanding-nginx-as-a-reverse-proxy-564f76e856b2
 [redis]: https://redis.io/topics/introduction
 [gotest]: https://pkg.go.dev/testing
 [vault]: https://www.vaultproject.io/docs/what-is-vault

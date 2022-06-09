@@ -18,6 +18,7 @@ type ctxKey int
 
 const userIdKey ctxKey = iota
 
+// InitApi initialize the thing REST api
 func InitApi(port string, s service.Things) error {
 	router := createRouter()
 	createEndpoint(s, router)
@@ -25,6 +26,7 @@ func InitApi(port string, s service.Things) error {
 	return err
 }
 
+// createRouter create a REST api router with middleware
 func createRouter() *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -33,21 +35,21 @@ func createRouter() *chi.Mux {
 	return r
 }
 
-// createEndpoint Create all things related endpoints
+// createEndpoint create the endpoints for the REST api with authorization
 func createEndpoint(s service.Things, r *chi.Mux) {
 	// only user can create a thing (associated with user id)
-	userOnlyGroup := r.Group(nil)
-	userOnlyGroup.Use(userOnly(s))
-	userOnlyGroup.Post("/", thingPostEndpoint(s))
+	userOnlyMidGroup := r.Group(nil)
+	userOnlyMidGroup.Use(userOnlyMid(s))
+	userOnlyMidGroup.Post("/", thingPostEndpoint(s))
 	// only user of thing or admin can get delete a thing
 	userOfThingOrAdminGroup := r.Group(nil)
-	userOfThingOrAdminGroup.Use(userOfThingOrAdmin(s))
+	userOfThingOrAdminGroup.Use(userOfThingOrAdminMid(s))
 	userOfThingOrAdminGroup.Get("/{id}", thingGetEndpoint(s))
 	userOfThingOrAdminGroup.Get("/{id}/token", thingGetTokenEndpoint(s))
 	userOfThingOrAdminGroup.Delete("/{id}", thingDeleteEndpoint(s))
 	// only a user of a thing can update it
 	userOfThingOnlyGroup := r.Group(nil)
-	userOfThingOnlyGroup.Use(userOfThingOnly(s))
+	userOfThingOnlyGroup.Use(userOfThingOnlyMid(s))
 	userOfThingOnlyGroup.Put("/{id}", thingPutEndpoint(s))
 }
 
@@ -72,7 +74,7 @@ func thingGetEndpoint(s service.Things) http.HandlerFunc {
 			return
 		}
 		if thing == nil {
-			appErr.Http(res, "thing not found", http.StatusNotFound)
+			appErr.Http(res, appErr.ErrThingNotFound.Error(), http.StatusNotFound)
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
@@ -85,6 +87,7 @@ type thingPostRequest struct {
 	Key  string `json:"Key"`
 }
 
+// validate the thingPostRequest
 func (r *thingPostRequest) validate() error {
 	if r.Name == "" {
 		return appErr.ErrValidation
@@ -102,11 +105,10 @@ func (r *thingPostRequest) validate() error {
 func thingPostEndpoint(s service.Things) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		userId := req.Context().Value(userIdKey).(string)
-		log.Println("user id", userId)
 		thingReq := thingPostRequest{}
 		err := json.NewDecoder(req.Body).Decode(&thingReq)
 		if err != nil {
-			appErr.Http(res, err.Error(), http.StatusBadRequest)
+			appErr.Http(res, appErr.ErrParsing.Error(), http.StatusBadRequest)
 			return
 		}
 		if err = thingReq.validate(); err != nil {
@@ -118,13 +120,13 @@ func thingPostEndpoint(s service.Things) http.HandlerFunc {
 			Name:   thingReq.Name,
 			UserId: userId,
 		}
-		savedThing, err := s.SaveThing(context.Background(), &thing)
+		err = s.SaveThing(context.Background(), &thing)
 		if err != nil {
 			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		res.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(res).Encode(savedThing)
+		json.NewEncoder(res).Encode(thing)
 	}
 }
 
@@ -154,6 +156,7 @@ type thingPutRequest struct {
 	Key  string `json:"Key"`
 }
 
+// validate the thingPutRequest
 func (r *thingPutRequest) validate() error {
 	if r.Name == "" {
 		return appErr.ErrValidation
@@ -193,12 +196,12 @@ func thingPutEndpoint(s service.Things) http.HandlerFunc {
 			UserId: userId,
 		}
 		log.Println("TODO: check thing belong to user")
-		updatedThing, err := s.UpdateThing(context.Background(), &thing)
+		err = s.UpdateThing(context.Background(), &thing)
 		if err != nil {
 			appErr.Http(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(res).Encode(updatedThing)
+		json.NewEncoder(res).Encode(thing)
 	}
 }
 
@@ -224,60 +227,87 @@ type middlewareFunc func(http.Handler) http.Handler
 
 // userOfThingOrAdmin middleware to check whether the token belong to an admin
 // or to the user (ID) of the thing in the request
-func userOfThingOrAdmin(s service.Things) middlewareFunc {
+func userOfThingOrAdminMid(s service.Things) middlewareFunc {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-			token := req.Header.Get("Authorization")
-			thingId := chi.URLParam(req, "id")
-			if err := validation.ValidateUuid(thingId); err != nil {
-				appErr.Http(res, err.Error(), http.StatusBadRequest)
-				return
-			}
-			userId, err := s.UserOfThingOrAdmin(context.Background(), token, thingId)
-			if err != nil {
-				log.Println(err)
-				appErr.Http(res, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))
-		})
+		return userOfThingOrAdmin(s, next)
 	}
+}
+
+func userOfThingOrAdmin(
+	s service.Things, next http.Handler) http.HandlerFunc {
+	// middleware logic
+	fn := func(res http.ResponseWriter, req *http.Request) {
+		token := req.Header.Get("Authorization")
+		log.Println("token = ", token)
+		thingId := chi.URLParam(req, "id")
+		if err := validation.ValidateUuid(thingId); err != nil {
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+		userId, err := s.UserOfThingOrAdmin(context.Background(), token, thingId)
+		if err != nil {
+			log.Println(err)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))
+	}
+	return http.HandlerFunc(fn)
 }
 
 // userOfThingOnly middleware to check whether the token in the request belong
 // to the user of the thing in the request
-func userOfThingOnly(s service.Things) middlewareFunc {
+func userOfThingOnlyMid(s service.Things) middlewareFunc {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-			token := req.Header.Get("Authorization")
-			thingId := chi.URLParam(req, "id")
-			if err := validation.ValidateUuid(thingId); err != nil {
-				appErr.Http(res, err.Error(), http.StatusBadRequest)
-				return
-			}
-			userId, err := s.UserOfThingOnly(context.Background(), token, thingId)
-			if err != nil {
-				log.Println(err)
-				appErr.Http(res, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))
-		})
+		return userOfThingOnly(s, next)
 	}
 }
 
-// userOnly middleware to check whether the token belong to a user, and not an admin
-func userOnly(s service.Things) middlewareFunc {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-			token := req.Header.Get("Authorization")
-			userId, err := s.UserOnly(context.Background(), token)
-			if err != nil {
-				log.Println(err)
-				appErr.Http(res, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))
-		})
+func userOfThingOnly(
+	s service.Things, next http.Handler) http.HandlerFunc {
+	// middleware logic
+	fn := func(res http.ResponseWriter, req *http.Request) {
+		token := req.Header.Get("Authorization")
+		thingId := chi.URLParam(req, "id")
+		if err := validation.ValidateUuid(thingId); err != nil {
+			appErr.Http(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+		userId, err := s.UserOfThingOnly(context.Background(), token, thingId)
+		if err != nil {
+			log.Println(err)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		next.ServeHTTP(res, req.WithContext(context.WithValue(req.Context(), userIdKey, userId)))
 	}
+	return http.HandlerFunc(fn)
+}
+
+// userOnlyMid middleware to check whether the token belong to a user, and not an admin
+func userOnlyMid(s service.Things) middlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return userOnly(s, next)
+	}
+}
+
+func userOnly(
+	s service.Things, next http.Handler) http.HandlerFunc {
+	// middleware logic
+	fn := func(res http.ResponseWriter, req *http.Request) {
+		token := req.Header.Get("Authorization")
+		userId, err := s.UserOnly(context.Background(), token)
+		if err != nil {
+			log.Println(err)
+			appErr.Http(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		next.ServeHTTP(res,
+			req.WithContext(context.WithValue(
+				req.Context(),
+				userIdKey,
+				userId)))
+	}
+
+	return http.HandlerFunc(fn)
 }

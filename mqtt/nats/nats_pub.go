@@ -15,6 +15,7 @@ type NatsPub interface {
 	CreatePublisher(subject string) NatsPubType
 }
 
+// Static type checking
 var _ NatsPub = (*natsPub)(nil)
 
 func New(config Conf) NatsPub {
@@ -31,6 +32,7 @@ type Conf struct {
 	Port string
 }
 
+// setupConnOptions parses NATS connection options from the command line
 func setupConnOptions(opts []nats.Option) []nats.Option {
 	totalWait := 10 * time.Minute
 	reconnectDelay := time.Second
@@ -48,6 +50,7 @@ func setupConnOptions(opts []nats.Option) []nats.Option {
 	return opts
 }
 
+// Connect connects to the NATS server.
 func (pub *natsPub) Connect() error {
 	opts := []nats.Option{nats.Name("NATS Sample Queue Subscriber")}
 	opts = setupConnOptions(opts)
@@ -60,10 +63,12 @@ func (pub *natsPub) Connect() error {
 	return nil
 }
 
+//Disconnect disconnects from the NATS server.
 func (pub *natsPub) Disconnect() {
 	pub.client.Close()
 }
 
+// Publish publishes a message to the NATS server.
 func (pub *natsPub) Publish(subject string, payload string) error {
 	if err := pub.client.Publish(subject, []byte(payload)); err != nil {
 		log.Printf("Error publishing message: %s\n", err)
@@ -74,10 +79,11 @@ func (pub *natsPub) Publish(subject string, payload string) error {
 
 type NatsPubType func(thingId string, payload string) error
 
+// CreatePublisher return a function to publish on a given subject.
 func (pub *natsPub) CreatePublisher(subject string) NatsPubType {
 	return func(thingId string, payload string) error {
-		thingIdSubjet := subject + "." + thingId
-		err := pub.Publish(thingIdSubjet, payload)
+		thingIdSubject := subject + "." + thingId
+		err := pub.Publish(thingIdSubject, payload)
 		return err
 	}
 }

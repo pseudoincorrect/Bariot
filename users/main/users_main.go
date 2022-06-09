@@ -65,6 +65,7 @@ func loadConfig() config {
 	return conf
 }
 
+// createService creates a new User service.
 func createService() (service.Users, error) {
 	conf := loadConfig()
 	dbConf := db.DbConfig{
@@ -94,11 +95,13 @@ func createService() (service.Users, error) {
 
 }
 
+// startHttp starts the HTTP server.
 func startHttp(s service.Users) error {
 	conf := loadConfig()
 	return api.InitApi(conf.httpPort, s)
 }
 
+// createAdmin creates a new admin user.
 func createAdmin(s service.Users) error {
 	conf := loadConfig()
 	user, err := s.GetByEmail(context.Background(), conf.adminEmail)

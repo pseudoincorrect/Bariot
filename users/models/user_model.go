@@ -24,14 +24,15 @@ type User struct {
 	Metadata  Metadata `json:"Metadata"`
 }
 
+// String returns a string representation of the user
 func (t User) String() string {
 	return fmt.Sprintf("User{\n  Id: %s,\n  CreatedAt: %s,\n  Email: %s,\n  FullName: %s,\n  HashPass: %s,\n Metadata: %v\n}", t.Id, t.CreatedAt, t.Email, t.FullName, t.HashPass, t.Metadata)
 }
 
 type UsersRepository interface {
-	Save(context.Context, *User) (*User, error)
+	Save(context.Context, *User) error
 	Get(context.Context, string) (*User, error)
 	Delete(context.Context, string) (string, error)
-	Update(context.Context, *User) (*User, error)
+	Update(context.Context, *User) error
 	GetByEmail(context.Context, string) (*User, error)
 }

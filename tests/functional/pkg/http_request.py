@@ -5,6 +5,7 @@ BARIOT_HOST = "localhost"
 
 
 def get_admin_token(mail, passw):
+    ''' Get admin token with email and password '''
     url = HTTP_PROT + BARIOT_HOST + '/users/login/admin'
     headers = {"Content-Type": "application/json"}
     data = {"Email": mail, "Password": passw}
@@ -16,6 +17,7 @@ def get_admin_token(mail, passw):
 
 
 def get_user_token(mail, passw):
+    ''' Get user token with email and password '''
     url = HTTP_PROT + BARIOT_HOST + '/users/login'
     headers = {"Content-Type": "application/json"}
     data = {"Email": mail, "Password": passw}
@@ -27,6 +29,7 @@ def get_user_token(mail, passw):
 
 
 def get_user_by_email(admin_token, email):
+    ''' Get user by email '''
     url = HTTP_PROT + BARIOT_HOST + '/users/email/' + email
     headers = {"Content-Type": "application/json",
                "Authorization": admin_token}
@@ -38,6 +41,7 @@ def get_user_by_email(admin_token, email):
 
 
 def create_user(admin_token, name, email, passw):
+    ''' Create user with name, email and password '''
     url = HTTP_PROT + BARIOT_HOST + '/users/'
     headers = {"Content-Type": "application/json",
                "Authorization": admin_token}
@@ -50,6 +54,7 @@ def create_user(admin_token, name, email, passw):
 
 
 def delete_user(admin_token, user_id):
+    ''' Delete user with its id '''
     url = HTTP_PROT + BARIOT_HOST + '/users/' + user_id
     headers = {"Content-Type": "application/json",
                "Authorization": admin_token}
@@ -61,6 +66,7 @@ def delete_user(admin_token, user_id):
 
 
 def create_thing(user_token, name, key):
+    ''' Create thing with name and key '''
     url = HTTP_PROT + BARIOT_HOST + '/things/'
     headers = {"Content-Type": "application/json",
                "Authorization": user_token}
@@ -73,6 +79,7 @@ def create_thing(user_token, name, key):
 
 
 def delete_thing(user_token, thing_id):
+    ''' Delete thing with its id '''
     url = HTTP_PROT + BARIOT_HOST + '/things/' + thing_id
     headers = {"Content-Type": "application/json",
                "Authorization": user_token}
@@ -84,6 +91,7 @@ def delete_thing(user_token, thing_id):
 
 
 def get_thing_token(user_token, thing_id):
+    ''' Get thing token with its id '''
     url = HTTP_PROT + BARIOT_HOST + '/things/' + thing_id + "/token"
     headers = {"Content-Type": "application/json",
                "Authorization": user_token}

@@ -14,12 +14,13 @@ type Database struct {
 
 type DbConfig struct {
 	Host     string
-	Dbname   string
 	Port     string
+	Dbname   string
 	User     string
 	Password string
 }
 
+// Init a new database connection
 func Init(conf DbConfig) (*Database, error) {
 	db, err := connect(conf)
 	if err != nil {
@@ -28,11 +29,9 @@ func Init(conf DbConfig) (*Database, error) {
 	return db, nil
 }
 
+// connect creates a new database connection
 func connect(conf DbConfig) (*Database, error) {
 	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.User, conf.Password, conf.Host, conf.Port, conf.Dbname)
-
-	// log.Println(dbUrl)
-
 	conn, err := pgx.Connect(context.Background(), dbUrl)
 
 	if err != nil {
@@ -40,4 +39,25 @@ func connect(conf DbConfig) (*Database, error) {
 		return nil, err
 	}
 	return &Database{conn}, nil
+}
+
+func createThingsTable(db *Database) error {
+	createTable := `create table things (
+		id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+		created_at timestamp with time zone DEFAULT now(),
+		key character varying(4096) NOT NULL,
+		CHECK (key <> ''),
+		name character varying(255) NOT NULL,
+		CHECK (name <> ''),
+		user_id uuid NOT NULL,
+		metadata json
+	);`
+
+	_, err := db.conn.Exec(context.Background(), createTable)
+	// log.Printf("value of db %v", cmd)
+	if err != nil {
+		log.Println("Unable to begin :", err)
+		return err
+	}
+	return nil
 }

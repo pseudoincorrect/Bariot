@@ -6,23 +6,22 @@
 
 |     | Tag    | Description                                       |
 | --- | ------ | ------------------------------------------------- |
-|     | HTTP   | Add a user/thing data reading endpoint            |
 |     | OPC-UA | Add OPC-UA                                        |
-|     | TEST   | Add End-to-end testing with gitlab                |
+|     | TEST   | Automate end to end testing with gitlab           |
 |     | VAULT  | Use Vault to store secrets                        |
 |     | DOCKER | Pre-compile docker images to speed up deployments |
-|     | MQTT   | Authorize subscription                            |
+|     | MQTT   | Securing and Authorizing MQTT pub/sub with JSON   |
+|     | MQTT   | Securing and Authorizing MQTT pub/sub with HTTP   |
 |     |        |                                                   |
 
 <br>
  
 ## **IN PROCESS**
 
-|     | Tag   | Description                                    |
-| --- | ----- | ---------------------------------------------- |
-|     | REDIS | Delete thing token from cache + new token case |
-|     | TEST  | Automate end to end testing                    |
-|     |       |                                                |
+|     | Tag  | Description                            |
+| --- | ---- | -------------------------------------- |
+|     | HTTP | Add a user/thing data reading endpoint |
+|     |      |                                        |
 
 <br>
 
@@ -30,6 +29,8 @@
 
 | Date       | Tag      | Description                                     |
 | ---------- | -------- | ----------------------------------------------- |
+| 09/06/2022 | TEST     | Test things, users, auth (unit + integration)   |
+| 30/05/2022 | REDIS    | Delete thing token from cache + new token case  |
 | 29/05/2022 | REDIS    | Use Redis to cache auth data on MQTT endpoint   |
 | 28/05/2022 | TEST     | MQTT with python and paho                       |
 | 25/05/2022 | RELEASE  | 0.1.0                                           |

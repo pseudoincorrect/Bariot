@@ -1,15 +1,13 @@
 package models
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 )
 
 type Metadata map[string]interface{}
-
-// type ThingI interface {
-// 	String() string
-// }
 
 type Thing struct {
 	Id        string   `json:"Id"`
@@ -20,8 +18,16 @@ type Thing struct {
 	Metadata  Metadata `json:"Metadata"`
 }
 
+// String returns a string representation of the thing
 func (t Thing) String() string {
 	return fmt.Sprintf("Thing{\n  Id: %s,\n  CreatedAt: %s,\n  Key: %s,\n  Name: %s,\n  UserId: %s,\n  Metadata: %v\n}", t.Id, t.CreatedAt, t.Key, t.Name, t.UserId, t.Metadata)
+}
+
+func (t Thing) JsonString() string {
+	// json.NewEncoder(res).Encode(thing)
+	buffer := &bytes.Buffer{}
+	json.NewEncoder(buffer).Encode(t)
+	return buffer.String()
 }
 
 // POSTGRE table things (
@@ -34,8 +40,8 @@ func (t Thing) String() string {
 // );
 
 type ThingsRepository interface {
-	Save(context.Context, *Thing) (*Thing, error)
+	Save(context.Context, *Thing) error
 	Get(context.Context, string) (*Thing, error)
 	Delete(context.Context, string) (string, error)
-	Update(context.Context, *Thing) (*Thing, error)
+	Update(context.Context, *Thing) error
 }

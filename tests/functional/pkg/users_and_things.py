@@ -20,6 +20,7 @@ def get_secret(name):
 
 
 def get_admin_token():
+    ''' Get the admin token '''
     admin_mail = get_secret("USER_ADMIN_EMAIL")
     admin_pass = get_secret("USER_ADMIN_PASSWORD")
     admin_token = http.get_admin_token(admin_mail, admin_pass)
@@ -27,6 +28,7 @@ def get_admin_token():
 
 
 def create_user_and_thing():
+    ''' Create a user and a thing '''
     admin_token = get_admin_token()
     user_id = http.create_user(admin_token, USER_NAME, USER_EMAIL, USER_PASS)
     print("user id: ", user_id)
@@ -40,14 +42,17 @@ def create_user_and_thing():
 
 
 def get_user_token():
+    ''' Get the user token '''
     return http.get_user_token(USER_EMAIL, USER_PASS)
 
 
 def get_thing_token(user_token, thing_id):
+    ''' Get the thing token '''
     return http.get_thing_token(user_token, thing_id)
 
 
 def delete_user_and_thing(user_id, thing_id):
+    ''' Delete a user and a thing '''
     admin_token = get_admin_token()
     user_token = http.get_user_token(USER_EMAIL, USER_PASS)
     print("user token: ", user_token[0:10], "...")
@@ -58,6 +63,7 @@ def delete_user_and_thing(user_id, thing_id):
 
 
 def create_and_delete():
+    ''' Create a user and a thing and delete them '''
     admin_token = get_admin_token()
     user_id = http.create_user(admin_token, USER_NAME, USER_EMAIL, USER_PASS)
     print("user id: ", user_id)
