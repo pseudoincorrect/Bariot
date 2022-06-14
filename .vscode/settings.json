@@ -7,6 +7,7 @@
     "Dbname",
     "dockertest",
     "EMQX",
+    "gobwas",
     "GRAFANA",
     "healthcheck",
     "ioutil",
@@ -35,6 +36,8 @@
     "SENML",
     "srvc",
     "stretchr",
-    "venv"
+    "upgrader",
+    "venv",
+    "wsutil"
   ]
 }

@@ -33,7 +33,7 @@ Bariot is also a fun project to work on !
 
 ## INSTRUCTIONS
 
-Deployment on AWS EC2 [here][awsdeploy].
+Deployment on AWS EC2 [here][awsdeploy]. (with docker-compose)
 
 <br/>
 
