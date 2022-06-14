@@ -12,6 +12,8 @@ type Mock struct {
 	mock.Mock
 }
 
+var _ service.Auth = (*Mock)(nil)
+
 // GetAdminToken returns a token for the admin user
 func (m *Mock) GetAdminToken() (string, error) {
 	args := m.Called()

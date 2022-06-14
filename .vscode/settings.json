@@ -36,6 +36,7 @@
     "SENML",
     "srvc",
     "stretchr",
+    "Struct",
     "upgrader",
     "venv",
     "wsutil"

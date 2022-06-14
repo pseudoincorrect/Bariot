@@ -31,7 +31,7 @@ ISSUE: https://github.com/influxdata/influxdb/issues/15721
 **SOLUTION**
 Please use docker compose ports to access it if needed.
 
-## PYTHON HTTP: Response 400, "EOF"
+## PYTHON: HTTP Response 400, "EOF"
 
 SYMPTOM
 Golang cannot decode the JSON.
@@ -41,7 +41,25 @@ Formatting of the URL
 Do not forget the "/" at the end of the URL example:
 http://bariot.com/users/ and NOT http://bariot.com/users
 
-## GOLANG HTTP: Error EOF with json.NewDecoder(req.Body)
+## PYTHON: Request and readline, response 500
+
+**SYMPTOM**
+Golang cannot decode the JSON.
+**CAUSE**
+A trailing NewLine char when using readline
+**SOLUTION**
+Trim the trailing "new line" char
+
+## GOLANG: Interface not implemented compilerInvalidIfaceAssign
+
+**SYMPTOM**
+a Struct is not implementing an interface even with the same function
+**CAUSE**
+functions are not exported
+**SOLUTION**
+in the interface definition add a Uppercase to the functions
+
+## GOLANG: HTTP Error EOF with json.NewDecoder(req.Body)
 
 **SYMPTOM**
 json.NewDecoder(req.Body) ... give an EOF error
@@ -52,15 +70,6 @@ read it again with json.NewDecoder, nothing remain, hence EOF error
 set req.Body again with the content you just read with ioutil.ReadAll
 LINK
 https://stackoverflow.com/questions/49745252/reverseproxy-depending-on-the-request-body-in-golang
-
-## PYTHON: Request and readline, response 500
-
-**SYMPTOM**
-Golang cannot decode the JSON.
-**CAUSE**
-A trailing NewLine char when using readline
-**SOLUTION**
-Trim the trailing "new line" char
 
 ## TEMPLATE:
 

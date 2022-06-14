@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
+	"github.com/pseudoincorrect/bariot/reader/service"
 )
 
 const closedConn = "wsasend"
@@ -27,6 +28,7 @@ type wsServer struct {
 	server    *http.Server
 }
 
+// Close the HTTPserver
 func (s *wsServer) Close() {
 	if err := s.server.Shutdown(context.TODO()); err != nil {
 		panic(err)
@@ -37,84 +39,79 @@ func (s *wsServer) Close() {
 type Config struct {
 	Host string
 	Port string
+	S    service.ReaderSvc
 }
 
+// Start the configuration of the server
 func Start(conf Config) wsServer {
 	addr := conf.Host + ":" + conf.Port
 	httpServerExitDone := &sync.WaitGroup{}
 	httpServerExitDone.Add(1)
-	srv := StartServer(addr, httpServerExitDone)
+	srv := StartServer(addr, httpServerExitDone, conf.S)
 	return wsServer{waitGroup: httpServerExitDone, server: srv}
 }
 
-func StartServer(addr string, wg *sync.WaitGroup) *http.Server {
-	srv := &http.Server{Addr: addr}
-	http.HandleFunc("/echo", echoHandler)
-	http.HandleFunc("/thing", singleThingHandler)
-
+// StartServer create endpoint and start the HTTP server
+func StartServer(addr string, wg *sync.WaitGroup, s service.ReaderSvc) *http.Server {
+	server := &http.Server{Addr: addr}
+	http.HandleFunc("/thing", getSingleThingHandler(s))
 	go func() {
 		defer wg.Done()
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatalf("ListenAndServe() error: %v", err)
 		}
 	}()
-
-	return srv
+	return server
 }
 
-func echoHandler(w http.ResponseWriter, r *http.Request) {
-	c, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Print("upgrade error:", err)
-		return
-	}
-	defer c.Close()
-	for {
-		mt, message, err := c.ReadMessage()
+// getSingleThingHandler return a HTTP/WS handler to get a continuous stream of thing data
+func getSingleThingHandler(s service.ReaderSvc) http.HandlerFunc {
+	singleThingHandler := func(w http.ResponseWriter, r *http.Request) {
+		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Println("read error:", err)
-			break
-		}
-		log.Printf("server recv: %s", message)
-		err = c.WriteMessage(mt, message)
-		if err != nil {
-			log.Println("write error:", err)
-			break
-		}
-	}
-}
-
-func singleThingHandler(w http.ResponseWriter, r *http.Request) {
-	c, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Print("upgrade error:", err)
-		return
-	}
-	defer c.Close()
-	_, message, err := c.ReadMessage()
-	if err != nil {
-		log.Println("read error:", err)
-		return
-	}
-	// log.Printf("server recv: %s", message)
-	msgJson := ThingUpdateMsg{}
-	err = json.Unmarshal(message, &msgJson)
-	if err != nil {
-		log.Println("err:", err)
-		return
-	}
-
-	cnt := 1
-
-	for {
-		thingData := "{\"thingId\": \"000.000.001\", \"data\": \"" + strconv.Itoa(cnt) + "\"}"
-		err = c.WriteMessage(websocket.TextMessage, []byte(thingData))
-		if err != nil {
-			if !strings.Contains(err.Error(), closedConn) {
-				log.Println("Server Write err:", err)
-			}
+			log.Print("upgrade error:", err)
 			return
 		}
-		cnt += 1
+		defer c.Close()
+		_, message, err := c.ReadMessage()
+		if err != nil {
+			log.Println("read error:", err)
+			return
+		}
+		authMsg := ThingUpdateMsg{}
+		err = json.Unmarshal(message, &authMsg)
+		if err != nil {
+			log.Println("err:", err)
+		}
+		msgJson := ThingUpdateMsg{}
+		err = json.Unmarshal(message, &msgJson)
+		if err != nil {
+			log.Println("err:", err)
+			return
+		}
+		authorized, err := s.AuthorizeSingleThing(msgJson.Token, msgJson.ThingId)
+		if err != nil {
+			log.Println("err:", err)
+		}
+		if !authorized {
+			err = c.WriteMessage(websocket.CloseMessage,
+				websocket.FormatCloseMessage(websocket.ClosePolicyViolation, WsUnauthorized))
+			if err != nil {
+				log.Println("err:", err)
+			}
+		}
+		cnt := 1
+		for {
+			thingData := "{\"thingId\": \"000.000.001\", \"data\": \"" + strconv.Itoa(cnt) + "\"}"
+			err = c.WriteMessage(websocket.TextMessage, []byte(thingData))
+			if err != nil {
+				if !strings.Contains(err.Error(), closedConn) {
+					log.Println("Server Write err:", err)
+				}
+				return
+			}
+			cnt += 1
+		}
 	}
+	return singleThingHandler
 }
