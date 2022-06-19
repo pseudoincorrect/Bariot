@@ -50,7 +50,7 @@ A trailing NewLine char when using readline
 **SOLUTION**
 Trim the trailing "new line" char
 
-## GOLANG: Interface not implemented compilerInvalidIfaceAssign
+## GOLANG: Interface not implemented, error: compilerInvalidIfaceAssign
 
 **SYMPTOM**
 a Struct is not implementing an interface even with the same function
@@ -58,6 +58,15 @@ a Struct is not implementing an interface even with the same function
 functions are not exported
 **SOLUTION**
 in the interface definition add a Uppercase to the functions
+
+## GOLANG: Interface not implemented, error: method has pointer receiver
+
+**SYMPTOM**
+build fail because of a failed interface implementation
+**CAUSE**
+There is a pointer issue somewhere, but no indication where
+**SOLUTION**
+Try dereferencing (&service) when using the interface instance
 
 ## GOLANG: HTTP Error EOF with json.NewDecoder(req.Body)
 

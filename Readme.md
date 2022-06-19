@@ -6,7 +6,7 @@ Bariot is a simple solution to send, manage, secure and visualize data from conn
 
 <br/>
 
-<p align="center"><img width=75% src="support/images/bariot_img.jpg"></p>
+<p align="center"><img width=75% src="assets/images/bariot_img.jpg"></p>
 <p align="center"> <i> Drawing by Ngoc-Ha </i> </p>
 
 <br/>

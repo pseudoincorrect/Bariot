@@ -11,7 +11,7 @@ THING_KEY = "000001"
 
 def get_secret(name):
     ''' Get a secret from the docker .env file '''
-    dot_env_path = PWD.parent.parent.parent / "docker" / ".env"
+    dot_env_path = PWD.parent.parent.parent / "build" / "docker" / ".env"
     with dot_env_path.open() as f:
         for l in f:
             if name in l:

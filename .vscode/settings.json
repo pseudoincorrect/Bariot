@@ -1,6 +1,8 @@
 {
   "cSpell.enabled": true,
   "cSpell.words": [
+    "Authn",
+    "Authz",
     "BARIOT",
     "Cornimont",
     "ctxt",
@@ -39,6 +41,7 @@
     "Struct",
     "upgrader",
     "venv",
+    "wsasend",
     "wsutil"
   ]
 }

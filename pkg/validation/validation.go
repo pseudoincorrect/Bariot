@@ -4,13 +4,13 @@ import (
 	"net/mail"
 
 	"github.com/google/uuid"
-	appErr "github.com/pseudoincorrect/bariot/pkg/errors"
+	e "github.com/pseudoincorrect/bariot/pkg/errors"
 )
 
 // ValidateUUID validates a UUID string
 func ValidateUuid(id string) error {
 	if _, err := uuid.Parse(id); err != nil {
-		return appErr.ErrValidation
+		return e.ErrValidation
 	}
 	return nil
 }
@@ -18,7 +18,7 @@ func ValidateUuid(id string) error {
 // ValidateEmail validates an email string
 func ValidateEmail(email string) error {
 	if _, err := mail.ParseAddress(email); err != nil {
-		return appErr.ErrValidation
+		return e.ErrValidation
 	}
 	return nil
 }
