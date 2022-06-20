@@ -11,19 +11,20 @@ import (
 
 	"github.com/gorilla/websocket"
 	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 	"github.com/pseudoincorrect/bariot/tests/mocks/services"
 	"github.com/stretchr/testify/assert"
 )
 
 const host = "localhost"
-const port = "8080"
+const port = "80"
 const address = host + ":" + port
 
 func TestThingGetEndpointAuthFail(t *testing.T) {
 	resetHttpHandler()
 	theMock := services.NewMockReader()
 	theMock.On("AuthorizeSingleThing").Return(e.ErrAuthz).Once()
-	conf := Config{Host: host, Port: port, S: &theMock}
+	conf := Config{Host: host, Port: port, Service: &theMock}
 	srv := Start(conf)
 	rec, err := receiveUpdate(6)
 	assert.Nil(t, rec, "should get no message")
@@ -35,7 +36,7 @@ func TestThingGetEndpointAuthSuccess(t *testing.T) {
 	resetHttpHandler()
 	theMock := services.NewMockReader()
 	theMock.On("AuthorizeSingleThing").Return(nil).Once()
-	conf := Config{Host: host, Port: port, S: &theMock}
+	conf := Config{Host: host, Port: port, Service: &theMock}
 	srv := Start(conf)
 	howMany := 6
 	rec, _ := receiveUpdate(6)
@@ -48,6 +49,7 @@ func receiveUpdate(howManyMsg int) ([]string, error) {
 	var msgStore []string
 	var sendMsgErr error
 	u := url.URL{Scheme: "ws", Host: address, Path: "/thing"}
+	debug.LogDebug("WS URL:", u.String())
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		e.HandleFatal(e.ErrConn, err, "websocket dial")

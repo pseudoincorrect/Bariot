@@ -50,12 +50,11 @@ Deployment on AWS EC2 [here][awsdeploy]. (with docker-compose)
 - Data presentation: [Grafana][grafana]
 - Reverse proxy: [Nginx][nginx]
 - Caching: [Redis][redis]
-- Testing Unit, Integration, Functional: [GoTest][gotest]
+- Testing Unit, Integration, End to End: [GoTest][gotest]
 
 ### Further on the road
 
 - Transport: [OPC-UA][opc-ua]
-- Secret storage/management: [Vault][vault]
 - CI/CD: [Gitlab][gitlab]
 - Permission system: to be decided
 

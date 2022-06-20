@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/pseudoincorrect/bariot/internal/reader/service"
 	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 const closedConn = "wsasend"
@@ -36,24 +37,26 @@ func (s *wsServer) Close() {
 }
 
 type Config struct {
-	Host string
-	Port string
-	S    service.Reader
+	Host    string
+	Port    string
+	Service service.Reader
 }
 
 // Start the configuration of the server
 func Start(conf Config) wsServer {
-	addr := conf.Host + ":" + conf.Port
+	addr := ":" + conf.Port
+	// addr := conf.Host + ":" + conf.Port
 	httpServerExitDone := &sync.WaitGroup{}
 	httpServerExitDone.Add(1)
-	srv := StartServer(addr, httpServerExitDone, conf.S)
+	srv := StartServer(addr, httpServerExitDone, conf.Service)
 	return wsServer{waitGroup: httpServerExitDone, server: srv}
 }
 
 // StartServer create endpoint and start the HTTP server
 func StartServer(addr string, wg *sync.WaitGroup, s service.Reader) *http.Server {
 	server := &http.Server{Addr: addr}
-	http.HandleFunc("/thing", getSingleThingEndpoint(s))
+	debug.LogDebug("Reader, start server on", server.Addr)
+	http.HandleFunc("/reader/thing", getSingleThingEndpoint(s))
 	go func() {
 		defer wg.Done()
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
@@ -66,6 +69,7 @@ func StartServer(addr string, wg *sync.WaitGroup, s service.Reader) *http.Server
 // getSingleThingEndpoint return a HTTP/WS handler to get a continuous stream of thing data
 func getSingleThingEndpoint(s service.Reader) http.HandlerFunc {
 	singleThingHandler := func(w http.ResponseWriter, r *http.Request) {
+		debug.LogDebug("got a connection on WS", r.URL.String())
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			e.Handle(e.ErrConn, err, "upgrade")
@@ -79,7 +83,12 @@ func getSingleThingEndpoint(s service.Reader) http.HandlerFunc {
 		thingId := msgJson.ThingId
 		stop := make(chan bool)
 		thingData := make(chan string)
-		go s.ReceiveThingData(thingId, thingData, stop)
+		// function to be called when data is received
+		handler := func(msg string) {
+			thingData <- msg
+		}
+		// handler will be subscribed to thing id subject
+		go s.ReceiveThingData(thingId, handler, stop)
 		cnt := 1
 		for data := range thingData {
 			err := sendThingData(c, data)
@@ -94,7 +103,8 @@ func getSingleThingEndpoint(s service.Reader) http.HandlerFunc {
 }
 
 func authorizeConn(c *websocket.Conn, s service.Reader) (*ThingAuthMsg, error) {
-	_, message, err := c.ReadMessage()
+	msgType, message, err := c.ReadMessage()
+	debug.LogDebug("WS message: ", string(message), ", type: ", msgType)
 	if err != nil {
 		err = e.Handle(e.ErrConn, err, "read message")
 		return nil, err

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	influxdb "github.com/influxdata/influxdb-client-go/v2"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 type service struct {
@@ -28,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	log.Println("Connected to InfluxDB")
+	debug.LogInfo("Connected to InfluxDB")
 
 	s.Mock.InitThings()
 
@@ -38,7 +39,7 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
-	log.Println("Exiting Program...")
+	debug.LogInfo("Exiting Program...")
 }
 
 func (s *service) generateAndSend() {
@@ -93,7 +94,7 @@ func (w *writer) Write(state *ThingState) {
 
 	go func() {
 		for err := range errChan {
-			log.Println("Influxdb write error: ", err)
+			debug.LogInfo("Influxdb write error: ", err)
 		}
 	}()
 
@@ -219,9 +220,9 @@ func (m *mock) Print() {
 
 // Print any thing's states
 func PrintStates(states []ThingState) {
-	log.Println()
+	debug.LogInfo()
 	for _, state := range states {
-		log.Println(state)
+		debug.LogInfo(state)
 	}
-	log.Println()
+	debug.LogInfo()
 }

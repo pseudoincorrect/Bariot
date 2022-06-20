@@ -36,11 +36,11 @@ type thingData struct {
 	Measurements *[]measurement `json:"measurements"`
 }
 
-func (mr *MockReader) ReceiveThingData(thingId string, thingDataOut chan string, stop chan bool) {
+func (mr *MockReader) ReceiveThingData(thingId string, handler func(string), stop chan bool) error {
 	for {
 		select {
 		case <-stop:
-			return
+			return nil
 		default:
 			seed := 0
 			inc := 3
@@ -52,9 +52,9 @@ func (mr *MockReader) ReceiveThingData(thingId string, thingDataOut chan string,
 			}
 			data, err := json.Marshal(&d)
 			if err != nil {
-				e.Handle(e.ErrParsing, err, "json measurements")
+				return e.Handle(e.ErrParsing, err, "json measurements")
 			}
-			thingDataOut <- string(data)
+			handler(string(data))
 		}
 	}
 }

@@ -1,3 +1,4 @@
 paho-mqtt
 kpn-senml
 requests
+websockets

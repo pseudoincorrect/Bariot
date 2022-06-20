@@ -8,65 +8,57 @@ import (
 	"time"
 
 	"github.com/pseudoincorrect/bariot/internal/mqtt/mqtt"
-	"github.com/pseudoincorrect/bariot/internal/mqtt/nats"
 	auth "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	"github.com/pseudoincorrect/bariot/pkg/cache"
 	"github.com/pseudoincorrect/bariot/pkg/env"
+	nats "github.com/pseudoincorrect/bariot/pkg/nats/client"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 func main() {
 	log.SetOutput(os.Stdout)
 	conf := loadConfig()
-
-	nats := nats.New(nats.Conf{
+	natsClient := nats.New(nats.Conf{
 		Host: conf.natsHost,
 		Port: conf.natsPort,
 	})
-
 	mqttSub := mqtt.New(mqtt.Conf{
 		User:       conf.mqttUser,
 		Pass:       conf.mqttPass,
 		Host:       conf.mqttHost,
 		Port:       conf.mqttPort,
-		HealthPort: conf.mqttHealthPort})
-
-	auth := auth.New(auth.Conf{
-		Host: conf.rpcAuthHost,
-		Port: conf.rpcAuthPort,
+		HealthPort: conf.mqttHealthPort,
 	})
-
+	authClient := auth.New(auth.Conf{
+		Host: conf.authGrpcHost,
+		Port: conf.authGrpcPort,
+	})
 	authCache := cache.New(cache.Conf{
 		RedisHost: conf.redisHost,
 		RedisPort: conf.redisPort,
 	})
-
 	err := authCache.Connect()
 	if err != nil {
 		log.Panic(err)
 	}
-
-	err = auth.StartAuthClient()
+	err = authClient.StartAuthClient()
 	if err != nil {
 		log.Panic(err)
 	}
-
 	err = mqttSub.Connect()
 	if err != nil {
 		log.Panic(err)
 	}
 	defer mqttSub.Disconnect()
-	log.Printf("Connected to MQTT broker %s:%s\n", conf.mqttHost, conf.mqttPort)
-
-	err = nats.Connect()
+	debug.LogInfo("Connected to MQTT broker ", conf.mqttHost, " : ", conf.mqttPort)
+	err = natsClient.Connect(nats.NatsSetupConnOptions("MQTT pub sub"))
 	if err != nil {
 		log.Panic(err)
 	}
-	defer nats.Disconnect()
-
+	defer natsClient.Disconnect()
 	const mqttThingsTopic = "things/#"
-	const natsThingsSubject = "thingsMsg.>"
-	natsHandler := nats.CreatePublisher(natsThingsSubject)
-	mqttAuthorizer, err := mqtt.CreateAuthorizer(auth, authCache)
+	natsHandler := natsClient.CreatePublisher()
+	mqttAuthorizer, err := mqtt.CreateAuthorizer(&authClient, authCache)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -90,8 +82,8 @@ type config struct {
 	mqttHealthPort string
 	natsHost       string
 	natsPort       string
-	rpcAuthPort    string
-	rpcAuthHost    string
+	authGrpcPort   string
+	authGrpcHost   string
 	redisHost      string
 	redisPort      string
 }
@@ -106,8 +98,8 @@ func loadConfig() config {
 		mqttPass:       env.GetEnv("MQTT_PASS"),
 		natsHost:       env.GetEnv("NATS_HOST"),
 		natsPort:       env.GetEnv("NATS_PORT"),
-		rpcAuthPort:    env.GetEnv("RPC_AUTH_PORT"),
-		rpcAuthHost:    env.GetEnv("RPC_AUTH_HOST"),
+		authGrpcPort:   env.GetEnv("AUTH_GRPC_PORT"),
+		authGrpcHost:   env.GetEnv("AUTH_GRPC_HOST"),
 		redisHost:      env.GetEnv("REDIS_HOST"),
 		redisPort:      env.GetEnv("REDIS_PORT"),
 	}

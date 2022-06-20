@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	pb "github.com/pseudoincorrect/bariot/pkg/things/grpc"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 	"github.com/pseudoincorrect/bariot/tests/mocks/services"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
@@ -20,15 +21,15 @@ var mThings services.ThingsMock
 var conn *grpc.ClientConn
 var client pb.ThingsClient
 
-func connect() {
+func connect() pb.ThingsClient {
 	addr := host + ":" + port
-	log.Println("init user service GRPC client to ", addr)
+	debug.LogInfo("init user service GRPC client to ", addr)
 	c, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal("did not connect:", err)
 	}
 	conn = c
-	client = pb.NewThingsClient(conn)
+	return pb.NewThingsClient(conn)
 }
 
 // On windows, the firewall will issue a warning
@@ -46,7 +47,7 @@ func TestMain(m *testing.M) {
 			log.Fatal("Could not start grpc server")
 		}
 	}()
-	connect()
+	client = connect()
 	code := m.Run()
 	conn.Close()
 	os.Exit(code)

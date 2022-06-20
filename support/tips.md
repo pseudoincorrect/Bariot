@@ -30,18 +30,6 @@ $ docker-compose run --entrypoint=sh  <container_image_name>
 $ docker volume rm $(docker volume ls -q)
 ```
 
-## DOCKER: To rebuild a specific service
-
-```console
-$ docker-compose up --build <docker_compose_service_name>
-```
-
-## DOCKER: To rebuild a specific service completely
-
-```console
-$ docker-compose up --no-deps --build <docker_compose_service_name>
-```
-
 ## DOCKER: To shut down a single container
 
 ```console
@@ -52,6 +40,24 @@ $ docker-compose rm -s -v <docker_compose_service_name>
 
 ```console
 \\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\
+```
+
+## DOCKER-COMPOSE: Follow logs
+
+```console
+$ docker-compose logs -f
+```
+
+## DOCKER-COMPOSE: Rebuild a specific service
+
+```console
+$ docker-compose up --build <docker_compose_service_name>
+```
+
+## DOCKER-COMPOSE: Rebuild a specific service completely
+
+```console
+$ docker-compose up --no-deps --build <docker_compose_service_name>
 ```
 
 ## MICRO: Install Micro (text editor) on a alpine container

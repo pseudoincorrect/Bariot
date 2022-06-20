@@ -3,7 +3,6 @@ package http
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -300,7 +299,6 @@ func AdminOnly(s service.Users) middlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			token := req.Header.Get("Authorization")
-			log.Println("AdminOnly route !", token)
 			isAuthorized, err := s.IsAdmin(req.Context(), token)
 			if err != nil {
 				e.HandleHttp(res, err.Error(), http.StatusInternalServerError)

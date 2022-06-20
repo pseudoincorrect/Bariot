@@ -6,22 +6,21 @@
 
 |     | Tag    | Description                                       |
 | --- | ------ | ------------------------------------------------- |
-|     | OPC-UA | Add OPC-UA                                        |
 |     | TEST   | Automate end to end testing with gitlab           |
-|     | VAULT  | Use Vault to store secrets                        |
 |     | DOCKER | Pre-compile docker images to speed up deployments |
 |     | MQTT   | Securing and Authorizing MQTT pub/sub with JSON   |
-|     | MQTT   | Securing and Authorizing MQTT pub/sub with HTTP   |
+|     | LOG    | Improve logging                                   |
+|     | HTTP   | Add a user/thing data reading endpoint            |
 |     |        |                                                   |
 
 <br>
  
 ## **IN PROCESS**
 
-|     | Tag  | Description                            |
-| --- | ---- | -------------------------------------- |
-|     | HTTP | Add a user/thing data reading endpoint |
-|     |      |                                        |
+|     | Tag | Description                        |
+| --- | --- | ---------------------------------- |
+|     | WS  | Add a thing data reading websocket |
+|     |     |                                    |
 
 <br>
 

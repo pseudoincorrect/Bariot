@@ -1,0 +1,12 @@
+# READER
+
+## Service for reading things (sensor) data
+
+- intercept Nats messages
+- Websocket server for realtime data streaming
+
+## Rely on the following services
+
+- Auth microservice
+- Things microservice
+- Nats broker

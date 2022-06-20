@@ -10,6 +10,7 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/pseudoincorrect/bariot/internal/users/models"
 	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,8 +42,8 @@ func TestMain(m *testing.M) {
 		config.RestartPolicy = docker.RestartPolicy{Name: "no"}
 	})
 	if err != nil {
-		log.Println("Open Docker Settings and select 'Expose daemon on tcp://localhost:2375 without TLS'")
-		log.Fatalf("Could not start resource: %s", err)
+		debug.LogError("Open Docker Settings and select 'Expose daemon on tcp://localhost:2375 without TLS'")
+		e.HandleFatal(e.ErrConn, err, "Could not start resource")
 	}
 	ContainerPort := resource.GetPort(userDbPort + "/tcp")
 	// Exponential back-off-retry, because the application in the container

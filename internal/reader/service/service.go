@@ -2,32 +2,37 @@ package service
 
 import (
 	"context"
-	"log"
 
-	"github.com/nats-io/nats.go"
+	natsGo "github.com/nats-io/nats.go"
 	auth "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	nats "github.com/pseudoincorrect/bariot/pkg/nats/client"
 	things "github.com/pseudoincorrect/bariot/pkg/things/client"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
+
+const natsThingsSubject = "thingsMsg.>"
+const natsThingsQueue = "things"
 
 type Reader interface {
 	AuthorizeSingleThing(userToken string, thingId string) error
-	ReceiveThingData(thingId string, thingData chan string, stop chan bool)
+	ReceiveThingData(thingId string, handler func(string), stop chan bool) error
 }
 
 type reader struct {
-	auth     auth.Auth
-	things   things.Things
-	natsConn *nats.Conn
+	auth   auth.Auth
+	things things.Things
+	nats   nats.Nats
 }
 
 var _ Reader = (*reader)(nil)
 
 // New creates a new reader service
-func New(a auth.Auth, t things.Things, n *nats.Conn) Reader {
-	return &reader{a, t, n}
+func New(a auth.Auth, t things.Things, n nats.Nats) reader {
+	return reader{a, t, n}
 }
 
+// AuthorizeSingleThing Check whether a thingId belong to a user (ID) with a user token
 func (s *reader) AuthorizeSingleThing(userToken string, thingId string) error {
 	ctx := context.Background()
 	_, userId, err := s.auth.IsWhichUser(ctx, userToken)
@@ -38,13 +43,37 @@ func (s *reader) AuthorizeSingleThing(userToken string, thingId string) error {
 	if err != nil {
 		return err
 	}
-	log.Println("userId ", userId)
-	log.Println("userId2", userId2)
 	if userId != userId2 {
 		return e.ErrAuthz
 	}
 	return nil
 }
 
-func (s *reader) ReceiveThingData(thingId string, thingData chan string, stop chan bool) {
+// ReceiveThingData will connect to nats topic to receive the corresponding data and channel them
+func (s *reader) ReceiveThingData(
+	thingId string, handler func(string), stop chan bool,
+) error {
+	subject := natsThingsSubject + thingId
+	sub, err := s.nats.Subscribe(
+		subject, natsThingsQueue,
+		GetReceiveThingIdDataHandler(handler),
+	)
+	if err != nil {
+		return err
+	}
+	<-stop
+	err = sub.Unsubscribe()
+	if err != nil {
+		e.Handle(e.ErrNats, err, "nat unsubscribe")
+	}
+	return err
+}
+
+func GetReceiveThingIdDataHandler(handler func(string)) natsGo.MsgHandler {
+	return func(msg *natsGo.Msg) {
+		debug.LogDebug("--- GetReceiveThingIdDataHandler ---")
+		debug.LogDebug(msg)
+		debug.LogDebug("---")
+		handler(string(msg.Data))
+	}
 }

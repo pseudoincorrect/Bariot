@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 type CacheRes int64
@@ -55,35 +56,32 @@ func (c *cache) Connect() error {
 		DB:       0,
 	})
 
-	res, err := c.client.Ping(ctx).Result()
+	_, err := c.client.Ping(ctx).Result()
 	if err != nil {
 		log.Panic("Could not connect to Redis")
 	}
-	log.Println("Ping res = ", res)
 	return nil
 }
 
 // Delete token key from cache
 func (c *cache) DeleteToken(token string) error {
 	var ctx = context.Background()
-	key, err := c.client.Del(ctx, token).Result()
+	_, err := c.client.Del(ctx, token).Result()
 	if err != nil {
-		log.Println("Error DeleteToken")
+		debug.LogError("Error DeleteToken")
 		return e.ErrCache
 	}
-	log.Println("Deleted token key", key)
 	return nil
 }
 
 // Delete thingId key from cache
 func (c *cache) DeleteThingId(thingId string) error {
 	var ctx = context.Background()
-	key, err := c.client.Del(ctx, thingId).Result()
+	_, err := c.client.Del(ctx, thingId).Result()
 	if err != nil {
-		log.Println("Error DeleteToken")
+		debug.LogError("Error DeleteToken")
 		return e.ErrCache
 	}
-	log.Println("Deleted thingId key", key)
 	return nil
 }
 
@@ -94,14 +92,12 @@ func (c *cache) GetThingIdByToken(token string) (
 	thingId, err = c.client.Get(ctx, token).Result()
 
 	if err == redis.Nil {
-		log.Println("ThingCache token MISS")
+		debug.LogError("ThingCache token MISS")
 		return CacheMiss, "", nil
 	} else if err != nil {
-		log.Println("Error ThingCache")
+		debug.LogError("Error ThingCache")
 		return CacheError, "", e.ErrCache
 	}
-
-	log.Println("GetThingIdByToken(): ", token[0:10], " = ", thingId)
 	return CacheHit, thingId, nil
 }
 
@@ -112,14 +108,13 @@ func (c *cache) GetTokenByThingId(thingId string) (
 	token, err = c.client.Get(ctx, thingId).Result()
 
 	if err == redis.Nil {
-		log.Println("ThingCache thingId MISS")
+		debug.LogError("ThingCache thingId MISS")
 		return CacheMiss, "", nil
 	} else if err != nil {
-		log.Println("Error ThingCache")
+		debug.LogError("Error ThingCache")
 		return CacheError, "", e.ErrCache
 	}
 
-	log.Println("GetTokenByThingId(): ", thingId, " = ", token)
 	return CacheHit, token, nil
 }
 
@@ -129,13 +124,13 @@ func (c *cache) SetTokenWithThingId(token string, thingId string) error {
 
 	err := c.client.Set(ctx, token, thingId, 0).Err()
 	if err != nil {
-		log.Println("Error ThingCache, adding token (key) to cache")
+		debug.LogError("Error ThingCache, adding token (key) to cache")
 		return e.ErrCache
 	}
 
 	err = c.client.Set(ctx, thingId, token, 0).Err()
 	if err != nil {
-		log.Println("Error ThingCache, adding thingId (key) to cache")
+		debug.LogError("Error ThingCache, adding thingId (key) to cache")
 		return e.ErrCache
 	}
 
@@ -161,6 +156,5 @@ func (c *cache) DeleteTokenAndThingByThingId(thingId string) error {
 			return e.ErrCache
 		}
 	}
-	log.Println("Deleted Token", token[0:10], "and thingId", thingId)
 	return nil
 }

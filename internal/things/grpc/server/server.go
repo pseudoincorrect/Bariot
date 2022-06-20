@@ -6,6 +6,7 @@ import (
 	"net"
 
 	tGrpc "github.com/pseudoincorrect/bariot/pkg/things/grpc"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 	"google.golang.org/grpc"
 
 	"github.com/pseudoincorrect/bariot/internal/things/service"
@@ -34,7 +35,7 @@ type ServerConf struct {
 // Start starts the GRPC server
 func Start(conf ServerConf) (*grpc.Server, error) {
 	addr := ":" + conf.Port
-	log.Println("Starting Auth GRPC on", addr)
+	debug.LogInfo("Starting Auth GRPC on", addr)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

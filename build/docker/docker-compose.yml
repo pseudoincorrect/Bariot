@@ -31,8 +31,8 @@ services:
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
       HTTP_PORT: 8080
-      RPC_AUTH_HOST: auth
-      RPC_AUTH_PORT: ${USER_RPC_AUTH_PORT}
+      AUTH_GRPC_HOST: ${AUTH_HOST}
+      AUTH_GRPC_PORT: ${AUTH_GRPC_PORT}
       PG_HOST: ${USERS_DB_HOST}
       PG_PORT: ${USERS_DB_PORT}
       PG_DATABASE: ${USERS_DB_NAME}
@@ -58,8 +58,10 @@ services:
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
       HTTP_PORT: 8080
-      RPC_AUTH_HOST: auth
-      RPC_AUTH_PORT: ${THINGS_RPC_AUTH_PORT}
+      AUTH_GRPC_HOST: ${AUTH_HOST}
+      AUTH_GRPC_PORT: ${AUTH_GRPC_PORT}
+      THINGS_GRPC_HOST: ${THINGS_GRPC_HOST}
+      THINGS_GRPC_PORT: ${THINGS_GRPC_PORT}
       PG_HOST: ${THINGS_DB_HOST}
       PG_PORT: ${THINGS_DB_PORT}
       PG_DATABASE: ${THINGS_DB_NAME}
@@ -81,8 +83,8 @@ services:
     image: bariot_auth_service:latest
     environment:
       BARIOT_ENV: ${BARIOT_ENV}
-      RPC_HOST: ${RPC_HOST}
-      RPC_PORT: ${RPC_PORT}
+      AUTH_GRPC_HOST: ${AUTH_GRPC_HOST}
+      AUTH_GRPC_PORT: ${AUTH_GRPC_PORT}
       ADMIN_SECRET: ${ADMIN_SECRET}
       JWT_SECRET: ${JWT_SECRET}
     networks:
@@ -110,19 +112,19 @@ services:
       NATS_PORT: ${NATS_PORT}
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
-      RPC_AUTH_HOST: auth
-      RPC_AUTH_PORT: ${THINGS_RPC_AUTH_PORT}
+      AUTH_GRPC_HOST: ${AUTH_HOST}
+      AUTH_GRPC_PORT: ${AUTH_GRPC_PORT}
     networks:
       - bariot-net
 
-  influxdb:
-    container_name: bariot_influxdb
+  writer:
+    container_name: bariot_writer
     build:
       context: ../..
       dockerfile: build/docker/Dockerfile
       args:
-        SVC: influxdb
-    image: bariot_influxdb_service:latest
+        SVC: writer
+    image: bariot_writer_service:latest
     depends_on:
       - influxdb_db
       - nats
@@ -135,6 +137,31 @@ services:
       INFLUXDB_PORT: ${INFLUXDB_PORT}
       NATS_HOST: ${NATS_HOST}
       NATS_PORT: ${NATS_PORT}
+    networks:
+      - bariot-net
+
+  reader:
+    container_name: bariot_reader
+    build:
+      context: ../..
+      dockerfile: build/docker/Dockerfile
+      args:
+        SVC: reader
+    image: bariot_reader_service:latest
+    depends_on:
+      - nats
+    environment:
+      BARIOT_ENV: ${BARIOT_ENV}
+      READER_WS_HOST: ${READER_WS_HOST}
+      READER_WS_PORT: ${READER_WS_PORT}
+      NATS_HOST: ${NATS_HOST}
+      NATS_PORT: ${NATS_PORT}
+      AUTH_GRPC_HOST: ${AUTH_HOST}
+      AUTH_GRPC_PORT: ${AUTH_GRPC_PORT}
+      THINGS_GRPC_HOST: ${THINGS_HOST}
+      THINGS_GRPC_PORT: ${THINGS_GRPC_PORT}
+    # ports:
+    #   - 80:8080
     networks:
       - bariot-net
 

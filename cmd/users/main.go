@@ -12,10 +12,11 @@ import (
 	"github.com/pseudoincorrect/bariot/internal/users/service"
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	"github.com/pseudoincorrect/bariot/pkg/env"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 func main() {
-	log.Println("Users service online")
+	debug.LogInfo("Users service online")
 	usersService, err := createService()
 	if err != nil {
 		log.Panic("Users service creation error", err)
@@ -24,7 +25,7 @@ func main() {
 	if err != nil {
 		log.Panic("Admin creation error", err)
 	}
-	log.Println("init user service HTTP server")
+	debug.LogInfo("init user service HTTP server")
 	go func() {
 		err = startHttp(usersService)
 		if err != nil {
@@ -38,8 +39,8 @@ func main() {
 
 type config struct {
 	httpPort      string
-	rpcAuthPort   string
-	rpcAuthHost   string
+	authGrpcPort  string
+	authGrpcHost  string
 	dbHost        string
 	dbPort        string
 	dbUser        string
@@ -52,8 +53,8 @@ type config struct {
 func loadConfig() config {
 	var conf = config{
 		httpPort:      env.GetEnv("HTTP_PORT"),
-		rpcAuthPort:   env.GetEnv("RPC_AUTH_PORT"),
-		rpcAuthHost:   env.GetEnv("RPC_AUTH_HOST"),
+		authGrpcPort:  env.GetEnv("AUTH_GRPC_PORT"),
+		authGrpcHost:  env.GetEnv("AUTH_GRPC_HOST"),
 		dbHost:        env.GetEnv("PG_HOST"),
 		dbPort:        env.GetEnv("PG_PORT"),
 		dbName:        env.GetEnv("PG_DATABASE"),
@@ -77,22 +78,21 @@ func createService() (service.Users, error) {
 	}
 	database, err := db.Init(dbConf)
 	if err != nil {
-		log.Println("Database Init error:", err)
+		debug.LogError("Database Init error:", err)
 		return nil, err
 	}
 	usersRepo := db.New(database)
 	authClientConf := authClient.Conf{
-		Host: conf.rpcAuthHost,
-		Port: conf.rpcAuthPort,
+		Host: conf.authGrpcHost,
+		Port: conf.authGrpcPort,
 	}
 	authClient := authClient.New(authClientConf)
 	err = authClient.StartAuthClient()
 	if err != nil {
-		log.Println("Auth client error:", err)
+		debug.LogError("Auth client error:", err)
 		return nil, err
 	}
-	return service.New(usersRepo, authClient), nil
-
+	return service.New(&usersRepo, &authClient), nil
 }
 
 // startHttp starts the HTTP server.
@@ -109,7 +109,7 @@ func createAdmin(s service.Users) error {
 		return err
 	}
 	if user == nil {
-		log.Println("Admin does not exist, creating him...")
+		debug.LogError("Admin does not exist, creating him...")
 		hashPass, err := hash.HashPassword(conf.adminPassword)
 		if err != nil {
 			return err

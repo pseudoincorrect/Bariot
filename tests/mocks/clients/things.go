@@ -7,22 +7,22 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockThingsClient struct {
+type ThingsClientMock struct {
 	mock.Mock
 }
 
-var _ client.Things = (*MockThingsClient)(nil)
+var _ client.Things = (*ThingsClientMock)(nil)
 
-func NewMockThingsClient() MockThingsClient {
-	return MockThingsClient{}
+func NewThingsClientMock() ThingsClientMock {
+	return ThingsClientMock{}
 }
 
-func (m *MockThingsClient) StartThingsClient() error {
+func (m *ThingsClientMock) StartThingsClient() error {
 	args := m.Called()
 	return args.Error(0)
 }
 
-func (m *MockThingsClient) GetUserOfThing(ctx context.Context, thingId string) (userId string, err error) {
+func (m *ThingsClientMock) GetUserOfThing(ctx context.Context, thingId string) (userId string, err error) {
 	args := m.Called()
 	return args.String(1), args.Error(0)
 }

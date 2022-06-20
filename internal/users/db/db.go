@@ -3,9 +3,9 @@ package db
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/jackc/pgx/v4"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 type Database struct {
@@ -34,7 +34,7 @@ func connect(conf DbConfig) (*Database, error) {
 	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.User, conf.Password, conf.Host, conf.Port, conf.Dbname)
 	conn, err := pgx.Connect(context.Background(), dbUrl)
 	if err != nil {
-		log.Println("Unable to connect to database:", err)
+		debug.LogError("Unable to connect to database:", err)
 		return nil, err
 	}
 	return &Database{conn}, nil
@@ -55,7 +55,7 @@ func createUsersTable(db *Database) error {
 
 	_, err := db.conn.Exec(context.Background(), createTable)
 	if err != nil {
-		log.Println("Unable to begin :", err)
+		debug.LogError("Unable to begin :", err)
 		return err
 	}
 	return nil

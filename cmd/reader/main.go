@@ -1,27 +1,69 @@
 package main
 
 import (
-	"log"
+	"time"
 
-	websocket "github.com/pseudoincorrect/bariot/internal/reader/ws"
+	"github.com/pseudoincorrect/bariot/internal/reader/service"
+	"github.com/pseudoincorrect/bariot/internal/reader/ws"
+	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	"github.com/pseudoincorrect/bariot/pkg/env"
+	natsClient "github.com/pseudoincorrect/bariot/pkg/nats/client"
+	thingsClient "github.com/pseudoincorrect/bariot/pkg/things/client"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
+func main() {
+	conf := loadConfig()
+	debug.LogInfo("Reader service online")
+	reader := createService()
+	wsConfig := ws.Config{
+		Host:    conf.readerWsHost,
+		Port:    conf.readerWsPort,
+		Service: reader,
+	}
+	ws.Start(wsConfig)
+	for {
+		time.Sleep(time.Millisecond * 100)
+	}
+}
+
 type config struct {
-	wsPort string
+	bariotEnv      string
+	authGrpcHost   string
+	authGrpcPort   string
+	thingsGrpcHost string
+	thingsGrpcPort string
+	natsHost       string
+	natsPort       string
+	readerWsPort   string
+	readerWsHost   string
 }
 
 // Load config from environment variables
 func loadConfig() config {
 	var conf = config{
-		wsPort: env.GetEnv("WS_PORT"),
+		bariotEnv:      env.GetEnv("BARIOT_ENV"),
+		authGrpcHost:   env.GetEnv("AUTH_GRPC_HOST"),
+		authGrpcPort:   env.GetEnv("AUTH_GRPC_PORT"),
+		thingsGrpcHost: env.GetEnv("THINGS_GRPC_HOST"),
+		thingsGrpcPort: env.GetEnv("THINGS_GRPC_PORT"),
+		natsHost:       env.GetEnv("NATS_HOST"),
+		natsPort:       env.GetEnv("NATS_PORT"),
+		readerWsHost:   env.GetEnv("READER_WS_HOST"),
+		readerWsPort:   env.GetEnv("READER_WS_PORT"),
 	}
 	return conf
 }
 
-func main() {
+// createService with necessary clients
+func createService() service.Reader {
 	conf := loadConfig()
-	log.Println(conf)
-	log.Println("Reader service online")
-	websocket.Start(websocket.Config{Port: "8080"})
+	authConf := authClient.Conf{Host: conf.authGrpcHost, Port: conf.authGrpcPort}
+	auth := authClient.New(authConf)
+	thingsConf := thingsClient.Conf{Host: conf.thingsGrpcHost, Port: conf.thingsGrpcPort}
+	things := thingsClient.New(thingsConf)
+	natsConf := natsClient.Conf{Host: conf.natsHost, Port: conf.natsPort}
+	nats := natsClient.New(natsConf)
+	reader := service.New(&auth, &things, &nats)
+	return &reader
 }

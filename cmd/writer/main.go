@@ -14,7 +14,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/pseudoincorrect/bariot/pkg/env"
 	"github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/writer"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	log.Println("Connected to InfluxDB")
+	debug.LogInfo("Connected to InfluxDB")
 	opts := []nats.Option{nats.Name("NATS Sample Queue Subscriber")}
 	opts = natsSetupConnOptions(opts)
 	err = w.natsConnect(opts)
@@ -35,22 +35,29 @@ func main() {
 		log.Panic(err)
 	}
 	defer w.natsDisconnect()
-	log.Println("Connected to nats", w.natsConn.ConnectedUrl())
+	debug.LogInfo("Connected to nats", w.natsConn.ConnectedUrl())
 
 	err = w.natsSubscribe(natsThingsSubject, natsThingsQueue, w.getNatsMsgHandler())
 	if err != nil {
 		log.Panic(err)
 	}
-	log.Println("Subscribed to NATS", natsThingsSubject)
+	debug.LogInfo("Subscribed to NATS", natsThingsSubject)
 	time.Sleep(20 * time.Second)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
-	log.Println()
-	log.Println("Draining...")
+	debug.LogInfo("Draining...")
 	w.natsConn.Drain()
 	log.Fatalf("Exiting")
+}
 
+type Writer interface {
+	Write([]senml.Pack) error
+}
+
+type ThingData struct {
+	ThingId     string
+	SensorsData *senml.Pack
 }
 
 type influxdbWriter struct {
@@ -98,13 +105,13 @@ func (w *influxdbWriter) connectToInfluxdb() error {
 }
 
 // influxdbWrite Write a batch of senml msg to influxdb
-func (w *influxdbWriter) influxdbWrite(data *writer.ThingData) {
+func (w *influxdbWriter) influxdbWrite(data *ThingData) {
 	writeAPI := w.influxClient.WriteAPI(w.conf.influxdbOrg, w.conf.influxdbBucket)
 	errChan := writeAPI.Errors()
 
 	go func() {
 		for err := range errChan {
-			log.Println("Influxdb write error: ", err)
+			debug.LogError("Influxdb write error: ", err)
 		}
 	}()
 
@@ -120,7 +127,7 @@ func (w *influxdbWriter) influxdbWrite(data *writer.ThingData) {
 		} else if r.BoolValue != nil {
 			p.AddField("value", *r.BoolValue)
 		} else {
-			log.Println("No value found in senml")
+			debug.LogError("No value found in senml")
 			continue
 		}
 		writeAPI.WritePoint(p)
@@ -133,7 +140,7 @@ func (w *influxdbWriter) influxdbWrite(data *writer.ThingData) {
 // TODO: check for Nats health
 func (w *influxdbWriter) natsConnect(opts []nats.Option) error {
 	natsUrl := "nats://" + w.conf.natsHost + ":" + w.conf.natsPort
-	log.Println("Connecting to NATS Server:", natsUrl)
+	debug.LogInfo("Connecting to NATS Server:", natsUrl)
 	nc, err := nats.Connect(natsUrl, opts...)
 	if err != nil {
 		return errors.ErrConn
@@ -154,10 +161,12 @@ func natsSetupConnOptions(opts []nats.Option) []nats.Option {
 	opts = append(opts, nats.ReconnectWait(reconnectDelay))
 	opts = append(opts, nats.MaxReconnects(int(totalWait/reconnectDelay)))
 	opts = append(opts, nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
-		log.Printf("Disconnected due to: %s, will attempt reconnects for %.0fm", err, totalWait.Minutes())
+		str := fmt.Sprintf("Disconnected due to: %s, will attempt reconnects for %.0fm", err, totalWait.Minutes())
+		debug.LogInfo(str)
 	}))
 	opts = append(opts, nats.ReconnectHandler(func(nc *nats.Conn) {
-		log.Printf("Reconnected [%s]", nc.ConnectedUrl())
+		str := fmt.Sprintf("Reconnected [%s]", nc.ConnectedUrl())
+		debug.LogInfo(str)
 	}))
 	opts = append(opts, nats.ClosedHandler(func(nc *nats.Conn) {
 		log.Panic("Exiting:", nc.LastError())
@@ -189,37 +198,30 @@ func (w *influxdbWriter) getNatsMsgHandler() nats.MsgHandler {
 
 // printNatsMsg print a nats message
 func printNatsMsg(m *nats.Msg) {
-	// msg, err := utils.PrettyJsonString(string(m.Data))
-	// if err != nil {
-	// 	log.Println("Error printing Nats message")
-	// 	return
-	// }
-	log.Printf("NATS Message Received on [%s] Queue[%s] Pid[%d]", m.Subject, m.Sub.Queue, os.Getpid())
-	log.Printf("NATS Message Payload %s", m.Data)
+	str := fmt.Sprintf("NATS Message Received on [%s] Queue[%s] Pid[%d]", m.Subject, m.Sub.Queue, os.Getpid())
+	debug.LogInfo(str)
+	str = fmt.Sprintf("NATS Message Payload %s", m.Data)
+	debug.LogInfo(str)
 }
 
 // decodeSenmlMsg decodes a JSON message into a SenML message
-func decodeNatsThingMsg(msg *nats.Msg) (*writer.ThingData, error) {
+func decodeNatsThingMsg(msg *nats.Msg) (*ThingData, error) {
 	senmlMsg, err := senml.Decode(msg.Data, senml.JSON)
 	if err != nil {
-		log.Println("Error decoding SenML message:", err)
+		debug.LogError("Error decoding SenML message:", err)
 		return nil, errors.ErrValidation
 	}
 	senmlMsg, err = senml.Normalize(senmlMsg)
 	if err != nil {
-		log.Println("Error normalizing SenML message:", err)
+		debug.LogError("Error normalizing SenML message:", err)
 		return nil, errors.ErrValidation
 	}
-	// for _, senmlRecord := range senmlMsg.Records {
-	// 	log.Println(utils.PrettySenmlRecord(senmlRecord))
-	// }
-	// log.Println("Decoded SenML message:", senmlMsg)
+
 	thingId, err := getThingIdFromNatsSubject(msg.Subject)
-	log.Println("ThingID = ", thingId)
 	if err != nil {
 		return nil, errors.ErrValidation
 	}
-	thingData := writer.ThingData{
+	thingData := ThingData{
 		ThingId:     thingId,
 		SensorsData: &senmlMsg,
 	}

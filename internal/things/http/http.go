@@ -3,7 +3,6 @@ package http
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -120,14 +119,11 @@ func thingPostEndpoint(s service.Things) http.HandlerFunc {
 			Name:   thingReq.Name,
 			UserId: userId,
 		}
-		log.Println(thing)
 		err = s.SaveThing(context.Background(), &thing)
 		if err != nil {
 			e.HandleHttp(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		log.Println(thing)
-
 		res.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(res).Encode(&thing)
 	}
@@ -198,7 +194,6 @@ func thingPutEndpoint(s service.Things) http.HandlerFunc {
 			Name:   thingReq.Name,
 			UserId: userId,
 		}
-		log.Println("TODO: check thing belong to user")
 		err = s.UpdateThing(context.Background(), &thing)
 		if err != nil {
 			e.HandleHttp(res, err.Error(), http.StatusInternalServerError)
@@ -241,7 +236,6 @@ func userOfThingOrAdmin(
 	// middleware logic
 	fn := func(res http.ResponseWriter, req *http.Request) {
 		token := req.Header.Get("Authorization")
-		log.Println("token = ", token)
 		thingId := chi.URLParam(req, "id")
 		if err := validation.ValidateUuid(thingId); err != nil {
 			e.HandleHttp(res, err.Error(), http.StatusBadRequest)
@@ -249,7 +243,6 @@ func userOfThingOrAdmin(
 		}
 		userId, err := s.UserOfThingOrAdmin(context.Background(), token, thingId)
 		if err != nil {
-			log.Println(err)
 			e.HandleHttp(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -278,7 +271,6 @@ func userOfThingOnly(
 		}
 		userId, err := s.UserOfThingOnly(context.Background(), token, thingId)
 		if err != nil {
-			log.Println(err)
 			e.HandleHttp(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -301,7 +293,6 @@ func userOnly(
 		token := req.Header.Get("Authorization")
 		userId, err := s.UserOnly(context.Background(), token)
 		if err != nil {
-			log.Println(err)
 			e.HandleHttp(res, err.Error(), http.StatusInternalServerError)
 			return
 		}

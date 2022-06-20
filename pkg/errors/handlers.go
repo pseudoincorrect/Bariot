@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"runtime"
-	"strings"
-)
 
-const debug = true
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+)
 
 type AppError interface {
 	Error() string
@@ -41,30 +39,18 @@ func (err *appError) Error() string {
 }
 
 func Handle(err error, origin error, msg string) error {
-	printCallerInfo()
 	er := New(err, origin, msg)
-	log.Println("[ERROR]", er.Error())
+	debug.LogWithDepth(3, "ERROR", er.Error())
 	return &er
 }
 
 func HandleFatal(err error, origin error, msg string) {
-	printCallerInfo()
 	er := New(err, origin, msg)
+	debug.LogWithDepth(3, "FATAL ERROR", er.Error())
 	log.Fatal("[FATAL ERROR]", er.Error())
 }
 
 func HandleHttp(res http.ResponseWriter, msg string, code int) {
-	log.Println("HTTP ERROR", msg)
+	debug.LogWithDepth(3, "HTTP ERROR", msg)
 	http.Error(res, msg, code)
-}
-
-func printCallerInfo() {
-	if debug {
-		_, file, no, ok := runtime.Caller(2)
-		if ok {
-			splits := strings.Split(file, "/")
-			fileName := splits[len(splits)-1]
-			log.Println("[ERROR FROM]", fileName, "[LINE]", no)
-		}
-	}
 }

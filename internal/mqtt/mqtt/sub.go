@@ -13,8 +13,9 @@ import (
 
 	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/mainflux/senml"
-	"github.com/pseudoincorrect/bariot/internal/mqtt/nats"
-	"github.com/pseudoincorrect/bariot/pkg/errors"
+	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	nats "github.com/pseudoincorrect/bariot/pkg/nats/client"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 type MqttSub interface {
@@ -62,11 +63,11 @@ func (sub *mqttSub) healthCheck() error {
 		sub.conf.Host + ":" + sub.conf.HealthPort + "/api/v4/brokers"
 	resp, err := http.Get(url)
 	if err != nil {
-		return errors.ErrConn
+		return e.ErrConn
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return errors.ErrConn
+		return e.ErrConn
 	}
 	return nil
 }
@@ -75,14 +76,14 @@ func (sub *mqttSub) healthCheck() error {
 func (sub *mqttSub) Connect() error {
 	err := sub.healthCheckBlocking()
 	if err != nil {
-		return errors.ErrConn
+		return e.ErrConn
 	}
 	// paho.DEBUG = log.New(os.Stdout, "", 0)
 	paho.WARN = log.New(os.Stdout, "", 0)
 	paho.ERROR = log.New(os.Stdout, "", 0)
 	r1 := rand.New(rand.NewSource(time.Now().UnixNano()))
 	clientId := "bariot_" + strconv.Itoa(r1.Intn(1000000))
-	log.Println("MQTT client ID :", clientId)
+	debug.LogInfo("MQTT client ID :", clientId)
 	url := "tcp://" + sub.conf.Host + ":" + sub.conf.Port
 
 	opts := paho.NewClientOptions().AddBroker(url).SetClientID(clientId)
@@ -107,16 +108,16 @@ func (sub *mqttSub) Subscriber(topic string, qos byte,
 	stringHandler := func(client paho.Client, msg paho.Message) {
 		msgTopic := msg.Topic()
 		msgPayload := msg.Payload()
-		log.Printf("MQTT msg RECEIVED\n")
-		log.Printf("MQTT topic:   %s\n", msgTopic)
-		log.Printf("MQTT payload: %s\n", msgPayload)
+		debug.LogDebug("MQTT msg RECEIVED")
+		debug.LogDebug("MQTT topic:  ", msgTopic)
+		debug.LogDebug("MQTT payload:", msgPayload)
 		jwt, sensorData, err := ExtractData(msgPayload)
 		if err != nil {
-			log.Println(err.Error())
+			debug.LogError(err.Error())
 		}
 		err = authorizer(msgTopic, jwt)
 		if err != nil {
-			log.Println(err.Error())
+			debug.LogError(err.Error())
 		}
 		msgSensors, _ := senml.Encode(sensorData, senml.JSON)
 
@@ -137,7 +138,7 @@ func (sub *mqttSub) Subscriber(topic string, qos byte,
 func (sub *mqttSub) Unsubscribe(topic string) {
 	token := sub.client.Unsubscribe(topic)
 	if token.Wait() && token.Error() != nil {
-		log.Fatalf("Error unsubscribing from topic: %s\n", token.Error())
+		e.HandleFatal(e.ErrMqtt, nil, "Error unsubscribing from topic")
 	}
 }
 
@@ -148,8 +149,8 @@ func (sub *mqttSub) Disconnect() {
 
 // defaultMessageHandler handles the messages received from the MQTT broker.
 var defaultMessageHandler paho.MessageHandler = func(client paho.Client, msg paho.Message) {
-	log.Printf("INCORRECT PUBLISH HERE: %s\n", msg.Topic())
-	log.Printf("MSG: %s\n", msg.Payload())
+	debug.LogDebug("INCORRECT PUBLISH HERE: ", msg.Topic())
+	debug.LogDebug("MSG: ", msg.Payload())
 }
 
 type AuthenticatedMsg struct {
@@ -163,11 +164,11 @@ func ExtractData(payload []byte) (string, senml.Pack, error) {
 
 	err := json.Unmarshal(payload, &msg)
 	if err != nil {
-		log.Println(err)
+		err := e.Handle(e.ErrParsing, err, "json unmarshal extract data")
 		return "", senml.Pack{}, err
 	}
-	// log.Println("JSON decoded jwt = ", msg.Token)
-	// log.Println("JSON decoded data = ", msg.Sensors)
+	// debug.Log("JSON decoded jwt = ", msg.Token)
+	// debug.Log("JSON decoded data = ", msg.Sensors)
 	pack := senml.Pack{Records: msg.Records}
 	return msg.Token, pack, nil
 }

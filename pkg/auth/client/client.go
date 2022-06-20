@@ -2,9 +2,9 @@ package client
 
 import (
 	"context"
-	"log"
 
 	pb "github.com/pseudoincorrect/bariot/pkg/auth/grpc"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -28,8 +28,8 @@ type Auth interface {
 // Static type checking
 var _ Auth = (*authClient)(nil)
 
-func New(conf Conf) Auth {
-	return &authClient{Conf: conf, Conn: nil, Client: nil}
+func New(conf Conf) authClient {
+	return authClient{Conf: conf, Conn: nil, Client: nil}
 }
 
 type Conf struct {
@@ -46,13 +46,13 @@ type authClient struct {
 // StartAuthClient starts the auth client GRPC server
 func (c *authClient) StartAuthClient() error {
 	addr := c.Conf.Host + ":" + c.Conf.Port
-	log.Println("init user service GRPC client to ", addr)
+	debug.LogInfo("init user service GRPC client to ", addr)
 	conn, err := grpc.Dial(
 		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		log.Println("did not connect:", err)
+		debug.LogError("did not connect:", err)
 		return err
 	}
 	// defer conn.Close()
@@ -65,7 +65,7 @@ func (c *authClient) StartAuthClient() error {
 func (c *authClient) IsAdmin(ctx context.Context, token string) (isAdmin bool, err error) {
 	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: token})
 	if err != nil {
-		log.Println("IsWhichUser GetClaimsUserToken error:", err)
+		debug.LogError("IsWhichUser GetClaimsUserToken error:", err)
 		return false, err
 	}
 	return claims.GetRole() == Admin, nil
@@ -75,7 +75,7 @@ func (c *authClient) IsAdmin(ctx context.Context, token string) (isAdmin bool, e
 func (c *authClient) IsWhichUser(ctx context.Context, token string) (role string, userId string, err error) {
 	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: token})
 	if err != nil {
-		log.Println("IsWhichUser GetClaimsUserToken error:", err)
+		debug.LogError("IsWhichUser GetClaimsUserToken error:", err)
 		return "", "", err
 	}
 	return claims.GetRole(), claims.GetSubject(), nil
@@ -85,7 +85,7 @@ func (c *authClient) IsWhichUser(ctx context.Context, token string) (role string
 func (c *authClient) IsWhichThing(ctx context.Context, token string) (thingId string, err error) {
 	claims, err := c.Client.GetClaimsThingToken(ctx, &pb.GetClaimsThingTokenRequest{Jwt: token})
 	if err != nil {
-		log.Println("IsWhichThing GetClaimsThingToken error:", err)
+		debug.LogError("IsWhichThing GetClaimsThingToken error:", err)
 		return "", err
 	}
 	return claims.GetSubject(), nil
@@ -95,7 +95,7 @@ func (c *authClient) IsWhichThing(ctx context.Context, token string) (thingId st
 func (c *authClient) GetThingToken(ctx context.Context, thingId string, userId string) (token string, err error) {
 	res, err := c.Client.GetThingToken(ctx, &pb.GetThingTokenRequest{ThingId: thingId, UserId: userId})
 	if err != nil {
-		log.Println("GetThingToken error:", err)
+		debug.LogError("GetThingToken error:", err)
 		return "", err
 	}
 	return res.Jwt, nil
@@ -105,7 +105,7 @@ func (c *authClient) GetThingToken(ctx context.Context, thingId string, userId s
 func (c *authClient) GetAdminToken(ctx context.Context) (token string, err error) {
 	resToken, err := c.Client.GetAdminToken(ctx, &pb.GetAdminTokenRequest{})
 	if err != nil {
-		log.Println("GRPC get admin token error:", err)
+		debug.LogError("GRPC get admin token error:", err)
 		return "", err
 	}
 	return resToken.GetJwt(), nil
@@ -115,7 +115,7 @@ func (c *authClient) GetAdminToken(ctx context.Context) (token string, err error
 func (c *authClient) GetUserToken(ctx context.Context, userId string) (token string, err error) {
 	resToken, err := c.Client.GetUserToken(ctx, &pb.GetUserTokenRequest{UserId: userId})
 	if err != nil {
-		log.Println("GRPC get admin token error:", err)
+		debug.LogError("GRPC get admin token error:", err)
 		return "", err
 	}
 	return resToken.GetJwt(), nil

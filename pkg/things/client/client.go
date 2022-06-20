@@ -2,10 +2,10 @@ package client
 
 import (
 	"context"
-	"log"
 
 	e "github.com/pseudoincorrect/bariot/pkg/errors"
 	pb "github.com/pseudoincorrect/bariot/pkg/things/grpc"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -18,8 +18,8 @@ type Things interface {
 // Static type checking
 var _ Things = (*thingsClient)(nil)
 
-func New(conf Conf) Things {
-	return &thingsClient{Conf: conf, Conn: nil, Client: nil}
+func New(conf Conf) thingsClient {
+	return thingsClient{Conf: conf, Conn: nil, Client: nil}
 }
 
 type Conf struct {
@@ -36,16 +36,15 @@ type thingsClient struct {
 // StartThingsClient starts the auth client GRPC server
 func (c *thingsClient) StartThingsClient() error {
 	addr := c.Conf.Host + ":" + c.Conf.Port
-	log.Println("init user service GRPC client to ", addr)
+	debug.LogInfo("init user service GRPC client to ", addr)
 	conn, err := grpc.Dial(
 		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		log.Println("did not connect:", err)
+		debug.LogError("did not connect:", err)
 		return err
 	}
-	// defer conn.Close()
 	c.Conn = conn
 	c.Client = pb.NewThingsClient(conn)
 	return nil
@@ -55,7 +54,7 @@ func (c *thingsClient) StartThingsClient() error {
 func (c *thingsClient) GetUserOfThing(ctx context.Context, thingId string) (userId string, err error) {
 	res, err := c.Client.GetUserOfThing(ctx, &pb.GetUserOfThingRequest{ThingId: thingId})
 	if err != nil {
-		log.Println("IsWhichUser GetClaimsUserToken error:", err)
+		debug.LogError("IsWhichUser GetClaimsUserToken error:", err)
 		return "", e.Handle(e.ErrGrpc, err, "get user of thing grpc")
 	}
 	return res.UserId, nil

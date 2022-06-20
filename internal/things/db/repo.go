@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"log"
 	"strings"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/pseudoincorrect/bariot/internal/things/models"
 	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 const uuidErr string = "invalid input syntax for type uuid"
@@ -22,8 +22,8 @@ type thingsRepo struct {
 	db Database
 }
 
-func New(db *Database) models.ThingsRepository {
-	return &thingsRepo{*db}
+func New(db *Database) thingsRepo {
+	return thingsRepo{*db}
 }
 
 // Save a new thing to db
@@ -91,7 +91,7 @@ func (r *thingsRepo) Delete(ctx context.Context, id string) (string, error) {
 	err = tx.QueryRow(ctx, "DELETE FROM things WHERE id=$1 RETURNING id", id).Scan(&deletedId)
 
 	if err != nil {
-		log.Println("Error:", err)
+		debug.LogError("Error:", err)
 		return "", fail("delete", err)
 	}
 	if err = tx.Commit(ctx); err != nil {
@@ -114,7 +114,7 @@ func (r *thingsRepo) Update(ctx context.Context, thing *models.Thing) error {
 		thing.Key, thing.Name, thing.UserId, thing.Id).Scan(&thing.Key, &thing.Name, &thing.UserId, &createdAt)
 
 	if err != nil {
-		log.Println("Error:", err)
+		debug.LogError("Error:", err)
 		return fail("update", err)
 	}
 	if err = tx.Commit(ctx); err != nil {
@@ -126,7 +126,6 @@ func (r *thingsRepo) Update(ctx context.Context, thing *models.Thing) error {
 
 // Print and parse the DB error, return an app error
 func fail(msg string, err error) error {
-	// log.Println("DB failed", msg, err)
 	if strings.Contains(err.Error(), notFoundErr) {
 		return e.ErrDbNotFound
 	}

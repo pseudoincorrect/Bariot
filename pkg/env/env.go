@@ -1,8 +1,9 @@
 package env
 
 import (
-	"log"
 	"os"
+
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 /// GetEnv returns the value of the environment variable named by the key.
@@ -20,8 +21,8 @@ func GetEnvFb(key string, defaultValue string) string {
 func GetEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
-		log.Println("Environment variable", key, "is not set")
-		log.Println("Please set it and try again")
+		debug.LogError("Environment variable", key, "is not set")
+		debug.LogError("Please set it and try again")
 		panic("Environment variable " + key + " is not set and")
 	}
 	return value

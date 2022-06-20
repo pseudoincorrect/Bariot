@@ -7,12 +7,12 @@ package service
 
 import (
 	"context"
-	"log"
 
 	"github.com/pseudoincorrect/bariot/internal/things/models"
 	auth "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	rdb "github.com/pseudoincorrect/bariot/pkg/cache"
 	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
 )
 
 type Things interface {
@@ -46,7 +46,7 @@ func (s *thingsService) SaveThing(
 	ctx context.Context, thing *models.Thing) error {
 	err := s.repository.Save(ctx, thing)
 	if err != nil {
-		log.Println("Save Thing error:", err)
+		debug.LogError("Save Thing error:", err)
 		return err
 	}
 	return nil
@@ -56,7 +56,7 @@ func (s *thingsService) SaveThing(
 func (s *thingsService) GetThing(ctx context.Context, id string) (*models.Thing, error) {
 	thing, err := s.repository.Get(ctx, id)
 	if err != nil {
-		log.Println("Get Thing error:", err)
+		debug.LogError("Get Thing error:", err)
 		return nil, err
 	}
 	return thing, nil
@@ -66,11 +66,11 @@ func (s *thingsService) GetThing(ctx context.Context, id string) (*models.Thing,
 func (s *thingsService) DeleteThing(ctx context.Context, id string) (string, error) {
 	err := s.cache.DeleteTokenAndThingByThingId(id)
 	if err != nil {
-		log.Println("Could Delete and ThingId token in cache. err: ", err)
+		debug.LogError("Could Delete and ThingId token in cache. err: ", err)
 	}
 	resId, err := s.repository.Delete(ctx, id)
 	if err != nil {
-		log.Println("Delete Thing error:", err)
+		debug.LogError("Delete Thing error:", err)
 		return "", err
 	}
 	return resId, nil
@@ -81,7 +81,7 @@ func (s *thingsService) UpdateThing(
 	ctx context.Context, thing *models.Thing) error {
 	err := s.repository.Update(ctx, thing)
 	if err != nil {
-		log.Println("Update Thing error:", err)
+		debug.LogError("Update Thing error:", err)
 		return err
 	}
 	return nil
@@ -92,12 +92,12 @@ func (s *thingsService) GetThingToken(
 	ctx context.Context, thingId string, userId string) (string, error) {
 	jwt, err := s.auth.GetThingToken(ctx, thingId, userId)
 	if err != nil {
-		log.Println("Get thing token error: ", err)
+		debug.LogError("Get thing token error: ", err)
 		return "", err
 	}
 	err = s.cache.SetTokenWithThingId(jwt, thingId)
 	if err != nil {
-		log.Println("Could not set token in cache. err: ", err)
+		debug.LogError("Could not set token in cache. err: ", err)
 	}
 	return jwt, nil
 }

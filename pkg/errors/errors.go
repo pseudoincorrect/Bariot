@@ -12,6 +12,8 @@ var ErrRead = errors.New("read error")
 
 var ErrGrpc = errors.New("grpc error")
 
+var ErrNats = errors.New("nats error")
+
 var ErrValidation = errors.New("validation error")
 
 var ErrParsing = errors.New("parsing error")
@@ -31,3 +33,11 @@ var ErrAuthn = errors.New("authentication error")
 var ErrAuthz = errors.New("authorization error")
 
 var ErrCache = errors.New("cache error")
+
+var ErrHttpServer = errors.New("http server error")
+
+var ErrGrpcServer = errors.New("grpc server error")
+
+var ErrDocker = errors.New("docker error")
+
+var ErrMqtt = errors.New("mqtt error")
