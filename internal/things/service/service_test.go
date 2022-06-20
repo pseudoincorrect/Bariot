@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/pseudoincorrect/bariot/internal/things/models"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
 	"github.com/pseudoincorrect/bariot/tests/mocks/caches"
 	"github.com/pseudoincorrect/bariot/tests/mocks/clients"
 	"github.com/pseudoincorrect/bariot/tests/mocks/repos"

@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/pseudoincorrect/bariot/internal/things/models"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 const uuidErr string = "invalid input syntax for type uuid"
@@ -91,7 +91,7 @@ func (r *thingsRepo) Delete(ctx context.Context, id string) (string, error) {
 	err = tx.QueryRow(ctx, "DELETE FROM things WHERE id=$1 RETURNING id", id).Scan(&deletedId)
 
 	if err != nil {
-		debug.LogError("Error:", err)
+		logger.Error("Error:", err)
 		return "", fail("delete", err)
 	}
 	if err = tx.Commit(ctx); err != nil {
@@ -114,7 +114,7 @@ func (r *thingsRepo) Update(ctx context.Context, thing *models.Thing) error {
 		thing.Key, thing.Name, thing.UserId, thing.Id).Scan(&thing.Key, &thing.Name, &thing.UserId, &createdAt)
 
 	if err != nil {
-		debug.LogError("Error:", err)
+		logger.Error("Error:", err)
 		return fail("update", err)
 	}
 	if err = tx.Commit(ctx); err != nil {

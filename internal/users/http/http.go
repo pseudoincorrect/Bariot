@@ -10,8 +10,8 @@ import (
 	"github.com/pseudoincorrect/bariot/internal/users/hash"
 	"github.com/pseudoincorrect/bariot/internal/users/models"
 	"github.com/pseudoincorrect/bariot/internal/users/service"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/validation"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/validation"
 )
 
 // InitApi initializes the REST api

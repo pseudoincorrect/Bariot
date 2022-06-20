@@ -10,14 +10,14 @@ import (
 	"github.com/pseudoincorrect/bariot/internal/things/service"
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	cdb "github.com/pseudoincorrect/bariot/pkg/cache"
-	"github.com/pseudoincorrect/bariot/pkg/env"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	"github.com/pseudoincorrect/bariot/pkg/utils/env"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 func main() {
 	conf := loadConfig()
-	debug.LogInfo("Things service online")
+	logger.Info("Things service online")
 	thingsService, err := createService()
 	if err != nil {
 		log.Panic("Create service error:", err)
@@ -92,7 +92,7 @@ func createService() (service.Things, error) {
 	}
 	database, err := db.Init(dbConf)
 	if err != nil {
-		debug.LogError("Database Init error:", err)
+		logger.Error("Database Init error:", err)
 	}
 	thingsRepo := db.New(database)
 	authClientConf := authClient.Conf{
@@ -102,7 +102,7 @@ func createService() (service.Things, error) {
 	authClient := authClient.New(authClientConf)
 	err = authClient.StartAuthClient()
 	if err != nil {
-		debug.LogError("Auth client error:", err)
+		logger.Error("Auth client error:", err)
 		return nil, err
 	}
 	cache := cdb.New(cdb.Conf{

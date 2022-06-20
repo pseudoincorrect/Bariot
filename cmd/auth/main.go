@@ -5,12 +5,12 @@ import (
 
 	"github.com/pseudoincorrect/bariot/internal/auth/grpc/server"
 	"github.com/pseudoincorrect/bariot/internal/auth/service"
-	"github.com/pseudoincorrect/bariot/pkg/env"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	"github.com/pseudoincorrect/bariot/pkg/utils/env"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 func main() {
-	debug.LogInfo("Auth service...")
+	logger.Info("Auth service...")
 	conf := loadConfig()
 	serviceConf := service.ServiceConf{
 		Secret:      conf.jwtSecret,

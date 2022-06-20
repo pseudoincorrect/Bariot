@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
 	"github.com/pseudoincorrect/bariot/tests/mocks/services"
 )
 

@@ -11,16 +11,16 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/mainflux/senml"
-	"github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	"github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 /// GetEnv returns the value of the environment variable named by the key.
 func GetEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
-		debug.LogError("Environment variable", key, "is not set")
-		debug.LogError("Please set it and try again")
+		logger.Error("Environment variable", key, "is not set")
+		logger.Error("Please set it and try again")
 		panic("Environment variable " + key + " is not set")
 	}
 	return value
@@ -70,10 +70,10 @@ func MqttConnectAndSend() error {
 		// return err
 	}
 	defer m.mqttDisconnect()
-	debug.LogInfo("Connected to mqtt")
+	logger.Info("Connected to mqtt")
 	sensorData := createSenmlPack()
 	msg, _ := marshalMsg(m.conf.thingToken, sensorData)
-	debug.LogInfo("Publishing to mqtt")
+	logger.Info("Publishing to mqtt")
 	err = m.mqttPublish(topic, string(msg))
 	if err != nil {
 		log.Panic("could not publish MQTT message")
@@ -147,8 +147,8 @@ func (m *mqttTester) mqttDisconnect() {
 }
 
 func defaultMessageHandler(client mqtt.Client, msg mqtt.Message) {
-	debug.LogDebug("INCORRECT PUBLISH HERE:", msg.Topic())
-	debug.LogDebug("MSG:", msg.Payload())
+	logger.Debug("INCORRECT PUBLISH HERE:", msg.Topic())
+	logger.Debug("MSG:", msg.Payload())
 }
 
 func (m *mqttTester) mqttPublish(topic string, msg string) error {

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/pseudoincorrect/bariot/internal/reader/service"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
 	"github.com/stretchr/testify/mock"
 )
 

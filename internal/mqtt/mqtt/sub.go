@@ -13,9 +13,9 @@ import (
 
 	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/mainflux/senml"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
 	nats "github.com/pseudoincorrect/bariot/pkg/nats/client"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 type MqttSub interface {
@@ -83,7 +83,7 @@ func (sub *mqttSub) Connect() error {
 	paho.ERROR = log.New(os.Stdout, "", 0)
 	r1 := rand.New(rand.NewSource(time.Now().UnixNano()))
 	clientId := "bariot_" + strconv.Itoa(r1.Intn(1000000))
-	debug.LogInfo("MQTT client ID :", clientId)
+	logger.Info("MQTT client ID :", clientId)
 	url := "tcp://" + sub.conf.Host + ":" + sub.conf.Port
 
 	opts := paho.NewClientOptions().AddBroker(url).SetClientID(clientId)
@@ -108,16 +108,16 @@ func (sub *mqttSub) Subscriber(topic string, qos byte,
 	stringHandler := func(client paho.Client, msg paho.Message) {
 		msgTopic := msg.Topic()
 		msgPayload := msg.Payload()
-		debug.LogDebug("MQTT msg RECEIVED")
-		debug.LogDebug("MQTT topic:  ", msgTopic)
-		debug.LogDebug("MQTT payload:", msgPayload)
+		logger.Debug("MQTT msg RECEIVED")
+		logger.Debug("MQTT topic:  ", msgTopic)
+		logger.Debug("MQTT payload:", msgPayload)
 		jwt, sensorData, err := ExtractData(msgPayload)
 		if err != nil {
-			debug.LogError(err.Error())
+			logger.Error(err.Error())
 		}
 		err = authorizer(msgTopic, jwt)
 		if err != nil {
-			debug.LogError(err.Error())
+			logger.Error(err.Error())
 		}
 		msgSensors, _ := senml.Encode(sensorData, senml.JSON)
 
@@ -149,8 +149,8 @@ func (sub *mqttSub) Disconnect() {
 
 // defaultMessageHandler handles the messages received from the MQTT broker.
 var defaultMessageHandler paho.MessageHandler = func(client paho.Client, msg paho.Message) {
-	debug.LogDebug("INCORRECT PUBLISH HERE: ", msg.Topic())
-	debug.LogDebug("MSG: ", msg.Payload())
+	logger.Debug("INCORRECT PUBLISH HERE: ", msg.Topic())
+	logger.Debug("MSG: ", msg.Payload())
 }
 
 type AuthenticatedMsg struct {
@@ -167,8 +167,8 @@ func ExtractData(payload []byte) (string, senml.Pack, error) {
 		err := e.Handle(e.ErrParsing, err, "json unmarshal extract data")
 		return "", senml.Pack{}, err
 	}
-	// debug.Log("JSON decoded jwt = ", msg.Token)
-	// debug.Log("JSON decoded data = ", msg.Sensors)
+	// logger.("JSON decoded jwt = ", msg.Token)
+	// logger.("JSON decoded data = ", msg.Sensors)
 	pack := senml.Pack{Records: msg.Records}
 	return msg.Token, pack, nil
 }

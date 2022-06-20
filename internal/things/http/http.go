@@ -9,8 +9,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/pseudoincorrect/bariot/internal/things/models"
 	"github.com/pseudoincorrect/bariot/internal/things/service"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/validation"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/validation"
 )
 
 type ctxKey int

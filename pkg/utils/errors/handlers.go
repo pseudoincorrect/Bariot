@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 type AppError interface {
@@ -40,17 +40,17 @@ func (err *appError) Error() string {
 
 func Handle(err error, origin error, msg string) error {
 	er := New(err, origin, msg)
-	debug.LogWithDepth(3, "ERROR", er.Error())
+	logger.WithDepth(3, "ERROR", er.Error())
 	return &er
 }
 
 func HandleFatal(err error, origin error, msg string) {
 	er := New(err, origin, msg)
-	debug.LogWithDepth(3, "FATAL ERROR", er.Error())
+	logger.WithDepth(3, "FATAL ERROR", er.Error())
 	log.Fatal("[FATAL ERROR]", er.Error())
 }
 
 func HandleHttp(res http.ResponseWriter, msg string, code int) {
-	debug.LogWithDepth(3, "HTTP ERROR", msg)
+	logger.WithDepth(3, "HTTP ERROR", msg)
 	http.Error(res, msg, code)
 }

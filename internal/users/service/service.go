@@ -6,8 +6,8 @@ import (
 	"github.com/pseudoincorrect/bariot/internal/users/hash"
 	"github.com/pseudoincorrect/bariot/internal/users/models"
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
-	"github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	"github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 type Users interface {
@@ -38,7 +38,7 @@ func New(repository models.UsersRepository, auth authClient.Auth) Users {
 func (s *usersService) SaveUser(ctx context.Context, user *models.User) error {
 	err := s.repository.Save(ctx, user)
 	if err != nil {
-		debug.LogError("Save User error:", err)
+		logger.Error("Save User error:", err)
 		return err
 	}
 	return nil
@@ -48,7 +48,7 @@ func (s *usersService) SaveUser(ctx context.Context, user *models.User) error {
 func (s *usersService) GetUser(ctx context.Context, id string) (*models.User, error) {
 	user, err := s.repository.Get(ctx, id)
 	if err != nil {
-		debug.LogError("Get User error:", err)
+		logger.Error("Get User error:", err)
 		return nil, err
 	}
 	return user, nil
@@ -58,7 +58,7 @@ func (s *usersService) GetUser(ctx context.Context, id string) (*models.User, er
 func (s *usersService) GetByEmail(ctx context.Context, email string) (*models.User, error) {
 	user, err := s.repository.GetByEmail(ctx, email)
 	if err != nil {
-		debug.LogError("Get User by email error:", err)
+		logger.Error("Get User by email error:", err)
 		return nil, err
 	}
 	return user, nil
@@ -68,7 +68,7 @@ func (s *usersService) GetByEmail(ctx context.Context, email string) (*models.Us
 func (s *usersService) DeleteUser(ctx context.Context, id string) (string, error) {
 	resId, err := s.repository.Delete(ctx, id)
 	if err != nil {
-		debug.LogError("Delete User error:", err)
+		logger.Error("Delete User error:", err)
 		return "", err
 	}
 	return resId, nil
@@ -78,7 +78,7 @@ func (s *usersService) DeleteUser(ctx context.Context, id string) (string, error
 func (s *usersService) UpdateUser(ctx context.Context, user *models.User) error {
 	err := s.repository.Update(ctx, user)
 	if err != nil {
-		debug.LogError("Update User error:", err)
+		logger.Error("Update User error:", err)
 		return err
 	}
 	return nil

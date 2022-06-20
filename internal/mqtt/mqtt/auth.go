@@ -6,8 +6,8 @@ import (
 
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	cdb "github.com/pseudoincorrect/bariot/pkg/cache"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 type Authorizer func(topic string, jwt string) error
@@ -21,7 +21,7 @@ func CreateAuthorizer(auth authClient.Auth, cache cdb.ThingCache) (Authorizer, e
 		}
 		topicThingId, _ := extractThingIdFromTopic(topic)
 		if topicThingId != thingId {
-			debug.LogError("Thing", thingId, "NOT AUTHORIZED to publish on topic", topic)
+			logger.Error("Thing", thingId, "NOT AUTHORIZED to publish on topic", topic)
 			return e.ErrAuthz
 		}
 		return nil
@@ -39,7 +39,7 @@ func extractThingIdFromTopic(topic string) (string, error) {
 func authenticate(auth authClient.Auth, cache cdb.ThingCache, token string) (string, error) {
 	res, thingId, err := cache.GetThingIdByToken(token)
 	if err != nil {
-		debug.LogError("Error Redis cache")
+		logger.Error("Error Redis cache")
 		return "", e.ErrCache
 	}
 	if res == cdb.CacheHit {
@@ -48,13 +48,13 @@ func authenticate(auth authClient.Auth, cache cdb.ThingCache, token string) (str
 
 	thingId, err = auth.IsWhichThing(context.Background(), token)
 	if err != nil {
-		debug.LogError("MQTT token AUTHENTICATION error")
+		logger.Error("MQTT token AUTHENTICATION error")
 		return "", e.ErrAuthz
 	}
 
 	err = cache.SetTokenWithThingId(token, thingId)
 	if err != nil {
-		debug.LogError("Error Redis cache")
+		logger.Error("Error Redis cache")
 		return "", err
 	}
 	return thingId, nil

@@ -5,10 +5,10 @@ import (
 
 	natsGo "github.com/nats-io/nats.go"
 	auth "github.com/pseudoincorrect/bariot/pkg/auth/client"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
 	nats "github.com/pseudoincorrect/bariot/pkg/nats/client"
 	things "github.com/pseudoincorrect/bariot/pkg/things/client"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 const natsThingsSubject = "thingsMsg.>"
@@ -71,9 +71,9 @@ func (s *reader) ReceiveThingData(
 
 func GetReceiveThingIdDataHandler(handler func(string)) natsGo.MsgHandler {
 	return func(msg *natsGo.Msg) {
-		debug.LogDebug("--- GetReceiveThingIdDataHandler ---")
-		debug.LogDebug(msg)
-		debug.LogDebug("---")
+		logger.Debug("--- GetReceiveThingIdDataHandler ---")
+		logger.Debug(msg)
+		logger.Debug("---")
 		handler(string(msg.Data))
 	}
 }

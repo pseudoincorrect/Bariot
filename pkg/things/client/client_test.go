@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
 	"github.com/pseudoincorrect/bariot/tests/mocks/grpc"
 	"github.com/stretchr/testify/assert"
 )

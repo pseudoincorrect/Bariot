@@ -6,8 +6,8 @@ import (
 	"time"
 
 	natsGo "github.com/nats-io/nats.go"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 const natsThingsSubject = "thingsMsg.>"
@@ -44,7 +44,7 @@ func New(conf Conf) nats {
 // connect setup a connection to a Nats server
 func (nps *nats) Connect(opts []natsGo.Option) error {
 	natsUrl := "nats://" + nps.host + ":" + nps.port
-	debug.LogInfo("Connecting to NATS Server:", natsUrl)
+	logger.Info("Connecting to NATS Server:", natsUrl)
 	nc, err := natsGo.Connect(natsUrl, opts...)
 	if err != nil {
 		return e.Handle(e.ErrConn, err, "nats connect")
@@ -77,7 +77,7 @@ func (nps *nats) Subscribe(subject string, queue string, handler natsGo.MsgHandl
 // Publish publishes a message to the NATS server.
 func (nps *nats) Publish(subject string, payload string) error {
 	if err := nps.conn.Publish(subject, []byte(payload)); err != nil {
-		debug.LogError("Error publishing message: ", err)
+		logger.Error("Error publishing message: ", err)
 		return err
 	}
 	return nil
@@ -92,10 +92,10 @@ func NatsSetupConnOptions(name string) []natsGo.Option {
 	opts = append(opts, natsGo.MaxReconnects(int(totalWait/reconnectDelay)))
 	opts = append(opts, natsGo.DisconnectErrHandler(func(nc *natsGo.Conn, err error) {
 		str := fmt.Sprintf("Disconnected due to: %s, will attempt reconnects for %.0fm", err, totalWait.Minutes())
-		debug.LogInfo(str)
+		logger.Info(str)
 	}))
 	opts = append(opts, natsGo.ReconnectHandler(func(nc *natsGo.Conn) {
-		debug.LogInfo("Reconnected [", nc.ConnectedUrl(), "]")
+		logger.Info("Reconnected [", nc.ConnectedUrl(), "]")
 	}))
 	opts = append(opts, natsGo.ClosedHandler(func(nc *natsGo.Conn) {
 		log.Panic("Exiting:", nc.LastError())

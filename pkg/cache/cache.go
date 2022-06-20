@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/go-redis/redis/v8"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 type CacheRes int64
@@ -68,7 +68,7 @@ func (c *cache) DeleteToken(token string) error {
 	var ctx = context.Background()
 	_, err := c.client.Del(ctx, token).Result()
 	if err != nil {
-		debug.LogError("Error DeleteToken")
+		logger.Error("Error DeleteToken")
 		return e.ErrCache
 	}
 	return nil
@@ -79,7 +79,7 @@ func (c *cache) DeleteThingId(thingId string) error {
 	var ctx = context.Background()
 	_, err := c.client.Del(ctx, thingId).Result()
 	if err != nil {
-		debug.LogError("Error DeleteToken")
+		logger.Error("Error DeleteToken")
 		return e.ErrCache
 	}
 	return nil
@@ -92,10 +92,10 @@ func (c *cache) GetThingIdByToken(token string) (
 	thingId, err = c.client.Get(ctx, token).Result()
 
 	if err == redis.Nil {
-		debug.LogError("ThingCache token MISS")
+		logger.Error("ThingCache token MISS")
 		return CacheMiss, "", nil
 	} else if err != nil {
-		debug.LogError("Error ThingCache")
+		logger.Error("Error ThingCache")
 		return CacheError, "", e.ErrCache
 	}
 	return CacheHit, thingId, nil
@@ -108,10 +108,10 @@ func (c *cache) GetTokenByThingId(thingId string) (
 	token, err = c.client.Get(ctx, thingId).Result()
 
 	if err == redis.Nil {
-		debug.LogError("ThingCache thingId MISS")
+		logger.Error("ThingCache thingId MISS")
 		return CacheMiss, "", nil
 	} else if err != nil {
-		debug.LogError("Error ThingCache")
+		logger.Error("Error ThingCache")
 		return CacheError, "", e.ErrCache
 	}
 
@@ -124,13 +124,13 @@ func (c *cache) SetTokenWithThingId(token string, thingId string) error {
 
 	err := c.client.Set(ctx, token, thingId, 0).Err()
 	if err != nil {
-		debug.LogError("Error ThingCache, adding token (key) to cache")
+		logger.Error("Error ThingCache, adding token (key) to cache")
 		return e.ErrCache
 	}
 
 	err = c.client.Set(ctx, thingId, token, 0).Err()
 	if err != nil {
-		debug.LogError("Error ThingCache, adding thingId (key) to cache")
+		logger.Error("Error ThingCache, adding thingId (key) to cache")
 		return e.ErrCache
 	}
 

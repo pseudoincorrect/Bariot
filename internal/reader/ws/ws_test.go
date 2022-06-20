@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/gorilla/websocket"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 	"github.com/pseudoincorrect/bariot/tests/mocks/services"
 	"github.com/stretchr/testify/assert"
 )
@@ -49,7 +49,7 @@ func receiveUpdate(howManyMsg int) ([]string, error) {
 	var msgStore []string
 	var sendMsgErr error
 	u := url.URL{Scheme: "ws", Host: address, Path: "/thing"}
-	debug.LogDebug("WS URL:", u.String())
+	logger.Debug("WS URL:", u.String())
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		e.HandleFatal(e.ErrConn, err, "websocket dial")

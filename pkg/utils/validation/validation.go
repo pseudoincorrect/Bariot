@@ -4,7 +4,7 @@ import (
 	"net/mail"
 
 	"github.com/google/uuid"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
 )
 
 // ValidateUUID validates a UUID string

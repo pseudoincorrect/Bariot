@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v4"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 type Database struct {
@@ -35,7 +35,7 @@ func connect(conf DbConfig) (*Database, error) {
 	conn, err := pgx.Connect(context.Background(), dbUrl)
 
 	if err != nil {
-		debug.LogError("Unable to connect to database:", err)
+		logger.Error("Unable to connect to database:", err)
 		return nil, err
 	}
 	return &Database{conn}, nil
@@ -55,7 +55,7 @@ func createThingsTable(db *Database) error {
 
 	_, err := db.conn.Exec(context.Background(), createTable)
 	if err != nil {
-		debug.LogError("Unable to begin :", err)
+		logger.Error("Unable to begin :", err)
 		return err
 	}
 	return nil

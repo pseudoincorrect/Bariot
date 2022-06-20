@@ -11,12 +11,12 @@ import (
 	"github.com/pseudoincorrect/bariot/internal/users/models"
 	"github.com/pseudoincorrect/bariot/internal/users/service"
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
-	"github.com/pseudoincorrect/bariot/pkg/env"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	"github.com/pseudoincorrect/bariot/pkg/utils/env"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 func main() {
-	debug.LogInfo("Users service online")
+	logger.Info("Users service online")
 	usersService, err := createService()
 	if err != nil {
 		log.Panic("Users service creation error", err)
@@ -25,7 +25,7 @@ func main() {
 	if err != nil {
 		log.Panic("Admin creation error", err)
 	}
-	debug.LogInfo("init user service HTTP server")
+	logger.Info("init user service HTTP server")
 	go func() {
 		err = startHttp(usersService)
 		if err != nil {
@@ -78,7 +78,7 @@ func createService() (service.Users, error) {
 	}
 	database, err := db.Init(dbConf)
 	if err != nil {
-		debug.LogError("Database Init error:", err)
+		logger.Error("Database Init error:", err)
 		return nil, err
 	}
 	usersRepo := db.New(database)
@@ -89,7 +89,7 @@ func createService() (service.Users, error) {
 	authClient := authClient.New(authClientConf)
 	err = authClient.StartAuthClient()
 	if err != nil {
-		debug.LogError("Auth client error:", err)
+		logger.Error("Auth client error:", err)
 		return nil, err
 	}
 	return service.New(&usersRepo, &authClient), nil
@@ -109,7 +109,7 @@ func createAdmin(s service.Users) error {
 		return err
 	}
 	if user == nil {
-		debug.LogError("Admin does not exist, creating him...")
+		logger.Error("Admin does not exist, creating him...")
 		hashPass, err := hash.HashPassword(conf.adminPassword)
 		if err != nil {
 			return err

@@ -8,8 +8,8 @@ import (
 	natsGo "github.com/nats-io/nats.go"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
-	e "github.com/pseudoincorrect/bariot/pkg/errors"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	e "github.com/pseudoincorrect/bariot/pkg/utils/errors"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 const host = "localhost"
@@ -37,7 +37,7 @@ func TestMain(m *testing.M) {
 		config.RestartPolicy = docker.RestartPolicy{Name: "no"}
 	})
 	if err != nil {
-		debug.LogError("Open Docker Settings and select 'Expose daemon on tcp://localhost:2375 without TLS'")
+		logger.Error("Open Docker Settings and select 'Expose daemon on tcp://localhost:2375 without TLS'")
 		e.HandleFatal(e.ErrConn, err, "Could not start resource")
 	}
 	ContainerPort := resource.GetPort(port + "/tcp")
@@ -64,8 +64,8 @@ func TestPubSub(t *testing.T) {
 }
 
 func natsHandler(m *natsGo.Msg) {
-	debug.LogDebug("NATS HANDLER")
+	logger.Debug("NATS HANDLER")
 	str := fmt.Sprintf("NATS Message Received on [%s] Queue[%s] Pid[%d]", m.Subject, m.Sub.Queue, os.Getpid())
-	debug.LogInfo(str)
-	debug.LogDebug("NATS Message Payload %s", m.Data)
+	logger.Info(str)
+	logger.Debug("NATS Message Payload %s", m.Data)
 }

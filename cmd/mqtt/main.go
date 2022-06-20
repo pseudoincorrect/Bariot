@@ -10,9 +10,9 @@ import (
 	"github.com/pseudoincorrect/bariot/internal/mqtt/mqtt"
 	auth "github.com/pseudoincorrect/bariot/pkg/auth/client"
 	"github.com/pseudoincorrect/bariot/pkg/cache"
-	"github.com/pseudoincorrect/bariot/pkg/env"
 	nats "github.com/pseudoincorrect/bariot/pkg/nats/client"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	"github.com/pseudoincorrect/bariot/pkg/utils/env"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 func main() {
@@ -50,7 +50,7 @@ func main() {
 		log.Panic(err)
 	}
 	defer mqttSub.Disconnect()
-	debug.LogInfo("Connected to MQTT broker ", conf.mqttHost, " : ", conf.mqttPort)
+	logger.Info("Connected to MQTT broker ", conf.mqttHost, " : ", conf.mqttPort)
 	err = natsClient.Connect(nats.NatsSetupConnOptions("MQTT pub sub"))
 	if err != nil {
 		log.Panic(err)

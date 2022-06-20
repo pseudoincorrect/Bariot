@@ -6,15 +6,15 @@ import (
 	"github.com/pseudoincorrect/bariot/internal/reader/service"
 	"github.com/pseudoincorrect/bariot/internal/reader/ws"
 	authClient "github.com/pseudoincorrect/bariot/pkg/auth/client"
-	"github.com/pseudoincorrect/bariot/pkg/env"
 	natsClient "github.com/pseudoincorrect/bariot/pkg/nats/client"
 	thingsClient "github.com/pseudoincorrect/bariot/pkg/things/client"
-	"github.com/pseudoincorrect/bariot/pkg/utils/debug"
+	"github.com/pseudoincorrect/bariot/pkg/utils/env"
+	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 func main() {
 	conf := loadConfig()
-	debug.LogInfo("Reader service online")
+	logger.Info("Reader service online")
 	reader := createService()
 	wsConfig := ws.Config{
 		Host:    conf.readerWsHost,
