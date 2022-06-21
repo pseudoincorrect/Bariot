@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
 const (
@@ -148,7 +147,6 @@ func (s *authService) GetClaimsUserToken(tokenString string) (*UserAuthClaim, er
 		return nil, err
 	}
 	if claims, ok := token.Claims.(*UserAuthClaim); ok && token.Valid {
-		logger.Info(claims)
 		return claims, nil
 	}
 	return nil, jwt.ErrInvalidKey

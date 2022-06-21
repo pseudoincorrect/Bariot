@@ -24,7 +24,7 @@ func (m *NatsClientMock) Connect(opts []natsGo.Option) error {
 func (m *NatsClientMock) Disconnect() {
 }
 
-func (m *NatsClientMock) Subscribe(subject string, queue string, handler natsGo.MsgHandler) (*natsGo.Subscription, error) {
+func (m *NatsClientMock) Subscribe(subject string, handler natsGo.MsgHandler) (*natsGo.Subscription, error) {
 	args := m.Called()
 	return nil, args.Error(0)
 }

@@ -20,7 +20,6 @@ import (
 func main() {
 	var w influxdbWriter
 	const natsThingsSubject = "thingsMsg.>"
-	const natsThingsQueue = "things"
 	config := loadConfig()
 	w.conf = &config
 	err := w.connectToInfluxdb()
@@ -37,7 +36,7 @@ func main() {
 	defer w.natsDisconnect()
 	logger.Info("Connected to nats", w.natsConn.ConnectedUrl())
 
-	err = w.natsSubscribe(natsThingsSubject, natsThingsQueue, w.getNatsMsgHandler())
+	err = w.natsSubscribe(natsThingsSubject, w.getNatsMsgHandler())
 	if err != nil {
 		log.Panic(err)
 	}
@@ -175,8 +174,8 @@ func natsSetupConnOptions(opts []nats.Option) []nats.Option {
 }
 
 // natsSubscribe subscribe to a topic/subject with a custom handler and a queue
-func (w *influxdbWriter) natsSubscribe(subject string, queue string, handler nats.MsgHandler) error {
-	w.natsConn.QueueSubscribe(subject, queue, handler)
+func (w *influxdbWriter) natsSubscribe(subject string, handler nats.MsgHandler) error {
+	w.natsConn.Subscribe(subject, handler)
 	w.natsConn.Flush()
 	if err := w.natsConn.LastError(); err != nil {
 		log.Panic(err)

@@ -14,6 +14,7 @@ import (
 )
 
 const closedConn = "wsasend"
+const chanThingDataSize = 10
 
 var upgrader = websocket.Upgrader{}
 
@@ -81,7 +82,7 @@ func getSingleThingEndpoint(s service.Reader) http.HandlerFunc {
 		}
 		thingId := msgJson.ThingId
 		stop := make(chan bool)
-		thingData := make(chan string)
+		thingData := make(chan string, chanThingDataSize)
 		// function to be called when data is received
 		handler := func(msg string) {
 			// logger.Debug(msg)

@@ -15,7 +15,7 @@ const natsThingsSubject = "thingsMsg"
 type Nats interface {
 	Connect(opts []natsGo.Option) error
 	Disconnect()
-	Subscribe(subject string, queue string, handler natsGo.MsgHandler) (*natsGo.Subscription, error)
+	Subscribe(subject string, handler natsGo.MsgHandler) (*natsGo.Subscription, error)
 	CreatePublisher() NatsPubType
 	Publish(subject string, payload string) error
 }
@@ -59,8 +59,8 @@ func (nps *nats) Disconnect() {
 }
 
 // natsSubscribe subscribe to a topic/subject with a custom handler and a queue
-func (nps *nats) Subscribe(subject string, queue string, handler natsGo.MsgHandler) (*natsGo.Subscription, error) {
-	sub, err := nps.conn.QueueSubscribe(subject, queue, handler)
+func (nps *nats) Subscribe(subject string, handler natsGo.MsgHandler) (*natsGo.Subscription, error) {
+	sub, err := nps.conn.Subscribe(subject, handler)
 	if err != nil {
 		err = e.Handle(e.ErrNats, err, "nats subscribe thing id")
 		return nil, err
