@@ -187,21 +187,13 @@ func (w *influxdbWriter) natsSubscribe(subject string, queue string, handler nat
 // natsThingsMsgHandler handles nats message by decoding to senml format
 func (w *influxdbWriter) getNatsMsgHandler() nats.MsgHandler {
 	return func(natsMsg *nats.Msg) {
-		printNatsMsg(natsMsg)
+		// printer.PrintNatsMsg(natsMsg)
 		msg, err := decodeNatsThingMsg(natsMsg)
 		if err != nil {
 			return
 		}
 		w.influxdbWrite(msg)
 	}
-}
-
-// printNatsMsg print a nats message
-func printNatsMsg(m *nats.Msg) {
-	str := fmt.Sprintf("NATS Message Received on [%s] Queue[%s] Pid[%d]", m.Subject, m.Sub.Queue, os.Getpid())
-	logger.Info(str)
-	str = fmt.Sprintf("NATS Message Payload %s", m.Data)
-	logger.Info(str)
 }
 
 // decodeSenmlMsg decodes a JSON message into a SenML message

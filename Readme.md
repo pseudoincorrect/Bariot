@@ -48,6 +48,7 @@ Deployment on AWS EC2 [here][awsdeploy]. (with docker-compose)
 - Services intercommunication: [gRpc][grpc]
 - Services messaging: [Nats][nats]
 - Data presentation: [Grafana][grafana]
+- Data streaming: [Websockets][websockets]
 - Reverse proxy: [Nginx][nginx]
 - Caching: [Redis][redis]
 - Testing Unit, Integration, End to End: [GoTest][gotest]
@@ -56,7 +57,7 @@ Deployment on AWS EC2 [here][awsdeploy]. (with docker-compose)
 
 - Transport: [OPC-UA][opc-ua]
 - CI/CD: [Gitlab][gitlab]
-- Permission system: to be decided
+- Permission system (IAM): to be decided
 
 <br/>
 
@@ -77,7 +78,8 @@ Deployment on AWS EC2 [here][awsdeploy]. (with docker-compose)
 [nats]: https://docs.nats.io/nats-concepts/what-is-nats
 [opc-ua]: https://www.opc-router.com/what-is-opc-ua/
 [grafana]: https://www.scaleyourapp.com/what-is-grafana-why-use-it-everything-you-should-know-about-it/
-[ngnix]: https://medium.com/globant/understanding-nginx-as-a-reverse-proxy-564f76e856b2
+[websockets]: https://ably.com/topic/websockets
+[nginx]: https://medium.com/globant/understanding-nginx-as-a-reverse-proxy-564f76e856b2
 [redis]: https://redis.io/topics/introduction
 [gotest]: https://pkg.go.dev/testing
 [vault]: https://www.vaultproject.io/docs/what-is-vault

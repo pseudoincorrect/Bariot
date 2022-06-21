@@ -39,7 +39,7 @@ func (s *reader) AuthorizeSingleThing(userToken string, thingId string) error {
 	if err != nil {
 		return e.Handle(e.ErrAuthn, err, "unauthorized")
 	}
-	userId2, err := s.things.GetUserOfThing(ctx, userId)
+	userId2, err := s.things.GetUserOfThing(ctx, thingId)
 	if err != nil {
 		return err
 	}

@@ -10,17 +10,17 @@
 |     | DOCKER | Pre-compile docker images to speed up deployments |
 |     | MQTT   | Securing and Authorizing MQTT pub/sub with JSON   |
 |     | LOG    | Improve logging                                   |
-|     | HTTP   | Add a user/thing data reading endpoint            |
+|     | HTTP   | Add a user/thing data reading HTTP endpoint       |
 |     |        |                                                   |
 
 <br>
  
 ## **IN PROCESS**
 
-|     | Tag | Description                        |
-| --- | --- | ---------------------------------- |
-|     | WS  | Add a thing data reading websocket |
-|     |     |                                    |
+|     | Tag | Description                                 |
+| --- | --- | ------------------------------------------- |
+|     | WS  | Add a thing data reading websocket endpoint |
+|     |     |                                             |
 
 <br>
 

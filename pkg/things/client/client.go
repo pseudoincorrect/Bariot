@@ -33,10 +33,10 @@ type thingsClient struct {
 	Client pb.ThingsClient
 }
 
-// StartThingsClient starts the auth client GRPC server
+// StartThingsClient starts the things client GRPC server
 func (c *thingsClient) StartThingsClient() error {
 	addr := c.Conf.Host + ":" + c.Conf.Port
-	logger.Info("init user service GRPC client to ", addr)
+	logger.Info("init things service GRPC client to ", addr)
 	conn, err := grpc.Dial(
 		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),

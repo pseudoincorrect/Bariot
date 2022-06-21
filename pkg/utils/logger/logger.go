@@ -30,7 +30,6 @@ func Warn(a ...interface{}) {
 	if warn {
 		log.Println(getCallerInfo("WARN", 2))
 		log.Println(a...)
-		log.Print("hey")
 	}
 }
 func Error(a ...interface{}) {
@@ -43,9 +42,12 @@ func Error(a ...interface{}) {
 func getCallerInfo(logType string, depth int) string {
 	_, file, no, ok := runtime.Caller(depth)
 	if ok {
-		splits := strings.Split(file, "/")
-		fileName := splits[len(splits)-1]
-		return fmt.Sprintf("[%s FROM]  %s  [LINE]  %d", logType, fileName, no)
+		path := file
+		if strings.Contains(file, "bariot") {
+			splits := strings.Split(file, "bariot")
+			path = "bariot" + splits[1]
+		}
+		return fmt.Sprintf("[%s FROM]  %s  [LINE]  %d", logType, path, no)
 	}
 	return ""
 }

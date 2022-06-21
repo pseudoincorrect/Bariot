@@ -20,6 +20,7 @@ type server struct {
 // GetAdminToken returns a JWT token for the admin user
 func (s *server) GetUserOfThing(ctx context.Context,
 	in *tGrpc.GetUserOfThingRequest) (*tGrpc.GetUserOfThingResponse, error) {
+	logger.Debug("GetUserOfThing Request")
 	userId, err := s.Service.GetUserOfThing(ctx, in.ThingId)
 	if err != nil {
 		return nil, err

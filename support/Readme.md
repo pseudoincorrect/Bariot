@@ -1,7 +1,21 @@
 # SUPPORT
 
-## support/ folder contain various documents used in he development of Bariot
+### The support/ folder contain various documents used in he development of Bariot
 
-- gotchas.md : list of problem with their solution encountered in the development
-- tips.md: list of advices and commands to facilitate the development
-- dev_guide.md : guide to help the developers to start developing with Bariot
+<br>
+
+### gotchas.md
+
+List of problem with their solution encountered in the development
+
+<br>
+
+### tips.md
+
+List of advices and commands to facilitate the development
+
+<br>
+
+### dev_guide.md
+
+Guide to help the developers to start developing with Bariot

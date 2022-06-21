@@ -60,10 +60,13 @@ func createService() service.Reader {
 	conf := loadConfig()
 	authConf := authClient.Conf{Host: conf.authGrpcHost, Port: conf.authGrpcPort}
 	auth := authClient.New(authConf)
+	auth.StartAuthClient()
 	thingsConf := thingsClient.Conf{Host: conf.thingsGrpcHost, Port: conf.thingsGrpcPort}
 	things := thingsClient.New(thingsConf)
+	things.StartThingsClient()
 	natsConf := natsClient.Conf{Host: conf.natsHost, Port: conf.natsPort}
 	nats := natsClient.New(natsConf)
+	nats.Connect(natsClient.NatsSetupConnOptions("reader"))
 	reader := service.New(&auth, &things, &nats)
 	return &reader
 }

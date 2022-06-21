@@ -168,6 +168,7 @@ func (s *thingsService) UserOnly(ctx context.Context, token string) (string, err
 
 // Return the User ID of a given Thing ID
 func (s *thingsService) GetUserOfThing(ctx context.Context, thingId string) (string, error) {
+	logger.Debug("thingId : ", thingId)
 	thing, err := s.GetThing(ctx, thingId)
 	if err != nil {
 		return "", err

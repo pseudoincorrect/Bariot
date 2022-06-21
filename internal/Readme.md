@@ -1,3 +1,3 @@
 # INTERNAL
 
-## internal/ folder regroup the code private to each microservices
+### The internal/ folder regroups the code private to each microservices

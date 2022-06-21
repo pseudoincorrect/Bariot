@@ -1,6 +1,6 @@
-SCRIPTS
+# SCRIPTS
 
-## contains various script and self contained code to develop and test various Bariot functionality
+### The scrips/ folder contains various scripts and self contained code to develop and test various Bariot functionality
 
 ### example:
 

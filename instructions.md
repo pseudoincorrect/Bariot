@@ -417,19 +417,6 @@ $ ./venv/Scripts/activate
 (venv) $ python ./complete_test.py
 ```
 
-<br>
-<br>
-
----
-
-**Limit of the current system :**
-
-Please note that the above query is for **ALL things data**, at the moment we cannot restrict the data on a per user or per thing basis.
-
-This is the next step, since Grafana is not made for user authorization and data restriction (it has access to the whole influxdb DB).
-
-In order to enable/restrict each user to access/visualize only his data, a custom HTTP endpoint and visualization tool (frontend) has to be made.
-
 ---
 
 [puttyec2]: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html

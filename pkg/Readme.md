@@ -1,8 +1,8 @@
 # PKG
 
-## pkg/ folder regroup the code shared with all microservices:
+### The pkg/ folder regroups the code shared with all microservices
 
-Mainly:
+### For instance
 
 - Clients (auth, nats, things, cache)
 - Error handling

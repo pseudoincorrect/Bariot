@@ -69,7 +69,6 @@ func StartServer(addr string, wg *sync.WaitGroup, s service.Reader) *http.Server
 // getSingleThingEndpoint return a HTTP/WS handler to get a continuous stream of thing data
 func getSingleThingEndpoint(s service.Reader) http.HandlerFunc {
 	singleThingHandler := func(w http.ResponseWriter, r *http.Request) {
-		logger.Debug("got a connection on WS", r.URL.String())
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			e.Handle(e.ErrConn, err, "upgrade")

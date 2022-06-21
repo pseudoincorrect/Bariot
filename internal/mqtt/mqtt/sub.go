@@ -108,9 +108,8 @@ func (sub *mqttSub) Subscriber(topic string, qos byte,
 	stringHandler := func(client paho.Client, msg paho.Message) {
 		msgTopic := msg.Topic()
 		msgPayload := msg.Payload()
-		logger.Debug("MQTT msg RECEIVED")
-		logger.Debug("MQTT topic:  ", msgTopic)
-		logger.Debug("MQTT payload:", msgPayload)
+		// logger.Debug("MQTT msg topic:  ", msgTopic)
+		// logger.Debug("MQTT payload:", string(msgPayload))
 		jwt, sensorData, err := ExtractData(msgPayload)
 		if err != nil {
 			logger.Error(err.Error())
