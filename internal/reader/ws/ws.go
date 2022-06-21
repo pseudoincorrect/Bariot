@@ -84,6 +84,7 @@ func getSingleThingEndpoint(s service.Reader) http.HandlerFunc {
 		thingData := make(chan string)
 		// function to be called when data is received
 		handler := func(msg string) {
+			// logger.Debug(msg)
 			thingData <- msg
 		}
 		// handler will be subscribed to thing id subject

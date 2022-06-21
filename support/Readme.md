@@ -6,7 +6,7 @@
 
 ### gotchas.md
 
-List of problem with their solution encountered in the development
+List of problems and their solutions encountered in the development
 
 <br>
 

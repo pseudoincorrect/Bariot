@@ -11,7 +11,7 @@ import (
 	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
-const natsThingsSubject = "thingsMsg.>"
+const natsThingsSubject = "thingsMsg"
 const natsThingsQueue = "things"
 
 type Reader interface {
@@ -53,7 +53,9 @@ func (s *reader) AuthorizeSingleThing(userToken string, thingId string) error {
 func (s *reader) ReceiveThingData(
 	thingId string, handler func(string), stop chan bool,
 ) error {
-	subject := natsThingsSubject + thingId
+	subject := natsThingsSubject + "." + thingId
+	// subject := ">"
+	// subject := natsThingsSubject
 	sub, err := s.nats.Subscribe(
 		subject, natsThingsQueue,
 		GetReceiveThingIdDataHandler(handler),
@@ -71,9 +73,10 @@ func (s *reader) ReceiveThingData(
 
 func GetReceiveThingIdDataHandler(handler func(string)) natsGo.MsgHandler {
 	return func(msg *natsGo.Msg) {
-		logger.Debug("--- GetReceiveThingIdDataHandler ---")
-		logger.Debug(msg)
-		logger.Debug("---")
+		// logger.Debug("--- GetReceiveThingIdDataHandler ---")
+		// logger.Debug(msg.Subject)
+		// logger.Debug(string(msg.Data))
+		logger.Debug("----- Got a msg from NATS, sending to WEBSOCKETS -----")
 		handler(string(msg.Data))
 	}
 }

@@ -1,15 +1,12 @@
 import asyncio
+import threading
+import time
 import pkg.users_and_things as u_and_t
 import pkg.senml as senml
 import pkg.mqtt as mqtt
 import pkg.websocket as ws
 from contextlib import suppress
-import signal
-import sys
 import json
-
-
-user_id, thing_id = None, None
 
 
 def create_mqtt_msg(thing_token):
@@ -21,11 +18,6 @@ def create_mqtt_msg(thing_token):
 def send_mqtt_msg(thing_id, msg):
     ''' Send a message to the MQTT broker.'''
     mqtt.send_message(thing_id, msg)
-
-
-def signal_handler(sig, frame):
-    u_and_t.delete_user_and_thing(user_id, thing_id)
-    sys.exit(0)
 
 
 def save_to_file(json_data):
@@ -48,42 +40,24 @@ async def create_send_delete():
     data = {"user_id": user_id, "thing_id": thing_id}
     save_to_file(data)
 
-    # task = None
-    # try:
-    #     task = asyncio.Task(ws.getThingIdData(user_token, thing_id))
-    # except Exception as e:
-    #     print(e)
+    task = asyncio.create_task(
+        ws.get_thing_id_data(user_token, thing_id))
+    await asyncio.sleep(3)
 
-    # await asyncio.sleep(3)
+    print("Sending MQTT messages")
+    for _ in range(10):
+        try:
+            msg = create_mqtt_msg(thing_token)
+            send_mqtt_msg(thing_id, msg)
+            await asyncio.sleep(1)
+        except Exception as e:
+            print(e)
 
-    # print("Sending MQTT messages")
-    # try:
-    #     msg = create_mqtt_msg(thing_token)
-    #     send_mqtt_msg(thing_id, msg)
-    # except Exception as e:
-    #     print(e)
+    await asyncio.sleep(3)
 
-    # print("Waiting for WS responses")
+    task.cancel()
+    u_and_t.delete_user_and_thing(user_id, thing_id)
 
-    # await asyncio.sleep(3)
-
-    # task.cancel()
-    # with suppress(asyncio.CancelledError):
-    #     await task  #
-
-    # u_and_t.delete_user_and_thing(user_id, thing_id)
-
-
-# async def run_main_loop():
-
-signal.signal(signal.SIGINT, signal_handler)
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-try:
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
     loop.run_until_complete(create_send_delete())
-finally:
-    loop.run_until_complete(loop.shutdown_asyncgens())
-    loop.close()
-
-# if __name__ == "__main__":
-# await run_main_loop()

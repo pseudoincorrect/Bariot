@@ -74,7 +74,6 @@ func (c *authClient) IsAdmin(ctx context.Context, token string) (isAdmin bool, e
 // IsWhichUser checks if the user is a user given a token, return role, user id
 func (c *authClient) IsWhichUser(ctx context.Context, token string) (role string, userId string, err error) {
 	claims, err := c.Client.GetClaimsUserToken(ctx, &pb.GetClaimsUserTokenRequest{Jwt: token})
-	logger.Info(claims)
 	if err != nil {
 		logger.Error("IsWhichUser GetClaimsUserToken error:", err)
 		return "", "", err

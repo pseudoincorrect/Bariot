@@ -10,7 +10,7 @@ import (
 	"github.com/pseudoincorrect/bariot/pkg/utils/logger"
 )
 
-const natsThingsSubject = "thingsMsg.>"
+const natsThingsSubject = "thingsMsg"
 
 type Nats interface {
 	Connect(opts []natsGo.Option) error

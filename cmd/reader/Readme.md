@@ -2,7 +2,7 @@
 
 ## Service for reading things (sensor) data
 
-- intercept Nats messages
+- Intercept Nats messages
 - Websocket server for realtime data streaming
 
 ## Rely on the following services

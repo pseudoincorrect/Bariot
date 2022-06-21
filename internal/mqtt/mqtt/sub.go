@@ -106,6 +106,7 @@ func (sub *mqttSub) Subscriber(topic string, qos byte,
 	authorizer Authorizer, handler nats.NatsPubType) error {
 
 	stringHandler := func(client paho.Client, msg paho.Message) {
+		logger.Debug("xxxxxxxx  Got a MQTT message")
 		msgTopic := msg.Topic()
 		msgPayload := msg.Payload()
 		// logger.Debug("MQTT msg topic:  ", msgTopic)

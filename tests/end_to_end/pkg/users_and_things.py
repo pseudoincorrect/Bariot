@@ -51,6 +51,20 @@ def get_thing_token(user_token, thing_id):
     return http.get_thing_token(user_token, thing_id)
 
 
+def delete_user(user_id):
+    ''' Delete a user '''
+    admin_token = get_admin_token()
+    deleted_user_id = http.delete_user(admin_token, user_id)
+    print("deleted user id: ", deleted_user_id)
+
+
+def delete_thing(thing_id):
+    ''' Delete a user and a thing '''
+    admin_token = get_admin_token()
+    deleted_thing_id = http.delete_thing(admin_token, thing_id)
+    print("deleted thing id: ", deleted_thing_id)
+
+
 def delete_user_and_thing(user_id, thing_id):
     ''' Delete a user and a thing '''
     admin_token = get_admin_token()
