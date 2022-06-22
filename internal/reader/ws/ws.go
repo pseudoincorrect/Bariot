@@ -45,8 +45,7 @@ type Config struct {
 
 // Start the configuration of the server
 func Start(conf Config) wsServer {
-	addr := ":" + conf.Port
-	// addr := conf.Host + ":" + conf.Port
+	addr := conf.Host + ":" + conf.Port
 	httpServerExitDone := &sync.WaitGroup{}
 	httpServerExitDone.Add(1)
 	srv := StartServer(addr, httpServerExitDone, conf.Service)

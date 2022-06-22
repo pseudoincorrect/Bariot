@@ -1,5 +1,3 @@
-import asyncio
-from time import sleep
 import paho.mqtt.client as mqtt
 import json
 
@@ -43,7 +41,6 @@ def format_message(thing_token, payload):
     msg["token"] = thing_token
     msg["Records"] = json.loads(payload)
     json_msg = json.dumps(msg)
-    print("Sending a MQTT message")
     return json_msg
 
 
@@ -58,8 +55,7 @@ def send_message(thing_id, msg):
     mqttc.connect(BARIOT_HOST, 1883, 60)
     mqttc.subscribe_all()
     mqttc.loop_start()
-    mqttc.publish(topic, msg, qos=2)
-    # timeout = 2
-    # while timeout > 0:
-    #     timeout -= 1
-    #     await asyncio.sleep(1)
+    ret = mqttc.publish(topic, msg, qos=2)
+    status = ret[0]
+    if status != 0:
+        print("error publish on MQTT topic", topic)

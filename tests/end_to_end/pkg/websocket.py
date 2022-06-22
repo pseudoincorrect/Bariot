@@ -1,27 +1,26 @@
 
 import asyncio
-from time import sleep
 import websockets
 import json
 import threading
 
 
 async def get_thing_id_data(usr_token: str, thing_id: str):
+    ''' Will connect to bariot with websocket and poll for received data '''
     async with websockets.connect("ws://localhost:80/reader/thing") as websocket:
-        print("WS connect and listen")
+        print("WebSocket connected and listening")
         rec = None
         msg = {
             "token": usr_token,
             "thingId": thing_id,
         }
         msgJson = json.dumps(msg)
-        # print("WS msg json", msgJson)
         await websocket.send(msgJson)
-
         while True:
             try:
                 rec = await websocket.recv()
-                print(rec)
+                print("Received SenML message: ",
+                      rec[:20], " ... ", rec[len(rec)-20:])
             except Exception as e:
                 print(e)
                 return

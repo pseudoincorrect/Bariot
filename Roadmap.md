@@ -8,19 +8,19 @@
 | --- | ------ | ------------------------------------------------- |
 |     | TEST   | Automate end to end testing with gitlab           |
 |     | DOCKER | Pre-compile docker images to speed up deployments |
-|     | MQTT   | Securing and Authorizing MQTT pub/sub with JSON   |
 |     | LOG    | Improve logging                                   |
 |     | HTTP   | Add a user/thing data reading HTTP endpoint       |
+|     | MAKE   | Create a makefile                                 |
 |     |        |                                                   |
 
 <br>
  
 ## **IN PROCESS**
 
-|     | Tag | Description                                 |
-| --- | --- | ------------------------------------------- |
-|     | WS  | Add a thing data reading websocket endpoint |
-|     |     |                                             |
+|     | Tag  | Description                                     |
+| --- | ---- | ----------------------------------------------- |
+|     | MQTT | Securing and Authorizing MQTT pub/sub with JSON |
+|     |      |                                                 |
 
 <br>
 
@@ -28,6 +28,7 @@
 
 | Date       | Tag      | Description                                     |
 | ---------- | -------- | ----------------------------------------------- |
+| 21/06/2022 | WS       | Thing data streaming websocket endpoint         |
 | 09/06/2022 | TEST     | Test things, users, auth (unit + integration)   |
 | 30/05/2022 | REDIS    | Delete thing token from cache + new token case  |
 | 29/05/2022 | REDIS    | Use Redis to cache auth data on MQTT endpoint   |

@@ -48,7 +48,7 @@ func TestThingGetEndpointAuthSuccess(t *testing.T) {
 func receiveUpdate(howManyMsg int) ([]string, error) {
 	var msgStore []string
 	var sendMsgErr error
-	u := url.URL{Scheme: "ws", Host: address, Path: "/thing"}
+	u := url.URL{Scheme: "ws", Host: address, Path: "reader/thing"}
 	logger.Debug("WS URL:", u.String())
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {

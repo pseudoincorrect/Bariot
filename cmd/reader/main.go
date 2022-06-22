@@ -21,7 +21,7 @@ func main() {
 	logger.Info("Reader service online")
 	reader := createService()
 	wsConfig := ws.Config{
-		Host:    conf.readerWsHost,
+		Host:    "",
 		Port:    conf.readerWsPort,
 		Service: reader,
 	}

@@ -69,10 +69,6 @@ func (s *reader) ReceiveThingData(
 
 func GetReceiveThingIdDataHandler(handler func(string)) natsGo.MsgHandler {
 	return func(msg *natsGo.Msg) {
-		// logger.Debug("--- GetReceiveThingIdDataHandler ---")
-		// logger.Debug(msg.Subject)
-		// logger.Debug(string(msg.Data))
-		// logger.Debug("-------- Got a msg from NATS, sending to WEBSOCKETS -----")
 		handler(string(msg.Data))
 	}
 }

@@ -15,7 +15,6 @@ import (
 const host = "localhost"
 const port = "4222"
 const subSubject = "thingsMsg.>"
-const queue = "things"
 
 var nps nats
 
@@ -57,7 +56,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestPubSub(t *testing.T) {
-	nps.Subscribe(subSubject, queue, natsHandler)
+	nps.Subscribe(subSubject, natsHandler)
 	thingId := "000-000-001"
 	pubSubject := subSubject + "." + thingId
 	nps.Publish(pubSubject, "123456789")
@@ -67,5 +66,5 @@ func natsHandler(m *natsGo.Msg) {
 	logger.Debug("NATS HANDLER")
 	str := fmt.Sprintf("NATS Message Received on [%s] Queue[%s] Pid[%d]", m.Subject, m.Sub.Queue, os.Getpid())
 	logger.Info(str)
-	logger.Debug("NATS Message Payload %s", m.Data)
+	logger.Debug("NATS Message Payload", m.Data)
 }

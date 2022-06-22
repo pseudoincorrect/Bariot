@@ -18,6 +18,8 @@
     "ioutil",
     "mainflux",
     "microservices",
+    "modif",
+    "modifs",
     "Mosquitto",
     "mqtt",
     "mqttc",

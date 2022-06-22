@@ -407,9 +407,12 @@ Python scripts are used to automated the test of bariot.
 
 Head to .../Bariot/tests/end_to_end/
 
-The following command will create a user, a thing and send a mqtt message.
+The following commands will:
 
-Then it will clean the resources created (user and things).
+- Create a user and a thing
+- Send a mqtt message
+- Connect to Websocket endpoint and receive data
+- Clean the resources created
 
 ```console
 $ ./venv/Scripts/activate
