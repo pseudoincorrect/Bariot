@@ -1,8 +1,8 @@
 # SCRIPTS
 
-### The scrips/ folder contains various scripts and self contained code to develop and test various Bariot functionality
+### The _scrips/_ folder contains various scripts and self contained code to develop and test various Bariot functionalities:
 
-### example:
+<br>
 
-- sending data to influxdb
-- sending data to mqtt broker
+- Sending data to influxdb
+- Sending data to mqtt broker

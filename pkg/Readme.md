@@ -1,6 +1,6 @@
 # PKG
 
-### The pkg/ folder regroups the code shared with all microservices
+### The _pkg/_ folder regroups the code shared with all microservices
 
 ### For instance
 

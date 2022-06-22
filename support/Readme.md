@@ -1,6 +1,6 @@
 # SUPPORT
 
-### The support/ folder contain various documents used in he development of Bariot
+### The _support/_ folder contain various documents used in he development of Bariot
 
 <br>
 

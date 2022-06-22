@@ -1,6 +1,6 @@
 # TESTS
 
-## Contains the code and tools for testing Bariot
+## The _tests/_ folder contains codes and tools for testing Bariot
 
 ### Unit and integration tests are located in their services' folders, among source code (cmd, pkg, internal).
 

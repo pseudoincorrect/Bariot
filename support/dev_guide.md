@@ -4,13 +4,13 @@
 
 ### Complete the instruction.md tutorial
 
-### First have a look at the build/docker/ folder and the docker-compose file to a quick glance on the architecture
+### Have a look at the build/docker/ folder and the docker-compose file to a quick glance on the architecture
 
-### Then every microservice starts within the cmd/ folder with each main.go files
+### Then to every main.go files, as each microservice starts within the cmd/ folder
 
-### The Readme.md files will make you understand the folder architecture
+### Readme.md files will make you understand the folder architecture
 
-### Look a the tests for most of the go files
+### Look at the ...\_tests.go files
 
 ---
 
@@ -20,16 +20,19 @@ Let's say that you ran the following command and all went well
 
 ```console
 $ cd bariot
-# test will fail if bariot is running (with "docker-compose up")
+
+Note: Tests will fail if bariot is running (with "docker-compose up")
+
 $ go test ./...
 $ cd build/docker
 $ docker-compose up -d
 $ docker-compose logs -f --tail 5
 
-# on another terminal
+On another terminal, run:
+
 $ cd bariot/test/end_to_end
 $ ./venv/Scripts/activate
-(venv) $ python complete_test.py
+$(venv) python complete_test.py
 ```
 
 Now let's make some modifs to (for instance) pkg/things/client/client.go in order to change the behavior of the _reader_ microservice.
